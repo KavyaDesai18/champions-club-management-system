@@ -35,4 +35,19 @@ public class AuditService {
         auditLogRepository.save(auditLog);
         log.info("Audit recorded: action={}, entityType={}, entityId={}", action, entityType, entityId);
     }
+
+    @Transactional
+    public void log(String action, String details, String actor, UUID entityId) {
+        AuditLog auditLog = AuditLog.builder()
+                .userId(null)
+                .action(action)
+                .entityType("MEMBER")
+                .entityId(entityId != null ? entityId.toString() : null)
+                .details(details + (actor != null ? " [Actor: " + actor + "]" : ""))
+                .ipAddress("127.0.0.1")
+                .createdAt(clock.instant())
+                .build();
+        auditLogRepository.save(auditLog);
+        log.info("Audit recorded: action={}, details={}", action, details);
+    }
 }

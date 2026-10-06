@@ -28,6 +28,22 @@ public class GlobalExceptionHandler {
         this.clock = clock;
     }
 
+    @ExceptionHandler(DuplicateMemberException.class)
+    public ResponseEntity<ApiErrorResponse> handleDuplicateMemberException(DuplicateMemberException ex, HttpServletRequest request) {
+        log.warn("Duplicate member: [{}] {}", ex.getCode(), ex.getMessage());
+        ApiErrorResponse body = ApiErrorResponse.builder()
+                .timestamp(clock.instant())
+                .status(HttpStatus.CONFLICT.value())
+                .code(ex.getCode())
+                .message(ex.getMessage())
+                .existingMemberId(ex.getExistingMemberId())
+                .existingMemberNo(ex.getExistingMemberNo())
+                .path(request.getRequestURI())
+                .traceId(getTraceId())
+                .build();
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
     @ExceptionHandler(ChampionsClubException.class)
     public ResponseEntity<ApiErrorResponse> handleChampionsClubException(ChampionsClubException ex, HttpServletRequest request) {
         log.warn("Application exception: [{}] {}", ex.getCode(), ex.getMessage());

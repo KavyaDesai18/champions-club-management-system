@@ -20,6 +20,8 @@ public class ApiErrorResponse {
     private String code;
     private String message;
     private List<FieldErrorItem> fieldErrors;
+    private String existingMemberId;
+    private String existingMemberNo;
     private String path;
     private String traceId;
 }

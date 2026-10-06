@@ -17,6 +17,8 @@ import StaffLayout from './pages/staff/StaffLayout';
 import StaffConsoleHome from './pages/staff/StaffConsoleHome';
 import UserManagementPage from './pages/staff/UserManagementPage';
 import StyleguidePage from './pages/styleguide/StyleguidePage';
+import MembersListPage from './pages/members/MembersListPage';
+import Member360Page from './pages/members/Member360Page';
 
 // Auth Pages
 import LoginPage from './pages/auth/LoginPage';
@@ -84,6 +86,8 @@ export function App() {
                 >
                   <Route path="/console" element={<StaffLayout />}>
                     <Route index element={<StaffConsoleHome />} />
+                    <Route path="members" element={<MembersListPage />} />
+                    <Route path="members/:id" element={<Member360Page />} />
                     <Route path="checkin" element={<StaffConsoleHome />} />
                     <Route path="kitchen" element={<StaffConsoleHome />} />
                     <Route path="bar" element={<StaffConsoleHome />} />

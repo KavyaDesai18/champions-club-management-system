@@ -27,21 +27,28 @@ import { useAuth } from '../../context/AuthContext';
 
 export const allConsoleMenuItems = [
   { id: 'dashboard', label: 'Operations Board', icon: LayoutDashboard, path: '/console', roles: ['OWNER', 'MANAGER', 'FRONT_DESK', 'COACH'] },
-  { id: 'checkin', label: 'Front Desk Check-in', icon: Users, path: '/console/checkin', roles: ['OWNER', 'MANAGER', 'FRONT_DESK'] },
+  { id: 'members', label: 'Members Directory', icon: Users, path: '/console/members', roles: ['OWNER', 'MANAGER', 'FRONT_DESK'] },
+  { id: 'checkin', label: 'Front Desk Check-in', icon: Activity, path: '/console/checkin', roles: ['OWNER', 'MANAGER', 'FRONT_DESK'] },
   { id: 'kitchen', label: 'Kitchen KDS Queue', icon: UtensilsCrossed, path: '/console/kitchen', roles: ['OWNER', 'MANAGER', 'KITCHEN'] },
   { id: 'bar', label: 'Bar & Lounge Tabs', icon: Coffee, path: '/console/bar', roles: ['OWNER', 'MANAGER', 'BAR_STAFF'] },
   { id: 'shop', label: 'Pro Shop & Equipment', icon: ShoppingBag, path: '/console/shop', roles: ['OWNER', 'MANAGER', 'SHOP_STAFF'] },
   { id: 'audit', label: 'Audit & Compliance', icon: FileText, path: '/console/audit', roles: ['OWNER', 'MANAGER'] },
   { id: 'settings', label: 'System Configuration', icon: Settings, path: '/console/settings', roles: ['OWNER'] },
-  { id: 'users', label: 'User & Role Management', icon: Users, path: '/console/users', roles: ['OWNER', 'MANAGER'] },
+  { id: 'users', label: 'User & Role Management', icon: Shield, path: '/console/users', roles: ['OWNER', 'MANAGER'] },
 ];
 
 export const StaffLayout = () => {
-  const { logout } = useAuth();
-  const [currentRole, setCurrentRole] = useState('FRONT_DESK');
+  const { user, logout } = useAuth();
+  const [currentRole, setCurrentRole] = useState(user?.role || 'FRONT_DESK');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    if (user?.role) {
+      setCurrentRole(user.role);
+    }
+  }, [user?.role]);
 
   const roles = [
     'OWNER',
