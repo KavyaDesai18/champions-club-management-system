@@ -1,6 +1,6 @@
 # 🏆 Champions Club — Sports Club Management System
 
-[![CI Pipeline](https://github.com/champions-club/champions-club-management-system/actions/workflows/ci.yml/badge.svg)](https://github.com/champions-club/champions-club-management-system/actions/workflows/ci.yml)
+[![CI Pipeline](https://github.com/KavyaDesai18/champions-club-management-system/actions/workflows/ci.yml/badge.svg)](https://github.com/KavyaDesai18/champions-club-management-system/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Java 21](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.org/projects/jdk/21/)
 [![Spring Boot 3.3](https://img.shields.io/badge/Spring_Boot-3.3-green.svg)](https://spring.io/projects/spring-boot)
