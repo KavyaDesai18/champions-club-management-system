@@ -13,6 +13,12 @@ public class ChampionsClubException extends RuntimeException {
         this.code = code;
     }
 
+    public ChampionsClubException(HttpStatus status, String code, String message) {
+        super(message);
+        this.status = status;
+        this.code = code;
+    }
+
     public ChampionsClubException(String message, HttpStatus status, String code, Throwable cause) {
         super(message, cause);
         this.status = status;

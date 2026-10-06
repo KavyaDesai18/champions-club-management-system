@@ -23,6 +23,7 @@ import {
 import ThemeToggle from '../../components/common/ThemeToggle';
 import CommandPalette from '../../components/common/CommandPalette';
 import Tooltip from '../../components/ui/Tooltip';
+import { useAuth } from '../../context/AuthContext';
 
 export const allConsoleMenuItems = [
   { id: 'dashboard', label: 'Operations Board', icon: LayoutDashboard, path: '/console', roles: ['OWNER', 'MANAGER', 'FRONT_DESK', 'COACH'] },
@@ -32,9 +33,11 @@ export const allConsoleMenuItems = [
   { id: 'shop', label: 'Pro Shop & Equipment', icon: ShoppingBag, path: '/console/shop', roles: ['OWNER', 'MANAGER', 'SHOP_STAFF'] },
   { id: 'audit', label: 'Audit & Compliance', icon: FileText, path: '/console/audit', roles: ['OWNER', 'MANAGER'] },
   { id: 'settings', label: 'System Configuration', icon: Settings, path: '/console/settings', roles: ['OWNER'] },
+  { id: 'users', label: 'User & Role Management', icon: Users, path: '/console/users', roles: ['OWNER', 'MANAGER'] },
 ];
 
 export const StaffLayout = () => {
+  const { logout } = useAuth();
   const [currentRole, setCurrentRole] = useState('FRONT_DESK');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -159,13 +162,16 @@ export const StaffLayout = () => {
             <Award className="w-4 h-4 shrink-0" />
             {!isCollapsed && <span>Member App</span>}
           </Link>
-          <Link
-            to="/"
-            className="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white transition"
+          <button
+            type="button"
+            id="staff-sign-out-btn"
+            aria-label="Sign Out"
+            onClick={logout}
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 transition"
           >
             <LogOut className="w-4 h-4 shrink-0" />
-            {!isCollapsed && <span>Exit to Public</span>}
-          </Link>
+            {!isCollapsed && <span>Sign Out</span>}
+          </button>
         </div>
       </motion.aside>
 
@@ -186,18 +192,18 @@ export const StaffLayout = () => {
             <button
               type="button"
               onClick={() => setPaletteOpen(true)}
-              className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-slate-800 bg-surface-900/60 text-slate-400 hover:text-white hover:border-slate-700 text-xs transition"
+              className="hidden sm:flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-slate-800 bg-surface-900/60 text-slate-400 hover:text-white hover:border-slate-700 text-xs transition shrink-0"
               title="Global Command Search (Ctrl+K)"
             >
               <Search className="w-3.5 h-3.5 text-slate-400" />
-              <span className="hidden sm:inline">Search anything...</span>
+              <span className="hidden md:inline">Search anything...</span>
               <kbd className="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-slate-700">
                 Ctrl+K
               </kbd>
             </button>
 
             {/* Role Switcher Select */}
-            <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-2 shrink-0">
               <span className="text-[11px] text-slate-400 hidden lg:inline">Role:</span>
               <select
                 value={currentRole}
@@ -213,7 +219,20 @@ export const StaffLayout = () => {
               </select>
             </div>
 
-            <ThemeToggle />
+            <div className="shrink-0">
+              <ThemeToggle />
+            </div>
+
+            <button
+              type="button"
+              id="staff-header-logout-btn"
+              onClick={logout}
+              className="p-1.5 rounded-xl border border-slate-800 text-rose-400 hover:text-white hover:bg-rose-950/40 transition shrink-0"
+              title="Sign Out"
+              aria-label="Sign Out"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </header>
 

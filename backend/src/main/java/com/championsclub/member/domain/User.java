@@ -51,6 +51,17 @@ public class User {
     @Builder.Default
     private String status = "ACTIVE";
 
+    @Column(name = "failed_attempts", nullable = false)
+    @Builder.Default
+    private int failedAttempts = 0;
+
+    @Column(name = "locked_until")
+    private Instant lockedUntil;
+
+    @Column(name = "token_version", nullable = false)
+    @Builder.Default
+    private int tokenVersion = 1;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 

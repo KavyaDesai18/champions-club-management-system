@@ -163,4 +163,22 @@ export const Modal = ({
   );
 };
 
+export const ModalHeader = ({ title, description, children, className = '' }) => (
+  <div className={`mb-4 ${className}`}>
+    {title && <h3 className="text-xl font-bold tracking-tight text-white">{title}</h3>}
+    {description && <p className="text-xs text-slate-400 mt-1">{description}</p>}
+    {children}
+  </div>
+);
+
+export const ModalBody = ({ children, className = '' }) => (
+  <div className={`text-sm text-slate-200 ${className}`}>{children}</div>
+);
+
+export const ModalFooter = ({ children, className = '' }) => (
+  <div className={`mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-end gap-3 ${className}`}>
+    {children}
+  </div>
+);
+
 export default Modal;

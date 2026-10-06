@@ -3,8 +3,10 @@ import { Link, Outlet, useLocation } from 'react-router-dom';
 import { Award, Calendar, Home, LogOut, Palette, Shield, User, Wallet } from 'lucide-react';
 import ThemeToggle from '../../components/common/ThemeToggle';
 import CommandPalette from '../../components/common/CommandPalette';
+import { useAuth } from '../../context/AuthContext';
 
 export const MemberLayout = () => {
+  const { user, logout } = useAuth();
   const location = useLocation();
   const [paletteOpen, setPaletteOpen] = useState(false);
 
@@ -73,12 +75,15 @@ export const MemberLayout = () => {
           >
             <Shield className="w-4 h-4" /> Switch to Console
           </Link>
-          <Link
-            to="/"
-            className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white transition"
+          <button
+            type="button"
+            id="member-sign-out-btn"
+            aria-label="Sign Out"
+            onClick={logout}
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 transition"
           >
-            <LogOut className="w-4 h-4" /> Public Portal
-          </Link>
+            <LogOut className="w-4 h-4" /> Sign Out
+          </button>
         </div>
       </aside>
 

@@ -10,6 +10,7 @@ import NotFoundPage from '../pages/status/NotFoundPage';
 import ForbiddenPage from '../pages/status/ForbiddenPage';
 import ServerErrorPage from '../pages/status/ServerErrorPage';
 import { ThemeProvider } from '../context/ThemeContext';
+import { AuthProvider } from '../context/AuthContext';
 
 describe('Shells & Navigation Suite', () => {
   describe('Staff Console Shell (Role-aware filtering)', () => {
@@ -17,13 +18,15 @@ describe('Shells & Navigation Suite', () => {
       const user = userEvent.setup();
       render(
         <ThemeProvider>
-          <MemoryRouter initialEntries={['/console']}>
-            <Routes>
-              <Route path="/console" element={<StaffLayout />}>
-                <Route index element={<div>Dashboard Home</div>} />
-              </Route>
-            </Routes>
-          </MemoryRouter>
+          <AuthProvider>
+            <MemoryRouter initialEntries={['/console']}>
+              <Routes>
+                <Route path="/console" element={<StaffLayout />}>
+                  <Route index element={<div>Dashboard Home</div>} />
+                </Route>
+              </Routes>
+            </MemoryRouter>
+          </AuthProvider>
         </ThemeProvider>
       );
 
@@ -62,13 +65,15 @@ describe('Shells & Navigation Suite', () => {
       const user = userEvent.setup();
       render(
         <ThemeProvider>
-          <MemoryRouter initialEntries={['/console']}>
-            <Routes>
-              <Route path="/console" element={<StaffLayout />}>
-                <Route index element={<div>Dashboard Home</div>} />
-              </Route>
-            </Routes>
-          </MemoryRouter>
+          <AuthProvider>
+            <MemoryRouter initialEntries={['/console']}>
+              <Routes>
+                <Route path="/console" element={<StaffLayout />}>
+                  <Route index element={<div>Dashboard Home</div>} />
+                </Route>
+              </Routes>
+            </MemoryRouter>
+          </AuthProvider>
         </ThemeProvider>
       );
 
@@ -85,13 +90,15 @@ describe('Shells & Navigation Suite', () => {
     it('renders top navigation, profile badge and mobile tab bar', () => {
       render(
         <ThemeProvider>
-          <MemoryRouter initialEntries={['/app']}>
-            <Routes>
-              <Route path="/app" element={<MemberLayout />}>
-                <Route index element={<div>Member Home</div>} />
-              </Route>
-            </Routes>
-          </MemoryRouter>
+          <AuthProvider>
+            <MemoryRouter initialEntries={['/app']}>
+              <Routes>
+                <Route path="/app" element={<MemberLayout />}>
+                  <Route index element={<div>Member Home</div>} />
+                </Route>
+              </Routes>
+            </MemoryRouter>
+          </AuthProvider>
         </ThemeProvider>
       );
 
@@ -114,13 +121,15 @@ describe('Shells & Navigation Suite', () => {
     it('renders sticky navbar, brand link, and footer', () => {
       render(
         <ThemeProvider>
-          <MemoryRouter initialEntries={['/']}>
-            <Routes>
-              <Route path="/" element={<PublicLayout />}>
-                <Route index element={<div>Public Home Landing</div>} />
-              </Route>
-            </Routes>
-          </MemoryRouter>
+          <AuthProvider>
+            <MemoryRouter initialEntries={['/']}>
+              <Routes>
+                <Route path="/" element={<PublicLayout />}>
+                  <Route index element={<div>Public Home Landing</div>} />
+                </Route>
+              </Routes>
+            </MemoryRouter>
+          </AuthProvider>
         </ThemeProvider>
       );
 
