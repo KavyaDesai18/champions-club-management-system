@@ -1,9 +1,43 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { Activity, Bell, Coffee, FileText, Home, LogOut, Shield, ShoppingBag, Users, UtensilsCrossed } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+  Activity,
+  Award,
+  ChevronLeft,
+  ChevronRight,
+  Coffee,
+  FileText,
+  Home,
+  LayoutDashboard,
+  LogOut,
+  Palette,
+  Search,
+  Settings,
+  Shield,
+  ShoppingBag,
+  Users,
+  UtensilsCrossed,
+  X,
+} from 'lucide-react';
+import ThemeToggle from '../../components/common/ThemeToggle';
+import CommandPalette from '../../components/common/CommandPalette';
+import Tooltip from '../../components/ui/Tooltip';
+
+export const allConsoleMenuItems = [
+  { id: 'dashboard', label: 'Operations Board', icon: LayoutDashboard, path: '/console', roles: ['OWNER', 'MANAGER', 'FRONT_DESK', 'COACH'] },
+  { id: 'checkin', label: 'Front Desk Check-in', icon: Users, path: '/console/checkin', roles: ['OWNER', 'MANAGER', 'FRONT_DESK'] },
+  { id: 'kitchen', label: 'Kitchen KDS Queue', icon: UtensilsCrossed, path: '/console/kitchen', roles: ['OWNER', 'MANAGER', 'KITCHEN'] },
+  { id: 'bar', label: 'Bar & Lounge Tabs', icon: Coffee, path: '/console/bar', roles: ['OWNER', 'MANAGER', 'BAR_STAFF'] },
+  { id: 'shop', label: 'Pro Shop & Equipment', icon: ShoppingBag, path: '/console/shop', roles: ['OWNER', 'MANAGER', 'SHOP_STAFF'] },
+  { id: 'audit', label: 'Audit & Compliance', icon: FileText, path: '/console/audit', roles: ['OWNER', 'MANAGER'] },
+  { id: 'settings', label: 'System Configuration', icon: Settings, path: '/console/settings', roles: ['OWNER'] },
+];
 
 export const StaffLayout = () => {
   const [currentRole, setCurrentRole] = useState('FRONT_DESK');
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
   const location = useLocation();
 
   const roles = [
@@ -13,69 +47,184 @@ export const StaffLayout = () => {
     'SHOP_STAFF',
     'BAR_STAFF',
     'KITCHEN',
+    'COACH',
   ];
 
-  return (
-    <div className="min-h-screen flex flex-col bg-surface-950 text-slate-100">
-      {/* Top Operations Header */}
-      <header className="h-20 border-b border-slate-800 glass-card px-6 flex items-center justify-between sticky top-0 z-30">
-        <div className="flex items-center gap-6">
-          <Link to="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-500 flex items-center justify-center shadow-glow">
-              <Shield className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <span className="text-lg font-black tracking-tight text-white block">CHAMPIONS</span>
-              <span className="text-[10px] tracking-widest uppercase text-cyan-400 block -mt-1 font-bold">STAFF CONSOLE</span>
-            </div>
-          </Link>
+  // Filter navigation items by current role
+  const visibleMenuItems = allConsoleMenuItems.filter((item) =>
+    item.roles.includes(currentRole)
+  );
 
-          {/* Active Role Selector */}
-          <div className="hidden lg:flex items-center gap-1.5 p-1 rounded-xl bg-surface-900 border border-slate-800">
-            {roles.map((r) => (
-              <button
-                key={r}
-                onClick={() => setCurrentRole(r)}
-                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition ${
-                  currentRole === r
-                    ? 'bg-cyan-500 text-surface-950 shadow-sm'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                {r}
-              </button>
-            ))}
+  // Keyboard shortcut Ctrl+K
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  return (
+    <div className="min-h-screen flex bg-surface-950 text-slate-100">
+      {/* Collapsible Sidebar */}
+      <motion.aside
+        animate={{ width: isCollapsed ? 80 : 260 }}
+        transition={{ duration: 0.2 }}
+        className="border-r border-slate-800/80 glass-card hidden md:flex flex-col justify-between p-4 shrink-0 sticky top-0 h-screen z-30"
+      >
+        <div className="space-y-6">
+          {/* Header Brand */}
+          <div className="flex items-center justify-between">
+            <Link to="/" className="flex items-center gap-3 overflow-hidden">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-600 to-blue-500 flex items-center justify-center shadow-lg shadow-cyan-600/20 shrink-0">
+                <Shield className="w-5 h-5 text-white" />
+              </div>
+              {!isCollapsed && (
+                <div className="overflow-hidden">
+                  <span className="text-base font-black tracking-tight text-white block truncate">CHAMPIONS</span>
+                  <span className="text-[10px] tracking-widest uppercase text-cyan-400 block -mt-1 font-bold">CONSOLE</span>
+                </div>
+              )}
+            </Link>
+
+            <button
+              type="button"
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="p-1.5 rounded-lg border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800/80 transition"
+              aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            >
+              {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+            </button>
           </div>
+
+          {/* Active Role Pill */}
+          {!isCollapsed && (
+            <div className="p-3 rounded-2xl bg-surface-900/90 border border-slate-800 space-y-1">
+              <div className="text-[10px] uppercase font-bold text-slate-400">Current Role</div>
+              <div className="text-xs font-black text-cyan-400 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-cyan-400" />
+                <span>{currentRole}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Role Filtered Menu Items */}
+          <nav className="space-y-1" aria-label="Console Navigation">
+            {visibleMenuItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = location.pathname === item.path;
+
+              const linkContent = (
+                <Link
+                  key={item.id}
+                  to={item.path}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition ${
+                    isActive
+                      ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30'
+                      : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                  }`}
+                >
+                  <Icon className="w-4 h-4 shrink-0" />
+                  {!isCollapsed && <span className="truncate">{item.label}</span>}
+                </Link>
+              );
+
+              return isCollapsed ? (
+                <Tooltip key={item.id} content={item.label} position="right">
+                  {linkContent}
+                </Tooltip>
+              ) : (
+                linkContent
+              );
+            })}
+          </nav>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="text-right hidden sm:block">
-            <div className="text-xs font-bold text-white">Station: Counter 1</div>
-            <div className="text-[10px] text-emerald-400 flex items-center gap-1 justify-end">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" /> Live DB Sync
-            </div>
-          </div>
-
+        {/* Bottom links */}
+        <div className="pt-4 border-t border-slate-800/80 space-y-1">
+          <Link
+            to="/styleguide"
+            className="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-emerald-400 transition"
+          >
+            <Palette className="w-4 h-4 shrink-0" />
+            {!isCollapsed && <span>Styleguide</span>}
+          </Link>
           <Link
             to="/app"
-            className="px-3.5 py-1.5 rounded-xl text-xs font-semibold glass-card border-slate-700 hover:text-brand-400 transition"
+            className="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-emerald-400 transition"
           >
-            Member App
+            <Award className="w-4 h-4 shrink-0" />
+            {!isCollapsed && <span>Member App</span>}
           </Link>
           <Link
             to="/"
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition"
-            title="Public Web"
+            className="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white transition"
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="w-4 h-4 shrink-0" />
+            {!isCollapsed && <span>Exit to Public</span>}
           </Link>
         </div>
-      </header>
+      </motion.aside>
 
       {/* Main Container */}
-      <main className="flex-1 p-6 sm:p-8 max-w-7xl w-full mx-auto">
-        <Outlet context={{ currentRole }} />
-      </main>
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Top Bar with Breadcrumbs & Global Search */}
+        <header className="h-20 border-b border-slate-800/80 glass-card px-4 sm:px-8 flex items-center justify-between sticky top-0 z-20">
+          {/* Breadcrumbs */}
+          <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-semibold text-slate-400">
+            <Link to="/console" className="hover:text-white transition">Console</Link>
+            <span>/</span>
+            <span className="text-white">Operations Command</span>
+          </nav>
+
+          {/* Search Placeholder & Role Switcher */}
+          <div className="flex items-center gap-3 sm:gap-4">
+            {/* Global Search Placeholder (Triggers Command Palette) */}
+            <button
+              type="button"
+              onClick={() => setPaletteOpen(true)}
+              className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-slate-800 bg-surface-900/60 text-slate-400 hover:text-white hover:border-slate-700 text-xs transition"
+              title="Global Command Search (Ctrl+K)"
+            >
+              <Search className="w-3.5 h-3.5 text-slate-400" />
+              <span className="hidden sm:inline">Search anything...</span>
+              <kbd className="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-slate-700">
+                Ctrl+K
+              </kbd>
+            </button>
+
+            {/* Role Switcher Select */}
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] text-slate-400 hidden lg:inline">Role:</span>
+              <select
+                value={currentRole}
+                onChange={(e) => setCurrentRole(e.target.value)}
+                className="bg-surface-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs font-bold text-cyan-300 outline-none focus:border-cyan-500"
+                aria-label="Select staff role"
+              >
+                {roles.map((r) => (
+                  <option key={r} value={r}>
+                    {r}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <ThemeToggle />
+          </div>
+        </header>
+
+        {/* Content View */}
+        <main className="flex-1 p-4 sm:p-8 max-w-7xl w-full mx-auto">
+          <Outlet context={{ currentRole }} />
+        </main>
+      </div>
+
+      {/* Command Palette Modal */}
+      <CommandPalette isOpen={paletteOpen} onClose={() => setPaletteOpen(false)} />
     </div>
   );
 };
