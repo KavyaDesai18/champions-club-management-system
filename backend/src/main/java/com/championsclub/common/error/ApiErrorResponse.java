@@ -22,6 +22,7 @@ public class ApiErrorResponse {
     private List<FieldErrorItem> fieldErrors;
     private String existingMemberId;
     private String existingMemberNo;
+    private List<?> conflictingBookings;
     private String path;
     private String traceId;
 }

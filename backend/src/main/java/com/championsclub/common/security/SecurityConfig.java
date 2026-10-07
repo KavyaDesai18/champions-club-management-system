@@ -60,7 +60,14 @@ public class SecurityConfig {
                                 "/api/v1/auth/refresh",
                                 "/api/v1/auth/logout",
                                 "/api/v1/auth/forgot-password",
-                                "/api/v1/auth/reset-password"
+                                "/api/v1/auth/reset-password",
+                                "/courts/**",
+                                "/api/v1/courts/**",
+                                "/pricing/**",
+                                "/api/v1/pricing/**",
+                                "/availability/**",
+                                "/api/v1/availability/**",
+                                "/api/v1/sports/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

@@ -21,6 +21,11 @@ import MembersListPage from './pages/members/MembersListPage';
 import Member360Page from './pages/members/Member360Page';
 import FrontDeskCheckInPage from './pages/staff/FrontDeskCheckInPage';
 import ExpiringMembershipsPage from './pages/staff/ExpiringMembershipsPage';
+import CourtsConsolePage from './pages/staff/CourtsConsolePage';
+import PricingConsolePage from './pages/staff/PricingConsolePage';
+import OpeningHoursConsolePage from './pages/staff/OpeningHoursConsolePage';
+import BlackoutsConsolePage from './pages/staff/BlackoutsConsolePage';
+import CourtBookingPage from './pages/member/CourtBookingPage';
 
 // Auth Pages
 import LoginPage from './pages/auth/LoginPage';
@@ -65,7 +70,7 @@ export function App() {
                 <Route element={<ProtectedRoute allowedRoles={['MEMBER', 'COACH', 'OWNER', 'MANAGER']} />}>
                   <Route path="/app" element={<MemberLayout />}>
                     <Route index element={<MemberDashboard />} />
-                    <Route path="book" element={<MemberDashboard />} />
+                    <Route path="book" element={<CourtBookingPage />} />
                     <Route path="wallet" element={<MemberDashboard />} />
                   </Route>
                 </Route>
@@ -92,6 +97,11 @@ export function App() {
                     <Route path="members/expiring" element={<ExpiringMembershipsPage />} />
                     <Route path="members/:id" element={<Member360Page />} />
                     <Route path="checkin" element={<FrontDeskCheckInPage />} />
+                    <Route path="courts" element={<CourtsConsolePage />} />
+                    <Route path="pricing" element={<PricingConsolePage />} />
+                    <Route path="hours" element={<OpeningHoursConsolePage />} />
+                    <Route path="blackouts" element={<BlackoutsConsolePage />} />
+                    <Route path="availability" element={<CourtBookingPage />} />
                     <Route path="kitchen" element={<StaffConsoleHome />} />
                     <Route path="bar" element={<StaffConsoleHome />} />
                     <Route path="shop" element={<StaffConsoleHome />} />

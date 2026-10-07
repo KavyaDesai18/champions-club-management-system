@@ -38,6 +38,23 @@ public class Court {
     @Column(name = "sport_type", nullable = false, length = 50)
     private SportType sportType;
 
+    @jakarta.persistence.ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
+    @jakarta.persistence.JoinColumn(name = "sport_id")
+    private Sport sport;
+
+    @Column(nullable = false, length = 50)
+    @Builder.Default
+    private String surface = "SYNTHETIC";
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean indoor = true;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 50)
+    @Builder.Default
+    private CourtStatus status = CourtStatus.ACTIVE;
+
     @Column(name = "hourly_rate_member", nullable = false, precision = 10, scale = 2)
     private BigDecimal hourlyRateMember;
 

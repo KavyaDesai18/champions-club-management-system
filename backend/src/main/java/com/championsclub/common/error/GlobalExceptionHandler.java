@@ -44,6 +44,21 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 
+    @ExceptionHandler(BlackoutConflictException.class)
+    public ResponseEntity<ApiErrorResponse> handleBlackoutConflictException(BlackoutConflictException ex, HttpServletRequest request) {
+        log.warn("Blackout conflict: [{}] {}", ex.getCode(), ex.getMessage());
+        ApiErrorResponse body = ApiErrorResponse.builder()
+                .timestamp(clock.instant())
+                .status(HttpStatus.CONFLICT.value())
+                .code(ex.getCode())
+                .message(ex.getMessage())
+                .conflictingBookings(ex.getConflictingBookings())
+                .path(request.getRequestURI())
+                .traceId(getTraceId())
+                .build();
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
     @ExceptionHandler(ChampionsClubException.class)
     public ResponseEntity<ApiErrorResponse> handleChampionsClubException(ChampionsClubException ex, HttpServletRequest request) {
         log.warn("Application exception: [{}] {}", ex.getCode(), ex.getMessage());

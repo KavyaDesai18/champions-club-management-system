@@ -38,4 +38,24 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
             @Param("endTime") Instant endTime,
             @Param("cancelledStatus") BookingStatus cancelledStatus
     );
+
+    @Query("SELECT b FROM Booking b WHERE b.court.id IN :courtIds " +
+           "AND b.startTime < :endTime AND b.endTime > :startTime " +
+           "AND b.status != :cancelledStatus AND b.isDeleted = false")
+    List<Booking> findActiveBookingsForCourtsInWindow(
+            @Param("courtIds") List<UUID> courtIds,
+            @Param("startTime") Instant startTime,
+            @Param("endTime") Instant endTime,
+            @Param("cancelledStatus") BookingStatus cancelledStatus
+    );
+
+    @Query("SELECT b FROM Booking b WHERE b.court.id = :courtId " +
+           "AND b.endTime > :now " +
+           "AND b.status != :cancelledStatus AND b.isDeleted = false " +
+           "ORDER BY b.startTime ASC")
+    List<Booking> findFutureActiveBookingsForCourt(
+            @Param("courtId") UUID courtId,
+            @Param("now") Instant now,
+            @Param("cancelledStatus") BookingStatus cancelledStatus
+    );
 }
