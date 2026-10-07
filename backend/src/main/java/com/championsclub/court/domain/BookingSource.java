@@ -4,5 +4,6 @@ public enum BookingSource {
     ONLINE,
     FRONT_DESK,
     PHONE,
-    WALK_IN
+    WALK_IN,
+    SOCIAL_BLOCK
 }

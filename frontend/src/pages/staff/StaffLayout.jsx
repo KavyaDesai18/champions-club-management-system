@@ -33,6 +33,7 @@ import { useAuth } from '../../context/AuthContext';
 
 export const allConsoleMenuItems = [
   { id: 'dashboard', label: 'Operations Board', icon: LayoutDashboard, path: '/console', roles: ['OWNER', 'MANAGER', 'FRONT_DESK', 'COACH'] },
+  { id: 'social', label: 'Social Play Sessions', icon: Users, path: '/console/social', roles: ['OWNER', 'MANAGER', 'FRONT_DESK', 'COACH'] },
   { id: 'availability', label: 'Availability Grid', icon: Calendar, path: '/console/availability', roles: ['OWNER', 'MANAGER', 'FRONT_DESK', 'COACH'] },
   { id: 'courts', label: 'Courts Management', icon: Layers, path: '/console/courts', roles: ['OWNER', 'MANAGER', 'FRONT_DESK'] },
   { id: 'pricing', label: 'Pricing Rules', icon: Tag, path: '/console/pricing', roles: ['OWNER', 'MANAGER'] },

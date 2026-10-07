@@ -28,6 +28,7 @@ import BlackoutsConsolePage from './pages/staff/BlackoutsConsolePage';
 import CourtBookingPage from './pages/member/CourtBookingPage';
 import MyBookingsPage from './pages/member/MyBookingsPage';
 import BookingsConsolePage from './pages/staff/BookingsConsolePage';
+import SocialPlayPage from './pages/social/SocialPlayPage';
 
 // Auth Pages
 import LoginPage from './pages/auth/LoginPage';
@@ -74,6 +75,7 @@ export function App() {
                     <Route index element={<MemberDashboard />} />
                     <Route path="book" element={<CourtBookingPage />} />
                     <Route path="bookings" element={<MyBookingsPage />} />
+                    <Route path="social" element={<SocialPlayPage />} />
                     <Route path="wallet" element={<MemberDashboard />} />
                   </Route>
                 </Route>
@@ -96,6 +98,7 @@ export function App() {
                 >
                   <Route path="/console" element={<StaffLayout />}>
                     <Route index element={<StaffConsoleHome />} />
+                    <Route path="social" element={<SocialPlayPage />} />
                     <Route path="members" element={<MembersListPage />} />
                     <Route path="members/expiring" element={<ExpiringMembershipsPage />} />
                     <Route path="members/:id" element={<Member360Page />} />

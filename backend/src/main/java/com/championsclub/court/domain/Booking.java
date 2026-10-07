@@ -165,23 +165,19 @@ public class Booking {
 
     public static class BookingBuilder {
         public BookingBuilder startTime(Instant startTime) {
-            this.startAt = startTime;
-            return this;
+            return startAt(startTime);
         }
 
         public BookingBuilder endTime(Instant endTime) {
-            this.endAt = endTime;
-            return this;
+            return endAt(endTime);
         }
 
         public BookingBuilder totalAmount(BigDecimal totalAmount) {
-            this.price = totalAmount;
-            return this;
+            return price(totalAmount);
         }
 
         public BookingBuilder tierApplied(String tierApplied) {
-            this.planSnapshot = tierApplied;
-            return this;
+            return planSnapshot(tierApplied);
         }
     }
 }

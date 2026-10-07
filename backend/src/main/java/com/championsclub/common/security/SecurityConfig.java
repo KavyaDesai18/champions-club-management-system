@@ -69,7 +69,9 @@ public class SecurityConfig {
                                 "/api/v1/pricing/**",
                                 "/availability/**",
                                 "/api/v1/availability/**",
-                                "/api/v1/sports/**"
+                                "/api/v1/sports/**",
+                                "/social-sessions/**",
+                                "/api/v1/social-sessions/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

@@ -22,6 +22,14 @@ public interface CourtBlackoutRepository extends JpaRepository<CourtBlackout, UU
             @Param("endTime") Instant endTime
     );
 
+    @Query("SELECT CASE WHEN COUNT(cb) > 0 THEN true ELSE false END FROM CourtBlackout cb " +
+           "WHERE cb.court.id = :courtId AND cb.startTime < :endTime AND cb.endTime > :startTime AND cb.isDeleted = false")
+    boolean existsOverlapping(
+            @Param("courtId") UUID courtId,
+            @Param("startTime") Instant startTime,
+            @Param("endTime") Instant endTime
+    );
+
     @Query("SELECT cb FROM CourtBlackout cb WHERE cb.court.id IN :courtIds " +
            "AND cb.startTime < :endTime AND cb.endTime > :startTime " +
            "AND cb.isDeleted = false")
