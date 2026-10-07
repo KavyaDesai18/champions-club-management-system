@@ -19,6 +19,8 @@ import UserManagementPage from './pages/staff/UserManagementPage';
 import StyleguidePage from './pages/styleguide/StyleguidePage';
 import MembersListPage from './pages/members/MembersListPage';
 import Member360Page from './pages/members/Member360Page';
+import FrontDeskCheckInPage from './pages/staff/FrontDeskCheckInPage';
+import ExpiringMembershipsPage from './pages/staff/ExpiringMembershipsPage';
 
 // Auth Pages
 import LoginPage from './pages/auth/LoginPage';
@@ -87,8 +89,9 @@ export function App() {
                   <Route path="/console" element={<StaffLayout />}>
                     <Route index element={<StaffConsoleHome />} />
                     <Route path="members" element={<MembersListPage />} />
+                    <Route path="members/expiring" element={<ExpiringMembershipsPage />} />
                     <Route path="members/:id" element={<Member360Page />} />
-                    <Route path="checkin" element={<StaffConsoleHome />} />
+                    <Route path="checkin" element={<FrontDeskCheckInPage />} />
                     <Route path="kitchen" element={<StaffConsoleHome />} />
                     <Route path="bar" element={<StaffConsoleHome />} />
                     <Route path="shop" element={<StaffConsoleHome />} />

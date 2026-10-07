@@ -221,4 +221,63 @@ class CourtBookingServiceTest {
         assertThat(response.getTierApplied()).isEqualTo("GOLD");
         verify(auditService).record(eq(userId), eq("CREATE_BOOKING"), eq("Booking"), any(), any(), eq("127.0.0.1"));
     }
+
+    @Test
+    @DisplayName("Expired member cannot book member-rate courts - charged guest rate")
+    void testExpiredMemberChargedGuestRate() {
+        UUID courtId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        Court court = Court.builder()
+                .id(courtId)
+                .name("Badminton 1")
+                .hourlyRateMember(new BigDecimal("100.00"))
+                .hourlyRateGuest(new BigDecimal("150.00"))
+                .sportType(SportType.BADMINTON)
+                .isActive(true)
+                .build();
+        User user = User.builder().id(userId).fullName("Expired User").build();
+
+        Membership expiredMembership = Membership.builder()
+                .id(UUID.randomUUID())
+                .user(user)
+                .tier(MembershipTier.GOLD)
+                .startDate(java.time.LocalDate.of(2025, 1, 1))
+                .endDate(java.time.LocalDate.of(2026, 1, 1)) // Expired months ago
+                .status(com.championsclub.member.domain.MembershipStatus.EXPIRED)
+                .walletBalance(BigDecimal.ZERO)
+                .guestPassesRemaining(0)
+                .active(false)
+                .build();
+
+        when(courtRepository.findById(courtId)).thenReturn(Optional.of(court));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(bookingRepository.countBookingsForUserInDateRange(eq(userId), any(), any(), any()))
+                .thenReturn(0L);
+        when(bookingRepository.findConflictingBookings(eq(courtId), any(), any(), any()))
+                .thenReturn(Collections.emptyList());
+        when(membershipRepository.findByUserIdAndActiveTrueAndIsDeletedFalse(userId))
+                .thenReturn(Optional.of(expiredMembership));
+        when(bookingRepository.save(any(Booking.class))).thenAnswer(invocation -> {
+            Booking b = invocation.getArgument(0);
+            b.setId(UUID.randomUUID());
+            return b;
+        });
+
+        Instant start = Instant.parse("2026-10-07T09:30:00Z");
+        Instant end = Instant.parse("2026-10-07T10:30:00Z");
+
+        CreateBookingRequest request = CreateBookingRequest.builder()
+                .courtId(courtId)
+                .userId(userId)
+                .startTime(start)
+                .endTime(end)
+                .build();
+
+        BookingResponse response = service.createBooking(request, "idemp-exp-1", "127.0.0.1");
+
+        assertThat(response).isNotNull();
+        // Charged standard guest rate (150.00) instead of member rate
+        assertThat(response.getTotalAmount()).isEqualByComparingTo(new BigDecimal("150.00"));
+        assertThat(response.getTierApplied()).isEqualTo("GUEST");
+    }
 }

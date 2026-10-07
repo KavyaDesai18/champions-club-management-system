@@ -413,7 +413,7 @@ public class MemberService {
         long daysRemaining = member.getEndDate() != null
                 ? Math.max(0, ChronoUnit.DAYS.between(today, member.getEndDate()))
                 : 0;
-        boolean isExpired = member.getEndDate() != null && today.isAfter(member.getEndDate());
+        boolean isExpired = (member.getEndDate() != null && today.isAfter(member.getEndDate())) || member.getStatus() == MemberStatus.EXPIRED;
         boolean canBook = member.getStatus() == MemberStatus.ACTIVE && !isExpired;
 
         Plan plan = member.getPlan();

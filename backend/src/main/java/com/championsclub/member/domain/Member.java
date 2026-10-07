@@ -44,7 +44,7 @@ public class Member {
     @Column(name = "full_name", nullable = false, length = 150)
     private String fullName;
 
-    @Column(nullable = false, unique = true, length = 255)
+    @Column(columnDefinition = "citext", nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false, unique = true, length = 30)
@@ -69,6 +69,9 @@ public class Member {
     @Column(nullable = false, length = 50)
     @Builder.Default
     private MemberStatus status = MemberStatus.ACTIVE;
+
+    @Column(name = "suspended_at")
+    private LocalDate suspendedAt;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "plan_id")

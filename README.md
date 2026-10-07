@@ -122,8 +122,8 @@ mvn clean test
 # Run application locally
 mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ```
-- Health Check: `http://localhost:8080/actuator/health`
-- OpenAPI Swagger UI: `http://localhost:8080/swagger-ui/index.html`
+- Health Check: `http://localhost:8081/actuator/health`
+- OpenAPI Swagger UI: `http://localhost:8081/swagger-ui/index.html`
 
 ### 2. Frontend
 

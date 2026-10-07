@@ -3,6 +3,7 @@ import { Link, Outlet, useLocation } from 'react-router-dom';
 import { Award, Calendar, Home, LogOut, Palette, Shield, User, Wallet } from 'lucide-react';
 import ThemeToggle from '../../components/common/ThemeToggle';
 import CommandPalette from '../../components/common/CommandPalette';
+import NotificationBell from '../../components/notification/NotificationBell';
 import { useAuth } from '../../context/AuthContext';
 
 export const MemberLayout = () => {
@@ -107,6 +108,8 @@ export const MemberLayout = () => {
             >
               <kbd className="text-[10px] font-mono">Ctrl+K</kbd>
             </button>
+
+            <NotificationBell />
 
             <ThemeToggle />
 

@@ -35,6 +35,7 @@ import Select from '../../components/ui/Select';
 import Input from '../../components/ui/Input';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
 import QrBadgeModal from './QrBadgeModal';
+import RenewMembershipModal from '../../components/membership/RenewMembershipModal';
 
 export default function Member360Page() {
   const { id } = useParams();
@@ -48,6 +49,7 @@ export default function Member360Page() {
   
   // Modals state
   const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [renewModalOpen, setRenewModalOpen] = useState(false);
   const [changePlanModalOpen, setChangePlanModalOpen] = useState(false);
   const [selectedPlanCode, setSelectedPlanCode] = useState('');
   const [changingPlan, setChangingPlan] = useState(false);
@@ -284,6 +286,17 @@ export default function Member360Page() {
 
           <Button
             type="button"
+            variant={member.status === 'EXPIRED' ? 'primary' : 'outline'}
+            size="sm"
+            icon={Sparkles}
+            onClick={() => setRenewModalOpen(true)}
+            className={member.status === 'EXPIRED' ? 'bg-red-600 hover:bg-red-500 shadow-glow' : ''}
+          >
+            Renew Membership
+          </Button>
+
+          <Button
+            type="button"
             variant={member.status === 'SUSPENDED' ? 'primary' : 'outline'}
             size="sm"
             icon={member.status === 'SUSPENDED' ? CheckCircle2 : Ban}
@@ -330,6 +343,35 @@ export default function Member360Page() {
             className="flex-shrink-0"
           >
             Upgrade Membership Plan
+          </Button>
+        </div>
+      )}
+
+      {/* Expired Warning Banner */}
+      {member.status === 'EXPIRED' && (
+        <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center flex-shrink-0">
+              <AlertTriangle className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-red-300">
+                Membership Expired
+              </h4>
+              <p className="text-xs text-red-400/80 mt-0.5">
+                Member privileges and court discounts are suspended. Front desk check-in displays a red status banner.
+              </p>
+            </div>
+          </div>
+          <Button
+            type="button"
+            variant="primary"
+            size="sm"
+            icon={Sparkles}
+            onClick={() => setRenewModalOpen(true)}
+            className="flex-shrink-0 bg-red-600 hover:bg-red-500"
+          >
+            Renew Membership
           </Button>
         </div>
       )}
@@ -387,8 +429,15 @@ export default function Member360Page() {
                   {member.fullName}
                 </h1>
                 <Badge 
-                  variant={member.status === 'ACTIVE' ? 'success' : member.status === 'SUSPENDED' ? 'danger' : 'default'}
+                  variant={
+                    member.status === 'ACTIVE'
+                      ? 'success'
+                      : member.status === 'EXPIRED' || member.status === 'SUSPENDED'
+                      ? 'danger'
+                      : 'default'
+                  }
                   size="sm"
+                  className={member.status === 'EXPIRED' ? 'bg-red-500/20 text-red-300 border-red-500/40 font-black' : ''}
                 >
                   {member.status}
                 </Badge>
@@ -710,6 +759,18 @@ export default function Member360Page() {
         isOpen={qrModalOpen}
         onClose={() => setQrModalOpen(false)}
         member={member}
+      />
+
+      {/* Renew Membership Modal */}
+      <RenewMembershipModal
+        isOpen={renewModalOpen}
+        onClose={() => setRenewModalOpen(false)}
+        member={member}
+        currentMembership={member?.activeMembership}
+        onSuccess={() => {
+          setRenewModalOpen(false);
+          loadMember();
+        }}
       />
     </div>
   );

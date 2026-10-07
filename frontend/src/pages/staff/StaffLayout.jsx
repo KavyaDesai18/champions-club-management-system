@@ -6,6 +6,7 @@ import {
   Award,
   ChevronLeft,
   ChevronRight,
+  Clock,
   Coffee,
   FileText,
   Home,
@@ -22,6 +23,7 @@ import {
 } from 'lucide-react';
 import ThemeToggle from '../../components/common/ThemeToggle';
 import CommandPalette from '../../components/common/CommandPalette';
+import NotificationBell from '../../components/notification/NotificationBell';
 import Tooltip from '../../components/ui/Tooltip';
 import { useAuth } from '../../context/AuthContext';
 
@@ -29,6 +31,7 @@ export const allConsoleMenuItems = [
   { id: 'dashboard', label: 'Operations Board', icon: LayoutDashboard, path: '/console', roles: ['OWNER', 'MANAGER', 'FRONT_DESK', 'COACH'] },
   { id: 'members', label: 'Members Directory', icon: Users, path: '/console/members', roles: ['OWNER', 'MANAGER', 'FRONT_DESK'] },
   { id: 'checkin', label: 'Front Desk Check-in', icon: Activity, path: '/console/checkin', roles: ['OWNER', 'MANAGER', 'FRONT_DESK'] },
+  { id: 'expiring', label: 'Expiring Soon', icon: Clock, path: '/console/members/expiring', roles: ['OWNER', 'MANAGER', 'FRONT_DESK'] },
   { id: 'kitchen', label: 'Kitchen KDS Queue', icon: UtensilsCrossed, path: '/console/kitchen', roles: ['OWNER', 'MANAGER', 'KITCHEN'] },
   { id: 'bar', label: 'Bar & Lounge Tabs', icon: Coffee, path: '/console/bar', roles: ['OWNER', 'MANAGER', 'BAR_STAFF'] },
   { id: 'shop', label: 'Pro Shop & Equipment', icon: ShoppingBag, path: '/console/shop', roles: ['OWNER', 'MANAGER', 'SHOP_STAFF'] },
@@ -224,6 +227,10 @@ export const StaffLayout = () => {
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div className="shrink-0">
+              <NotificationBell />
             </div>
 
             <div className="shrink-0">

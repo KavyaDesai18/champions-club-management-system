@@ -139,22 +139,28 @@ public class CourtBookingService {
 
         // Determine pricing based on Membership Tier vs Walk-in / Guest
         Optional<Membership> activeMembership = membershipRepository.findByUserIdAndActiveTrueAndIsDeletedFalse(user.getId());
+        LocalDate today = timeUtils.currentClubDate();
+        boolean isMembershipValid = activeMembership.isPresent()
+                && activeMembership.get().getStatus() == com.championsclub.member.domain.MembershipStatus.ACTIVE
+                && activeMembership.get().isActive()
+                && (activeMembership.get().getEndDate() == null || !today.isAfter(activeMembership.get().getEndDate()));
+
         Money finalAmount;
         String tierApplied = "GUEST";
 
-        if (activeMembership.isPresent()) {
+        if (isMembershipValid) {
             Membership membership = activeMembership.get();
-            tierApplied = membership.getTier().name();
+            tierApplied = membership.getTier() != null ? membership.getTier().name() : (membership.getPlan() != null ? membership.getPlan().getCode() : "MEMBER");
             Money baseRate = Money.of(court.getHourlyRateMember());
 
-            if (membership.getTier() == MembershipTier.GOLD) {
+            if (membership.getTier() == MembershipTier.GOLD || (membership.getPlan() != null && "GOLD".equalsIgnoreCase(membership.getPlan().getCode()))) {
                 // Gold members get 25% discount on court bookings
                 finalAmount = baseRate.applyDiscountPercentage(java.math.BigDecimal.valueOf(25));
             } else {
                 finalAmount = baseRate;
             }
         } else {
-            // Walk-in / Guest rate
+            // Walk-in / Guest rate (Expired members cannot book member-rate courts)
             finalAmount = Money.of(court.getHourlyRateGuest());
         }
 

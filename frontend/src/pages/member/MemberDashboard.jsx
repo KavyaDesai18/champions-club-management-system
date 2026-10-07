@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Activity, AlertCircle, Calendar, CheckCircle2, Clock, ShieldAlert, Sparkles, Trophy, Wallet } from 'lucide-react';
 import { emitToast } from '../../api/client';
+import MembershipCard from '../../components/membership/MembershipCard';
+import { membershipsApi } from '../../api/membershipsApi';
 
 export const MemberDashboard = () => {
   const [selectedSport, setSelectedSport] = useState('BADMINTON');
@@ -46,8 +48,54 @@ export const MemberDashboard = () => {
     setTimeout(() => setBookingSuccess(false), 4000);
   };
 
+  // Membership state
+  const [membership, setMembership] = useState({
+    id: 'MEM-VIP-9901',
+    planCode: 'GOLD',
+    planName: 'Gold Tier VIP',
+    status: 'ACTIVE',
+    startDate: '2026-01-01',
+    endDate: '2026-12-31',
+    pricePaid: 1200.0,
+    memberNo: 'CC-001000',
+    fullName: 'Alex Rodriguez',
+  });
+
+  useEffect(() => {
+    membershipsApi
+      .getMyActiveMembership()
+      .then((res) => {
+        if (res?.success && res?.data) {
+          setMembership(res.data);
+        }
+      })
+      .catch(() => {
+        // Fallback to active mock data
+      });
+  }, []);
+
   return (
     <div className="space-y-8">
+      {/* Membership Card with Circular Progress Ring & Days Remaining */}
+      <MembershipCard
+        member={{
+          id: membership?.memberId || 'mem-alex-01',
+          fullName: membership?.fullName || 'Alex Rodriguez',
+          memberNo: membership?.memberNo || 'CC-001000',
+          status: membership?.status,
+        }}
+        membership={membership}
+        onRenewSuccess={(renewed) => {
+          setMembership(renewed);
+          emitToast({
+            id: Date.now(),
+            type: 'success',
+            title: 'Membership Renewed!',
+            message: `Membership extended through ${renewed.endDate || 'new expiry date'}.`,
+          });
+        }}
+      />
+
       {/* Top Welcome & Quota Alert */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-card p-6 rounded-2xl border-brand-500/30 bg-gradient-to-r from-surface-900 to-brand-950/20">
         <div>
