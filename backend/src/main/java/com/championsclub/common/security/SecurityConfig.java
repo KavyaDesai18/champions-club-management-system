@@ -63,6 +63,8 @@ public class SecurityConfig {
                                 "/api/v1/auth/reset-password",
                                 "/courts/**",
                                 "/api/v1/courts/**",
+                                "/bookings/**",
+                                "/api/v1/bookings/**",
                                 "/pricing/**",
                                 "/api/v1/pricing/**",
                                 "/availability/**",

@@ -4,6 +4,6 @@ import org.springframework.http.HttpStatus;
 
 public class DoubleBookingException extends ChampionsClubException {
     public DoubleBookingException(String message) {
-        super(message, HttpStatus.CONFLICT, "DOUBLE_BOOKING_CONFLICT");
+        super(message, HttpStatus.CONFLICT, "SLOT_TAKEN");
     }
 }

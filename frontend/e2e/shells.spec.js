@@ -56,7 +56,7 @@ test.describe('Champions Club - Shells Navigation & Zero Console Errors', () => 
     await expect(page.locator('h1')).toContainText(/Member Dashboard/i);
     await expect(page.getByText('$175.50')).toBeVisible();
     if (!isMobile) {
-      await expect(page.getByText('Alex Rodriguez')).toBeVisible();
+      await expect(page.getByText('Alex Rodriguez').first()).toBeVisible();
     } else {
       await expect(page.getByRole('navigation', { name: /Mobile Navigation/i })).toBeVisible();
     }

@@ -26,6 +26,8 @@ import PricingConsolePage from './pages/staff/PricingConsolePage';
 import OpeningHoursConsolePage from './pages/staff/OpeningHoursConsolePage';
 import BlackoutsConsolePage from './pages/staff/BlackoutsConsolePage';
 import CourtBookingPage from './pages/member/CourtBookingPage';
+import MyBookingsPage from './pages/member/MyBookingsPage';
+import BookingsConsolePage from './pages/staff/BookingsConsolePage';
 
 // Auth Pages
 import LoginPage from './pages/auth/LoginPage';
@@ -71,6 +73,7 @@ export function App() {
                   <Route path="/app" element={<MemberLayout />}>
                     <Route index element={<MemberDashboard />} />
                     <Route path="book" element={<CourtBookingPage />} />
+                    <Route path="bookings" element={<MyBookingsPage />} />
                     <Route path="wallet" element={<MemberDashboard />} />
                   </Route>
                 </Route>
@@ -97,6 +100,7 @@ export function App() {
                     <Route path="members/expiring" element={<ExpiringMembershipsPage />} />
                     <Route path="members/:id" element={<Member360Page />} />
                     <Route path="checkin" element={<FrontDeskCheckInPage />} />
+                    <Route path="bookings" element={<BookingsConsolePage />} />
                     <Route path="courts" element={<CourtsConsolePage />} />
                     <Route path="pricing" element={<PricingConsolePage />} />
                     <Route path="hours" element={<OpeningHoursConsolePage />} />

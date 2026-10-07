@@ -354,9 +354,16 @@ public class AvailabilityService {
                         .filter(b -> b.getCourt().getId().equals(courtId) && b.getStartTime().isBefore(end) && b.getEndTime().isAfter(start))
                         .findFirst();
                 if (bookingMatch.isPresent()) {
-                    state = SlotState.BOOKED;
-                    matchedBookingId = bookingMatch.get().getId();
-                    reason = "Reserved";
+                    Booking b = bookingMatch.get();
+                    if (b.getStatus() == BookingStatus.HELD) {
+                        state = SlotState.HELD;
+                        matchedHoldId = b.getId();
+                        reason = "Cart Hold in progress";
+                    } else {
+                        state = SlotState.BOOKED;
+                        matchedBookingId = b.getId();
+                        reason = "Reserved";
+                    }
                 } else {
                     // 7. Check Active Holds
                     Optional<SlotHold> holdMatch = allHolds.stream()

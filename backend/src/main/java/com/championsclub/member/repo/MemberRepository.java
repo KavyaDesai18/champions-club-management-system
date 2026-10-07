@@ -23,6 +23,12 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
 
     Optional<Member> findByPhoneAndIsDeletedFalse(String phone);
 
+    Optional<Member> findByUserIdAndIsDeletedFalse(UUID userId);
+
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT m FROM Member m WHERE m.id = :id AND m.isDeleted = false")
+    Optional<Member> findByIdWithLock(@Param("id") UUID id);
+
     boolean existsByEmailAndIsDeletedFalse(String email);
 
     boolean existsByPhoneAndIsDeletedFalse(String phone);

@@ -94,12 +94,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex, HttpServletRequest request) {
         String msg = ex.getMessage();
-        if (msg != null && (msg.contains("no_overlapping_court_bookings") || msg.contains("exclusion constraint"))) {
+        if (msg != null && (msg.contains("no_overlapping_court_bookings") || msg.contains("exclusion") || msg.contains("23P01"))) {
             ApiErrorResponse body = ApiErrorResponse.builder()
                     .timestamp(clock.instant())
                     .status(HttpStatus.CONFLICT.value())
-                    .code("DOUBLE_BOOKING_CONFLICT")
-                    .message("Court is already booked for this requested time window by another reservation.")
+                    .code("SLOT_TAKEN")
+                    .message("Court slot has just been taken by another reservation.")
                     .path(request.getRequestURI())
                     .traceId(getTraceId())
                     .build();
