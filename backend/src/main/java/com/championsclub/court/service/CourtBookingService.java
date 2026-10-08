@@ -87,6 +87,20 @@ public class CourtBookingService {
     private final AvailabilitySseHub sseHub;
     private final NotificationDispatcher notificationDispatcher;
 
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.championsclub.billing.service.PaymentService paymentService;
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.championsclub.billing.repo.PaymentRepository paymentRepository;
+
+    public void setPaymentService(com.championsclub.billing.service.PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+
+    public void setPaymentRepository(com.championsclub.billing.repo.PaymentRepository paymentRepository) {
+        this.paymentRepository = paymentRepository;
+    }
+
     public CourtBookingService(
             CourtRepository courtRepository,
             BookingRepository bookingRepository,
@@ -483,6 +497,11 @@ public class CourtBookingService {
 
     @Transactional
     public BookingResponse confirmBooking(UUID bookingId, String idempotencyKey, String clientIp, User caller) {
+        return confirmBooking(bookingId, null, idempotencyKey, clientIp, caller);
+    }
+
+    @Transactional
+    public BookingResponse confirmBooking(UUID bookingId, com.championsclub.court.dto.ConfirmBookingRequest confirmReq, String idempotencyKey, String clientIp, User caller) {
         Booking booking = bookingRepository.findById(bookingId)
                 .filter(b -> !b.isDeleted())
                 .orElseThrow(() -> new ResourceNotFoundException("Booking", bookingId));
@@ -496,11 +515,80 @@ public class CourtBookingService {
         }
 
         Instant now = timeUtils.now();
-        if (booking.getHoldExpiresAt() != null && booking.getHoldExpiresAt().isBefore(now)) {
+        boolean isExpired = booking.getHoldExpiresAt() != null && booking.getHoldExpiresAt().isBefore(now);
+
+        if (isExpired) {
             booking.setStatus(BookingStatus.CANCELLED);
             booking.setCancelReason("HOLD_EXPIRED");
             bookingRepository.save(booking);
+
+            // Auto-refund if payment was already made for this booking
+            if (paymentService != null && paymentRepository != null) {
+                List<com.championsclub.billing.domain.Payment> existingPayments = paymentRepository.findBySourceTypeAndSourceId(
+                        com.championsclub.billing.domain.PaymentSourceType.BOOKING, booking.getId().toString()
+                );
+                for (com.championsclub.billing.domain.Payment p : existingPayments) {
+                    if (p.getStatus() == com.championsclub.billing.domain.PaymentStatus.SUCCEEDED) {
+                        com.championsclub.billing.dto.RefundRequest rReq = com.championsclub.billing.dto.RefundRequest.builder()
+                                .paymentId(p.getId())
+                                .amount(p.getAmount())
+                                .reason("Booking hold expired auto-refund")
+                                .build();
+                        paymentService.processRefund(rReq, null, caller);
+                        throw new BusinessValidationException(
+                                "Slot hold expired before confirmation. Payment of ₹" + p.getAmount() + " has been automatically refunded. Please select the slot again.",
+                                "HOLD_EXPIRED_PAYMENT_REFUNDED"
+                        );
+                    }
+                }
+            }
+
             throw new BusinessValidationException("Slot hold has expired. Please select the slot again.", "HOLD_EXPIRED");
+        }
+
+        // Process payment if required
+        BigDecimal price = booking.getPrice() != null ? booking.getPrice() : BigDecimal.ZERO;
+        if (paymentService != null && paymentRepository != null) {
+            List<com.championsclub.billing.domain.Payment> payments = paymentRepository.findBySourceTypeAndSourceId(
+                    com.championsclub.billing.domain.PaymentSourceType.BOOKING, booking.getId().toString()
+            );
+            boolean alreadyPaid = payments.stream().anyMatch(p -> p.getStatus() == com.championsclub.billing.domain.PaymentStatus.SUCCEEDED);
+
+            if (!alreadyPaid) {
+                if (price.compareTo(BigDecimal.ZERO) == 0) {
+                    // Plan is free -> consistent zero-amount payment record
+                    com.championsclub.billing.dto.PaymentRequest zeroReq = com.championsclub.billing.dto.PaymentRequest.builder()
+                            .payerUserId(booking.getUser() != null ? booking.getUser().getId() : (caller != null ? caller.getId() : null))
+                            .memberId(booking.getMember() != null ? booking.getMember().getId() : null)
+                            .payerName(booking.getGuestName() != null ? booking.getGuestName() : (booking.getMember() != null ? booking.getMember().getFullName() : "Member"))
+                            .payerPhone(booking.getGuestPhone())
+                            .sourceType(com.championsclub.billing.domain.PaymentSourceType.BOOKING)
+                            .sourceId(booking.getId().toString())
+                            .method(com.championsclub.billing.domain.PaymentMethod.WALLET)
+                            .amount(BigDecimal.ZERO)
+                            .build();
+                    paymentService.processPayment(zeroReq, idempotencyKey != null ? idempotencyKey + "_zero" : null, caller);
+                } else if (confirmReq != null && confirmReq.getPaymentMethod() != null) {
+                    com.championsclub.billing.dto.PaymentRequest pReq = com.championsclub.billing.dto.PaymentRequest.builder()
+                            .payerUserId(booking.getUser() != null ? booking.getUser().getId() : (caller != null ? caller.getId() : null))
+                            .memberId(booking.getMember() != null ? booking.getMember().getId() : null)
+                            .corporateAccountId(confirmReq.getCorporateAccountId())
+                            .payerName(booking.getGuestName() != null ? booking.getGuestName() : (booking.getMember() != null ? booking.getMember().getFullName() : "Member"))
+                            .payerPhone(booking.getGuestPhone())
+                            .sourceType(com.championsclub.billing.domain.PaymentSourceType.BOOKING)
+                            .sourceId(booking.getId().toString())
+                            .method(confirmReq.getPaymentMethod())
+                            .amount(price)
+                            .cardNumber(confirmReq.getCardNumber())
+                            .cardExpiry(confirmReq.getCardExpiry())
+                            .cardCvv(confirmReq.getCardCvv())
+                            .upiVpa(confirmReq.getUpiVpa())
+                            .cashDrawerSessionId(confirmReq.getCashDrawerSessionId())
+                            .managerOverride(confirmReq.isManagerOverride())
+                            .build();
+                    paymentService.processPayment(pReq, idempotencyKey != null ? idempotencyKey + "_pay" : null, caller);
+                }
+            }
         }
 
         booking.setStatus(BookingStatus.CONFIRMED);

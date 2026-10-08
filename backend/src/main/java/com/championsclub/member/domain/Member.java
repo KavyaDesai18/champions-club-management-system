@@ -81,6 +81,17 @@ public class Member {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "corporate_account_id")
+    private com.championsclub.billing.domain.CorporateAccount corporateAccount;
+
+    @Column(name = "corporate_employee_id", length = 50)
+    private String corporateEmployeeId;
+
+    @Column(name = "can_charge_to_company", nullable = false)
+    @Builder.Default
+    private Boolean canChargeToCompany = false;
+
     @Column(columnDefinition = "TEXT")
     private String notes;
 

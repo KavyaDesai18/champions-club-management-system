@@ -7,6 +7,8 @@ import { membersApi } from '../../api/membersApi';
 import { useAuth } from '../../context/AuthContext';
 import { emitToast } from '../../api/client';
 import AvailabilityGrid from '../../components/availability/AvailabilityGrid';
+import PaymentModal from '../../components/billing/PaymentModal';
+import ReceiptInvoiceModal from '../../components/billing/ReceiptInvoiceModal';
 import {
   Calendar,
   Clock,
@@ -46,6 +48,11 @@ export default function CourtBookingPage() {
 
   // Conflict state (someone took slot)
   const [slotTakenError, setSlotTakenError] = useState(null);
+
+  // Payment & Invoice state
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [confirmedInvoiceId, setConfirmedInvoiceId] = useState(null);
+  const [isReceiptOpen, setIsReceiptOpen] = useState(false);
 
   // 1. Fetch Sports
   const { data: sports = [] } = useQuery({
@@ -487,17 +494,58 @@ export default function CourtBookingPage() {
               ) : (
                 <button
                   disabled={confirmBookingMutation.isPending}
-                  onClick={() => confirmBookingMutation.mutate(activeHeldBooking.id)}
+                  onClick={() => {
+                    const price = parseFloat(totalCalculatedPrice());
+                    if (price > 0) {
+                      setIsPaymentModalOpen(true);
+                    } else {
+                      confirmBookingMutation.mutate(activeHeldBooking.id);
+                    }
+                  }}
                   className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-slate-950 font-bold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-emerald-500/20"
                 >
                   <CreditCard className="w-3.5 h-3.5" />
-                  {confirmBookingMutation.isPending ? 'Confirming...' : 'Confirm & Reserve'}
+                  {confirmBookingMutation.isPending
+                    ? 'Confirming...'
+                    : parseFloat(totalCalculatedPrice()) > 0
+                    ? `Proceed to Payment (₹${totalCalculatedPrice()})`
+                    : 'Confirm Free Reservation'}
                 </button>
               )}
             </div>
           </div>
         </div>
       )}
+
+      {/* Payment Modal for Booking */}
+      {activeHeldBooking && (
+        <PaymentModal
+          isOpen={isPaymentModalOpen}
+          onClose={() => setIsPaymentModalOpen(false)}
+          amount={parseFloat(totalCalculatedPrice())}
+          sourceType="BOOKING"
+          sourceId={activeHeldBooking.id}
+          description={`Court Booking: ${bookingDrawerSlot?.court?.name || 'Court'} (${bookingDrawerSlot?.slot?.startTime})`}
+          onSuccess={(paymentRes) => {
+            setIsPaymentModalOpen(false);
+            confirmBookingMutation.mutate(activeHeldBooking.id);
+            if (paymentRes?.invoiceId) {
+              setConfirmedInvoiceId(paymentRes.invoiceId);
+              setIsReceiptOpen(true);
+            }
+          }}
+        />
+      )}
+
+      {/* Confirmed Invoice Viewer / PDF Download Modal */}
+      <ReceiptInvoiceModal
+        isOpen={isReceiptOpen}
+        onClose={() => {
+          setIsReceiptOpen(false);
+          setConfirmedInvoiceId(null);
+        }}
+        invoiceId={confirmedInvoiceId}
+      />
     </div>
   );
 }

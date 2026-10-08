@@ -31,6 +31,9 @@ import BookingsConsolePage from './pages/staff/BookingsConsolePage';
 import SocialPlayPage from './pages/social/SocialPlayPage';
 import ShopConsolePage from './pages/staff/ShopConsolePage';
 import MemberShopPage from './pages/member/MemberShopPage';
+import InvoicesConsolePage from './pages/staff/InvoicesConsolePage';
+import CashDrawerConsolePage from './pages/staff/CashDrawerConsolePage';
+import CorporateAccountsPage from './pages/staff/CorporateAccountsPage';
 
 // Auth Pages
 import LoginPage from './pages/auth/LoginPage';
@@ -107,6 +110,9 @@ export function App() {
                     <Route path="members/:id" element={<Member360Page />} />
                     <Route path="checkin" element={<FrontDeskCheckInPage />} />
                     <Route path="bookings" element={<BookingsConsolePage />} />
+                    <Route path="invoices" element={<InvoicesConsolePage />} />
+                    <Route path="cash-drawer" element={<CashDrawerConsolePage />} />
+                    <Route path="corporate" element={<CorporateAccountsPage />} />
                     <Route path="courts" element={<CourtsConsolePage />} />
                     <Route path="pricing" element={<PricingConsolePage />} />
                     <Route path="hours" element={<OpeningHoursConsolePage />} />

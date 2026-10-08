@@ -66,16 +66,17 @@ public class CourtController {
     }
 
     @PostMapping({"/bookings/{id}/confirm", "/api/v1/bookings/{id}/confirm"})
-    @Operation(summary = "Confirm held booking", description = "Converts HELD slot to CONFIRMED before the 5-min TTL expires")
+    @Operation(summary = "Confirm held booking", description = "Converts HELD slot to CONFIRMED before the 5-min TTL expires, processing payment if provided")
     public ResponseEntity<BookingResponse> confirmBooking(
             @PathVariable UUID id,
+            @RequestBody(required = false) com.championsclub.court.dto.ConfirmBookingRequest request,
             @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
             Authentication authentication,
             HttpServletRequest servletRequest
     ) {
         User caller = extractUser(authentication);
         String clientIp = servletRequest.getRemoteAddr();
-        BookingResponse response = courtBookingService.confirmBooking(id, idempotencyKey, clientIp, caller);
+        BookingResponse response = courtBookingService.confirmBooking(id, request, idempotencyKey, clientIp, caller);
         return ResponseEntity.ok(response);
     }
 

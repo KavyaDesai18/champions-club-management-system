@@ -4,6 +4,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import {
   Activity,
   Award,
+  Banknote,
+  Building2,
   Calendar,
   ChevronLeft,
   ChevronRight,
@@ -15,6 +17,7 @@ import {
   LayoutDashboard,
   LogOut,
   Palette,
+  Receipt,
   Search,
   Settings,
   Shield,
@@ -33,6 +36,9 @@ import { useAuth } from '../../context/AuthContext';
 
 export const allConsoleMenuItems = [
   { id: 'dashboard', label: 'Operations Board', icon: LayoutDashboard, path: '/console', roles: ['OWNER', 'MANAGER', 'FRONT_DESK', 'COACH'] },
+  { id: 'invoices', label: 'Invoices & Ledger', icon: Receipt, path: '/console/invoices', roles: ['OWNER', 'MANAGER', 'FRONT_DESK'] },
+  { id: 'cashdrawer', label: 'Cash Drawer', icon: Banknote, path: '/console/cash-drawer', roles: ['OWNER', 'MANAGER', 'FRONT_DESK', 'SHOP_STAFF', 'BAR_STAFF'] },
+  { id: 'corporate', label: 'Corporate Accounts', icon: Building2, path: '/console/corporate', roles: ['OWNER', 'MANAGER'] },
   { id: 'social', label: 'Social Play Sessions', icon: Users, path: '/console/social', roles: ['OWNER', 'MANAGER', 'FRONT_DESK', 'COACH'] },
   { id: 'availability', label: 'Availability Grid', icon: Calendar, path: '/console/availability', roles: ['OWNER', 'MANAGER', 'FRONT_DESK', 'COACH'] },
   { id: 'courts', label: 'Courts Management', icon: Layers, path: '/console/courts', roles: ['OWNER', 'MANAGER', 'FRONT_DESK'] },

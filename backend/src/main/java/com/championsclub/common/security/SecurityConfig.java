@@ -75,7 +75,11 @@ public class SecurityConfig {
                                 "/api/v1/shop/catalog/**",
                                 "/api/v1/shop/categories/**",
                                 "/api/v1/shop/quote/**",
-                                "/api/v1/public/shop/**"
+                                "/api/v1/public/shop/**",
+                                "/api/payments/webhook/**",
+                                "/api/v1/payments/webhook/**",
+                                "/api/payments/intent/**",
+                                "/api/v1/payments/intent/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
