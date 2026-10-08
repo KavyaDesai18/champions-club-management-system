@@ -32,6 +32,15 @@ public class PricingQuoteService {
     public static final BigDecimal EXEMPT_TAX_RATE = BigDecimal.ZERO;
 
     @Transactional(readOnly = true)
+    public PriceQuoteResponse calculateQuote(UUID variantId, UUID memberId, int qty) {
+        return calculateQuote(PriceQuoteRequest.builder()
+                .variantId(variantId)
+                .memberId(memberId)
+                .quantity(qty)
+                .build());
+    }
+
+    @Transactional(readOnly = true)
     public PriceQuoteResponse calculateQuote(PriceQuoteRequest request) {
         if (request.getQuantity() == null || request.getQuantity() <= 0) {
             throw new BusinessValidationException("Quantity must be greater than zero", "INVALID_QUANTITY");

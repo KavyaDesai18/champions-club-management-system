@@ -168,12 +168,12 @@ public class ShopServiceService {
                 String msg = "Your racket re-stringing ticket #" + ticket.getTicketNumber() + " is READY for pickup at the Pro Shop counter!";
                 try {
                     notificationDispatcher.dispatch(
-                            member.getId(),
-                            NotificationType.SERVICE_JOB,
+                            member.getUser(),
+                            member,
                             "Racquet Re-Stringing Ready",
                             msg,
-                            ticket.getTicketNumber(),
-                            Map.of("ticketNumber", ticket.getTicketNumber(), "status", "READY")
+                            NotificationType.SERVICE_JOB,
+                            null
                     );
                 } catch (Exception e) {
                     log.warn("Failed to dispatch member notification for ticket {}: {}", ticket.getTicketNumber(), e.getMessage());

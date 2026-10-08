@@ -143,6 +143,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
     }
 
+    @ExceptionHandler({org.springframework.dao.OptimisticLockingFailureException.class, jakarta.persistence.OptimisticLockException.class})
+    public ResponseEntity<ApiErrorResponse> handleOptimisticLockConflict(Exception ex, HttpServletRequest request) {
+        log.warn("Optimistic locking conflict: {}", ex.getMessage());
+        ApiErrorResponse body = ApiErrorResponse.builder()
+                .timestamp(clock.instant())
+                .status(HttpStatus.CONFLICT.value())
+                .code("OPTIMISTIC_LOCK_CONFLICT")
+                .message("This record was updated concurrently by another staff member. Please refresh to load the latest state.")
+                .path(request.getRequestURI())
+                .traceId(getTraceId())
+                .build();
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleGenericException(Exception ex, HttpServletRequest request) {
         String traceId = getTraceId();

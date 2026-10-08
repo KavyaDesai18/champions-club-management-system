@@ -177,6 +177,83 @@ export const shopApi = {
     const { data } = await client.post('/api/v1/shop/pos/quick-sale', payload);
     return data;
   },
+
+  // Member Cart & Orders (Flyway V9)
+  getCart: async (params = {}) => {
+    const { data } = await client.get('/api/v1/shop/cart', { params });
+    return data;
+  },
+
+  addToCart: async (payload, params = {}) => {
+    const { data } = await client.post('/api/v1/shop/cart/items', payload, { params });
+    return data;
+  },
+
+  updateCartItemQty: async (orderItemId, qty, params = {}) => {
+    const { data } = await client.put(`/api/v1/shop/cart/items/${orderItemId}`, { qty }, { params });
+    return data;
+  },
+
+  removeCartItem: async (orderItemId, params = {}) => {
+    const { data } = await client.delete(`/api/v1/shop/cart/items/${orderItemId}`, { params });
+    return data;
+  },
+
+  clearCart: async (params = {}) => {
+    const { data } = await client.delete('/api/v1/shop/cart', { params });
+    return data;
+  },
+
+  checkout: async (payload, params = {}) => {
+    const { data } = await client.post('/api/v1/shop/checkout', payload, { params });
+    return data;
+  },
+
+  payOrder: async (orderId, payload = {}) => {
+    const { data } = await client.post(`/api/v1/shop/orders/${orderId}/pay`, payload);
+    return data;
+  },
+
+  getMyOrders: async (params = {}) => {
+    const { data } = await client.get('/api/v1/shop/orders/my', { params });
+    return data;
+  },
+
+  getOrderById: async (orderId) => {
+    const { data } = await client.get(`/api/v1/shop/orders/${orderId}`);
+    return data;
+  },
+
+  getOrderByNumber: async (orderNo) => {
+    const { data } = await client.get(`/api/v1/shop/orders/number/${encodeURIComponent(orderNo)}`);
+    return data;
+  },
+
+  // Staff Orders Queue & POS Counter
+  getStaffOrders: async (params = {}) => {
+    const { data } = await client.get('/api/v1/shop/staff/orders', { params });
+    return data;
+  },
+
+  getOrderQueue: async () => {
+    const { data } = await client.get('/api/v1/shop/staff/orders/queue');
+    return data;
+  },
+
+  updateOrderStatus: async (orderId, payload) => {
+    const { data } = await client.post(`/api/v1/shop/staff/orders/${orderId}/status`, payload);
+    return data;
+  },
+
+  createCounterSale: async (payload) => {
+    const { data } = await client.post('/api/v1/shop/staff/orders/counter-sale', payload);
+    return data;
+  },
+
+  refundOrder: async (orderId, payload) => {
+    const { data } = await client.post(`/api/v1/shop/staff/orders/${orderId}/refund`, payload);
+    return data;
+  },
 };
 
 export default shopApi;

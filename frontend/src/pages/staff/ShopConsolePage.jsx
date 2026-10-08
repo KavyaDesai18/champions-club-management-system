@@ -18,12 +18,17 @@ import {
   Package,
   Plus,
   RefreshCw,
+  RotateCcw,
   Search,
+  ShoppingBag,
   ShoppingCart,
   Tag,
   Truck,
   Wrench,
   X,
+  Zap,
+  Printer,
+  CreditCard,
 } from 'lucide-react';
 import shopApi from '../../api/shopApi';
 import { useToast } from '../../context/ToastContext';
@@ -87,10 +92,16 @@ export const ShopConsolePage = () => {
     notes: '',
   });
 
-  // POS State
+  // POS & Order State
   const [posBarcode, setPosBarcode] = useState('');
   const [posCart, setPosCart] = useState([]);
   const [posMemberId, setPosMemberId] = useState('');
+
+  // Queue & Quick Sale State
+  const [selectedOrderForReceipt, setSelectedOrderForReceipt] = useState(null);
+  const [quickSaleCart, setQuickSaleCart] = useState([]);
+  const [quickSalePaymentMethod, setQuickSalePaymentMethod] = useState('CASH');
+  const [quickSaleMemberId, setQuickSaleMemberId] = useState('');
 
   const { addToast } = useToast();
   const queryClient = useQueryClient();
@@ -146,7 +157,52 @@ export const ShopConsolePage = () => {
     enabled: !!selectedVariantForHistory,
   });
 
+  const { data: queueOrders = [], refetch: refetchQueue } = useQuery({
+    queryKey: ['orderQueue'],
+    queryFn: shopApi.getOrderQueue,
+    enabled: activeTab === 'queue',
+  });
+
   // Mutations
+  const advanceStatusMutation = useMutation({
+    mutationFn: ({ orderId, newStatus, reason }) => shopApi.updateOrderStatus(orderId, { newStatus, reason }),
+    onSuccess: (data) => {
+      addToast({ type: 'success', title: 'Order Status Advanced', message: `Order #${data.orderNo} is now ${data.status}` });
+      queryClient.invalidateQueries({ queryKey: ['orderQueue'] });
+      queryClient.invalidateQueries({ queryKey: ['shopVariants'] });
+    },
+    onError: (err) => {
+      addToast({ type: 'error', title: 'Status Update Failed', message: err.response?.data?.message || err.message });
+    },
+  });
+
+  const refundOrderMutation = useMutation({
+    mutationFn: ({ orderId, reason }) => shopApi.refundOrder(orderId, { reason }),
+    onSuccess: (data) => {
+      addToast({ type: 'success', title: 'Order Refunded', message: `Order #${data.orderNo} refunded and items returned to stock.` });
+      queryClient.invalidateQueries({ queryKey: ['orderQueue'] });
+      queryClient.invalidateQueries({ queryKey: ['shopVariants'] });
+    },
+    onError: (err) => {
+      addToast({ type: 'error', title: 'Refund Failed', message: err.response?.data?.message || err.message });
+    },
+  });
+
+  const counterSaleMutation = useMutation({
+    mutationFn: (payload) => shopApi.createCounterSale(payload),
+    onSuccess: (data) => {
+      addToast({ type: 'success', title: 'Quick Sale Completed', message: `Order #${data.orderNo} completed for $${data.total}` });
+      setSelectedOrderForReceipt(data);
+      setQuickSaleCart([]);
+      queryClient.invalidateQueries({ queryKey: ['orderQueue'] });
+      queryClient.invalidateQueries({ queryKey: ['shopVariants'] });
+      queryClient.invalidateQueries({ queryKey: ['shopAlerts'] });
+    },
+    onError: (err) => {
+      addToast({ type: 'error', title: 'Quick Sale Failed', message: err.response?.data?.message || err.message });
+    },
+  });
+
   const restockMutation = useMutation({
     mutationFn: ({ variantId, payload }) => shopApi.restockVariant(variantId, payload),
     onSuccess: (res, vars) => {
@@ -384,10 +440,12 @@ export const ShopConsolePage = () => {
       <div className="flex flex-wrap border-b border-slate-800 gap-2">
         {[
           { id: 'inventory', label: 'Inventory Table', icon: Package, badge: variantsData.length },
+          { id: 'queue', label: 'Order Queue Board', icon: ShoppingBag, badge: queueOrders.filter(o => o.status !== 'COMPLETED').length },
+          { id: 'quick_sale', label: 'Quick Sale (<3 Taps)', icon: Zap },
+          { id: 'pos', label: 'Counter POS Terminal', icon: Barcode },
           { id: 'ledger', label: 'Movement Ledger', icon: History },
           { id: 'tickets', label: 'Re-Stringing KDS', icon: Wrench, badge: ticketsData.filter(t => t.status !== 'COMPLETED').length },
           { id: 'purchase_orders', label: 'Purchase Orders & Bills', icon: Truck, badge: purchaseOrders.length },
-          { id: 'pos', label: 'Counter POS Terminal', icon: Barcode },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -589,7 +647,671 @@ export const ShopConsolePage = () => {
         </div>
       )}
 
-      {/* TAB 2: MOVEMENT LEDGER TIMELINE */}
+      {/* TAB 2: ORDER QUEUE BOARD (KANBAN) */}
+      {activeTab === 'queue' && (
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                <ShoppingBag className="w-5 h-5 text-cyan-400" />
+                Fulfilment & Order Queue Board
+              </h2>
+              <p className="text-xs text-slate-400">
+                Live staff board for online and counter orders. Enforces strict state machine progression.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="xs"
+                onClick={() => refetchQueue()}
+              >
+                <RefreshCw className="w-3.5 h-3.5 mr-1" />
+                Refresh Board
+              </Button>
+            </div>
+          </div>
+
+          {/* Kanban Columns */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {[
+              {
+                id: 'NEW',
+                title: 'New / To Pack',
+                statuses: ['PLACED', 'PAID'],
+                color: 'border-amber-500/30 text-amber-300',
+              },
+              {
+                id: 'PACKED',
+                title: 'Packed / Processing',
+                statuses: ['PACKED'],
+                color: 'border-indigo-500/30 text-indigo-300',
+              },
+              {
+                id: 'DISPATCH',
+                title: 'Ready / In Transit',
+                statuses: ['READY', 'OUT_FOR_DELIVERY'],
+                color: 'border-cyan-500/30 text-cyan-300',
+              },
+              {
+                id: 'DONE',
+                title: 'Completed & Resolved',
+                statuses: ['COMPLETED', 'CANCELLED', 'REFUNDED'],
+                color: 'border-slate-700 text-slate-400',
+              },
+            ].map((col) => {
+              const colOrders = queueOrders.filter((o) => col.statuses.includes(o.status));
+              return (
+                <div
+                  key={col.id}
+                  className="bg-surface-900/60 border border-slate-800 rounded-2xl p-4 flex flex-col min-h-[500px]"
+                >
+                  <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
+                    <span className={`text-xs font-black uppercase tracking-wider ${col.color}`}>
+                      {col.title}
+                    </span>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-bold">
+                      {colOrders.length}
+                    </span>
+                  </div>
+
+                  <div className="space-y-3 flex-1 overflow-y-auto max-h-[700px] pr-1">
+                    {colOrders.length === 0 ? (
+                      <div className="text-center py-12 text-slate-600 text-xs italic">
+                        No orders in this stage
+                      </div>
+                    ) : (
+                      colOrders.map((order) => (
+                        <div
+                          key={order.id}
+                          id={`order-card-${order.orderNo}`}
+                          data-testid={`order-card-${order.orderNo}`}
+                          className="p-4 rounded-xl bg-surface-950 border border-slate-800 hover:border-slate-700 transition space-y-3 text-xs shadow-md"
+                        >
+                          {/* Order Header */}
+                          <div className="flex items-center justify-between">
+                            <span className="font-mono font-bold text-white text-sm">
+                              #{order.orderNo}
+                            </span>
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                                order.status === 'PAID'
+                                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                  : order.status === 'PACKED'
+                                  ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+                                  : order.status === 'READY'
+                                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
+                                  : order.status === 'OUT_FOR_DELIVERY'
+                                  ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                                  : order.status === 'COMPLETED'
+                                  ? 'bg-slate-800 text-slate-300'
+                                  : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                              }`}
+                            >
+                              {order.status}
+                            </span>
+                          </div>
+
+                          {/* Channel & Fulfilment Tags */}
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <span
+                              className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                                order.channel === 'ONLINE'
+                                  ? 'bg-blue-900/40 text-blue-300 border border-blue-700/40'
+                                  : 'bg-emerald-900/40 text-emerald-300 border border-emerald-700/40'
+                              }`}
+                            >
+                              {order.channel}
+                            </span>
+                            <span
+                              className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                                order.fulfilmentType === 'PICKUP'
+                                  ? 'bg-amber-900/40 text-amber-300 border border-amber-700/40'
+                                  : order.fulfilmentType === 'DELIVERY'
+                                  ? 'bg-purple-900/40 text-purple-300 border border-purple-700/40'
+                                  : 'bg-slate-800 text-slate-300'
+                              }`}
+                            >
+                              {order.fulfilmentType}
+                            </span>
+                          </div>
+
+                          {/* Pickup Code or Delivery Address */}
+                          {order.fulfilmentType === 'PICKUP' && order.pickupCode && (
+                            <div className="p-2 rounded-lg bg-amber-950/30 border border-amber-500/30 text-amber-200 text-xs">
+                              <span className="text-slate-400">Pickup Code: </span>
+                              <strong className="font-mono text-amber-300 font-bold">
+                                {order.pickupCode}
+                              </strong>
+                            </div>
+                          )}
+
+                          {order.fulfilmentType === 'DELIVERY' && order.deliveryAddressSnapshot && (
+                            <div className="p-2 rounded-lg bg-purple-950/30 border border-purple-500/30 text-purple-200 text-[11px] leading-tight">
+                              <div className="font-semibold text-purple-100 flex items-center gap-1">
+                                <Truck className="w-3 h-3" /> Delivery Address:
+                              </div>
+                              <div className="text-slate-300 mt-0.5">
+                                {order.deliveryAddressSnapshot.addressLine1},{' '}
+                                {order.deliveryAddressSnapshot.city} -{' '}
+                                <span className="font-mono font-bold">
+                                  {order.deliveryAddressSnapshot.pincode}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Customer info */}
+                          <div className="text-[11px] text-slate-400">
+                            Customer:{' '}
+                            <span className="text-white font-medium">
+                              {order.guestName || (order.memberId ? 'Club Member' : 'Walk-in Guest')}
+                            </span>
+                          </div>
+
+                          {/* Item Lines */}
+                          <div className="border-t border-slate-900 pt-2 space-y-1">
+                            {order.items?.map((item) => (
+                              <div
+                                key={item.id}
+                                className="flex justify-between text-[11px] text-slate-300"
+                              >
+                                <span>
+                                  {item.productName || item.variantSku} × {item.quantity}
+                                </span>
+                                <span className="font-mono font-bold text-white">
+                                  ${Number(item.totalPrice).toFixed(2)}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Total Financials */}
+                          <div className="border-t border-slate-900 pt-2 flex items-center justify-between">
+                            <span className="text-slate-400 text-xs">Total:</span>
+                            <span className="text-base font-black font-mono text-emerald-400">
+                              ${Number(order.total).toFixed(2)}
+                            </span>
+                          </div>
+
+                          {/* State Transition Action Buttons */}
+                          <div className="pt-2 border-t border-slate-900/80 flex flex-col gap-1.5">
+                            {(order.status === 'PLACED' || order.status === 'PAID') && (
+                              <Button
+                                id={`pack-btn-${order.orderNo}`}
+                                data-testid={`pack-btn-${order.orderNo}`}
+                                size="xs"
+                                variant="primary"
+                                className="w-full"
+                                loading={advanceStatusMutation.isPending}
+                                onClick={() =>
+                                  advanceStatusMutation.mutate({
+                                    orderId: order.id,
+                                    newStatus: 'PACKED',
+                                    reason: 'Staff packed order items',
+                                  })
+                                }
+                              >
+                                <Package className="w-3.5 h-3.5 mr-1" />
+                                Mark Packed
+                              </Button>
+                            )}
+
+                            {order.status === 'PACKED' && order.fulfilmentType === 'PICKUP' && (
+                              <Button
+                                id={`ready-pickup-btn-${order.orderNo}`}
+                                size="xs"
+                                variant="warning"
+                                className="w-full"
+                                loading={advanceStatusMutation.isPending}
+                                onClick={() =>
+                                  advanceStatusMutation.mutate({
+                                    orderId: order.id,
+                                    newStatus: 'READY',
+                                    reason: 'Order placed in pickup bay',
+                                  })
+                                }
+                              >
+                                <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
+                                Mark Ready for Pickup
+                              </Button>
+                            )}
+
+                            {order.status === 'PACKED' && order.fulfilmentType === 'DELIVERY' && (
+                              <Button
+                                id={`dispatch-btn-${order.orderNo}`}
+                                size="xs"
+                                variant="primary"
+                                className="w-full"
+                                loading={advanceStatusMutation.isPending}
+                                onClick={() =>
+                                  advanceStatusMutation.mutate({
+                                    orderId: order.id,
+                                    newStatus: 'OUT_FOR_DELIVERY',
+                                    reason: 'Handed to courier',
+                                  })
+                                }
+                              >
+                                <Truck className="w-3.5 h-3.5 mr-1" />
+                                Out for Delivery
+                              </Button>
+                            )}
+
+                            {order.status === 'PACKED' && order.fulfilmentType === 'INSTORE' && (
+                              <Button
+                                id={`complete-btn-${order.orderNo}`}
+                                size="xs"
+                                variant="success"
+                                className="w-full"
+                                loading={advanceStatusMutation.isPending}
+                                onClick={() =>
+                                  advanceStatusMutation.mutate({
+                                    orderId: order.id,
+                                    newStatus: 'COMPLETED',
+                                    reason: 'Instore counter handoff complete',
+                                  })
+                                }
+                              >
+                                <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
+                                Complete Sale
+                              </Button>
+                            )}
+
+                            {order.status === 'READY' && (
+                              <Button
+                                id={`complete-pickup-btn-${order.orderNo}`}
+                                size="xs"
+                                variant="success"
+                                className="w-full"
+                                loading={advanceStatusMutation.isPending}
+                                onClick={() =>
+                                  advanceStatusMutation.mutate({
+                                    orderId: order.id,
+                                    newStatus: 'COMPLETED',
+                                    reason: 'Customer verified pickup code & received order',
+                                  })
+                                }
+                              >
+                                <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
+                                Hand Over & Complete
+                              </Button>
+                            )}
+
+                            {order.status === 'OUT_FOR_DELIVERY' && (
+                              <Button
+                                id={`complete-delivery-btn-${order.orderNo}`}
+                                size="xs"
+                                variant="success"
+                                className="w-full"
+                                loading={advanceStatusMutation.isPending}
+                                onClick={() =>
+                                  advanceStatusMutation.mutate({
+                                    orderId: order.id,
+                                    newStatus: 'COMPLETED',
+                                    reason: 'Courier confirmed delivery',
+                                  })
+                                }
+                              >
+                                <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
+                                Confirm Delivered
+                              </Button>
+                            )}
+
+                            {/* Secondary Actions: Receipt and Refund */}
+                            <div className="flex items-center gap-1 pt-1">
+                              <Button
+                                id={`receipt-btn-${order.orderNo}`}
+                                size="xs"
+                                variant="ghost"
+                                className="flex-1"
+                                onClick={() => setSelectedOrderForReceipt(order)}
+                              >
+                                <Printer className="w-3 h-3 mr-1" />
+                                Receipt
+                              </Button>
+
+                              {['PAID', 'PACKED', 'READY', 'COMPLETED'].includes(order.status) && (
+                                <Button
+                                  id={`refund-btn-${order.orderNo}`}
+                                  size="xs"
+                                  variant="ghost"
+                                  className="text-rose-400 hover:text-rose-300"
+                                  loading={refundOrderMutation.isPending}
+                                  onClick={() => {
+                                    if (window.confirm(`Refund Order #${order.orderNo} and restore items to stock?`)) {
+                                      refundOrderMutation.mutate({
+                                        orderId: order.id,
+                                        reason: 'Staff counter return/refund',
+                                      });
+                                    }
+                                  }}
+                                >
+                                  <RotateCcw className="w-3 h-3 mr-1" />
+                                  Refund
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* TAB 3: QUICK SALE SCREEN (<3 TAPS FOR COURT EMERGENCIES) */}
+      {activeTab === 'quick_sale' && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Big Tactile Tiles (2 Cols) */}
+          <div className="lg:col-span-2 space-y-4">
+            <div>
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                <Zap className="w-5 h-5 text-amber-400" />
+                Quick Sale Express Tiles
+              </h2>
+              <p className="text-xs text-slate-400">
+                1-tap add for emergency essentials ("racket broke 10 mins before play", lost grip, balls). Complete sale in &lt;3 taps.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {[
+                { name: 'Wilson US Open Balls (Can)', price: 9.99, icon: '🎾', query: 'BALL' },
+                { name: 'Aerosensa 30 Shuttlecock', price: 32.00, icon: '🏸', query: 'SHUTTLE' },
+                { name: 'Yonex Super Grap (3x)', price: 7.99, icon: '🎗️', query: 'GRIP' },
+                { name: 'Tourna Grip Original (3x)', price: 8.50, icon: '🧤', query: 'TOURNA' },
+                { name: 'Babolat RPM Blast 16G', price: 18.00, icon: '🧵', query: 'STRING' },
+                { name: 'Emergency 1-Hr Re-String', price: 25.00, icon: '⚡', query: 'SERVICE' },
+                { name: 'Court Rental Racket', price: 10.00, icon: '🏸', query: 'RACKET' },
+                { name: 'Electrolyte Hydration Pack', price: 4.50, icon: '🥤', query: 'DRINK' },
+              ].map((tile, idx) => {
+                // Find matching variant from inventory, or fallback to first available variant
+                const matchedVariant =
+                  variantsData.find(
+                    (v) =>
+                      v.sku.toLowerCase().includes(tile.query.toLowerCase()) ||
+                      (v.productName && v.productName.toLowerCase().includes(tile.name.toLowerCase()))
+                  ) || variantsData[idx % (variantsData.length || 1)];
+
+                const effectivePrice = matchedVariant ? Number(matchedVariant.effectivePrice || tile.price) : tile.price;
+                const availableStock = matchedVariant ? matchedVariant.available : 99;
+
+                return (
+                  <button
+                    key={idx}
+                    id={`quick-tile-${idx}`}
+                    data-testid={`quick-tile-${idx}`}
+                    disabled={availableStock <= 0}
+                    onClick={() => {
+                      if (!matchedVariant) {
+                        addToast({ type: 'warning', title: 'Inventory Empty', message: 'No inventory variants seeded.' });
+                        return;
+                      }
+                      setQuickSaleCart((prev) => {
+                        const existing = prev.find((item) => item.variantId === matchedVariant.id);
+                        if (existing) {
+                          return prev.map((item) =>
+                            item.variantId === matchedVariant.id ? { ...item, quantity: item.quantity + 1 } : item
+                          );
+                        }
+                        return [
+                          ...prev,
+                          {
+                            variantId: matchedVariant.id,
+                            name: tile.name,
+                            sku: matchedVariant.sku,
+                            unitPrice: effectivePrice,
+                            quantity: 1,
+                          },
+                        ];
+                      });
+                      addToast({ type: 'info', title: 'Added to Quick Sale', message: `${tile.name} ($${effectivePrice})` });
+                    }}
+                    className={`p-4 rounded-2xl border text-left flex flex-col justify-between transition-all transform active:scale-95 min-h-[130px] ${
+                      availableStock <= 0
+                        ? 'opacity-40 bg-surface-950 border-slate-800 cursor-not-allowed'
+                        : 'bg-surface-900/80 hover:bg-surface-800/80 border-slate-800 hover:border-cyan-500/50 shadow-lg hover:shadow-cyan-500/10'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <span className="text-3xl">{tile.icon}</span>
+                      <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-300">
+                        {availableStock} in stock
+                      </span>
+                    </div>
+
+                    <div className="mt-2">
+                      <div className="font-bold text-white text-xs leading-tight line-clamp-2">
+                        {tile.name}
+                      </div>
+                      <div className="text-sm font-black text-emerald-400 mt-1 font-mono">
+                        ${effectivePrice.toFixed(2)}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Quick Catalog Search / Custom Selection */}
+            <div className="pt-2">
+              <div className="text-xs font-bold text-slate-400 mb-2">Or Tap Any Catalog Variant:</div>
+              <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-2 rounded-xl bg-surface-950 border border-slate-800">
+                {variantsData.slice(0, 12).map((variant) => (
+                  <button
+                    key={variant.id}
+                    id={`quick-variant-${variant.sku}`}
+                    onClick={() => {
+                      setQuickSaleCart((prev) => {
+                        const existing = prev.find((item) => item.variantId === variant.id);
+                        if (existing) {
+                          return prev.map((item) =>
+                            item.variantId === variant.id ? { ...item, quantity: item.quantity + 1 } : item
+                          );
+                        }
+                        return [
+                          ...prev,
+                          {
+                            variantId: variant.id,
+                            name: `${variant.sku} (${variant.size || 'Std'})`,
+                            sku: variant.sku,
+                            unitPrice: Number(variant.effectivePrice || 0),
+                            quantity: 1,
+                          },
+                        ];
+                      });
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-surface-900 hover:bg-slate-800 border border-slate-800 text-xs text-white flex items-center gap-2"
+                  >
+                    <span className="font-mono font-bold text-cyan-300">{variant.sku}</span>
+                    <span className="font-bold text-emerald-400">${Number(variant.effectivePrice || 0).toFixed(2)}</span>
+                    <span className="text-[10px] text-slate-400">({variant.available} avail)</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Checkout Column */}
+          <Card className="p-6 space-y-4 flex flex-col justify-between">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-amber-400" />
+                  Quick Sale Register
+                </h3>
+                {quickSaleCart.length > 0 && (
+                  <button
+                    onClick={() => setQuickSaleCart([])}
+                    className="text-xs text-rose-400 hover:text-rose-300"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+
+              {/* Items List */}
+              <div className="space-y-2 min-h-[140px] max-h-[220px] overflow-y-auto">
+                {quickSaleCart.length === 0 ? (
+                  <div className="text-center py-12 text-slate-500 text-xs italic">
+                    Tap any big tile on the left to add items.
+                  </div>
+                ) : (
+                  quickSaleCart.map((item, idx) => (
+                    <div
+                      key={item.variantId}
+                      className="p-2.5 rounded-xl bg-surface-900 border border-slate-800 flex items-center justify-between text-xs"
+                    >
+                      <div className="flex-1 pr-2">
+                        <div className="font-bold text-white leading-tight">{item.name}</div>
+                        <div className="text-[10px] text-slate-400 font-mono">
+                          ${item.unitPrice.toFixed(2)} each
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center border border-slate-700 rounded-lg overflow-hidden">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (item.quantity <= 1) {
+                                setQuickSaleCart((prev) => prev.filter((_, i) => i !== idx));
+                              } else {
+                                setQuickSaleCart((prev) =>
+                                  prev.map((i, iIdx) =>
+                                    iIdx === idx ? { ...i, quantity: i.quantity - 1 } : i
+                                  )
+                                );
+                              }
+                            }}
+                            className="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-white font-bold"
+                          >
+                            -
+                          </button>
+                          <span className="px-2 py-0.5 bg-surface-950 font-mono text-cyan-300 font-bold">
+                            {item.quantity}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setQuickSaleCart((prev) =>
+                                prev.map((i, iIdx) =>
+                                  iIdx === idx ? { ...i, quantity: i.quantity + 1 } : i
+                                )
+                              );
+                            }}
+                            className="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-white font-bold"
+                          >
+                            +
+                          </button>
+                        </div>
+
+                        <span className="font-mono font-bold text-white min-w-[50px] text-right">
+                          ${(item.unitPrice * item.quantity).toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Payment Method Selector (1 tap) */}
+              <div>
+                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                  Payment Method:
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: 'CASH', label: '💵 Cash' },
+                    { id: 'CARD', label: '💳 Card' },
+                    { id: 'UPI', label: '📱 UPI' },
+                  ].map((pm) => (
+                    <button
+                      key={pm.id}
+                      type="button"
+                      onClick={() => setQuickSalePaymentMethod(pm.id)}
+                      className={`py-2 px-1 rounded-xl text-xs font-bold transition border ${
+                        quickSalePaymentMethod === pm.id
+                          ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500'
+                          : 'bg-surface-900 border-slate-800 text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      {pm.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Guest / Member Option */}
+              <div>
+                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                  Customer:
+                </label>
+                <input
+                  type="text"
+                  placeholder="Guest Walk-in (or enter Member ID)"
+                  value={quickSaleMemberId}
+                  onChange={(e) => setQuickSaleMemberId(e.target.value)}
+                  className="w-full px-3 py-1.5 bg-surface-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 outline-none focus:border-cyan-500"
+                />
+              </div>
+
+              {/* Subtotal & Total Due */}
+              <div className="pt-3 border-t border-slate-800 space-y-1">
+                <div className="flex justify-between text-xs text-slate-400">
+                  <span>Subtotal:</span>
+                  <span className="font-mono text-white">
+                    $
+                    {quickSaleCart
+                      .reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
+                      .toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-base font-bold">
+                  <span className="text-white">Total Due:</span>
+                  <span className="font-mono text-emerald-400 text-xl font-black">
+                    $
+                    {quickSaleCart
+                      .reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
+                      .toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Giant Complete Quick Sale Button */}
+            <Button
+              id="complete-quick-sale-btn"
+              data-testid="complete-quick-sale-btn"
+              variant="success"
+              className="w-full py-4 text-base font-black shadow-lg shadow-emerald-500/20"
+              disabled={quickSaleCart.length === 0}
+              loading={counterSaleMutation.isPending}
+              onClick={() => {
+                counterSaleMutation.mutate({
+                  items: quickSaleCart.map((i) => ({ variantId: i.variantId, quantity: i.quantity })),
+                  paymentMethod: quickSalePaymentMethod,
+                  memberId: quickSaleMemberId.trim() ? quickSaleMemberId.trim() : undefined,
+                  guestName: quickSaleMemberId.trim() ? undefined : 'Walk-in Player',
+                });
+              }}
+            >
+              <Zap className="w-5 h-5 mr-2" />
+              Complete Quick Sale ($
+              {quickSaleCart
+                .reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
+                .toFixed(2)}
+              )
+            </Button>
+          </Card>
+        </div>
+      )}
+
+      {/* TAB 4: MOVEMENT LEDGER TIMELINE */}
       {activeTab === 'ledger' && (
         <Card className="p-6 space-y-4">
           <div className="flex items-center justify-between">
@@ -1340,6 +2062,146 @@ export const ShopConsolePage = () => {
             </Button>
           </div>
         </div>
+      </Modal>
+
+      {/* PRINTABLE RECEIPT MODAL */}
+      <Modal
+        isOpen={selectedOrderForReceipt != null}
+        onClose={() => setSelectedOrderForReceipt(null)}
+        title={`Sales Receipt: #${selectedOrderForReceipt?.orderNo || ''}`}
+      >
+        {selectedOrderForReceipt && (
+          <div className="space-y-4 text-xs font-sans">
+            {/* Thermal Receipt Paper Layout */}
+            <div
+              id="printable-receipt-card"
+              data-testid="printable-receipt-card"
+              className="p-6 bg-slate-900 border border-slate-700 rounded-2xl space-y-4 font-mono text-slate-200 shadow-inner"
+            >
+              <div className="text-center pb-3 border-b border-dashed border-slate-700 space-y-1">
+                <div className="text-base font-black tracking-widest text-white">CHAMPIONS CLUB PRO SHOP</div>
+                <div className="text-[11px] text-slate-400">Court Level 1 • Main Pro Desk</div>
+                <div className="text-[10px] text-slate-500">Tax Invoice & Official Cash Receipt</div>
+              </div>
+
+              <div className="space-y-1 text-[11px] pb-3 border-b border-dashed border-slate-700">
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Order Ref:</span>
+                  <span className="font-bold text-white">#{selectedOrderForReceipt.orderNo}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Date/Time:</span>
+                  <span>{new Date(selectedOrderForReceipt.createdAt).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Channel / Mode:</span>
+                  <span className="font-bold text-cyan-300">
+                    {selectedOrderForReceipt.channel} • {selectedOrderForReceipt.fulfilmentType}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Customer:</span>
+                  <span className="text-white">
+                    {selectedOrderForReceipt.guestName || (selectedOrderForReceipt.memberId ? 'Club Member' : 'Guest Player')}
+                  </span>
+                </div>
+              </div>
+
+              {selectedOrderForReceipt.fulfilmentType === 'PICKUP' && selectedOrderForReceipt.pickupCode && (
+                <div className="p-3 rounded-xl bg-amber-950/40 border border-amber-500/40 text-center space-y-0.5">
+                  <div className="text-[10px] uppercase tracking-wider text-amber-400 font-bold">Pick-Up Verification Code</div>
+                  <div className="text-xl font-black tracking-widest text-amber-300">
+                    {selectedOrderForReceipt.pickupCode}
+                  </div>
+                </div>
+              )}
+
+              {selectedOrderForReceipt.fulfilmentType === 'DELIVERY' && selectedOrderForReceipt.deliveryAddressSnapshot && (
+                <div className="p-2.5 rounded-xl bg-purple-950/40 border border-purple-500/40 text-[11px] space-y-0.5">
+                  <div className="text-[10px] uppercase font-bold text-purple-300">Delivery Destination</div>
+                  <div className="text-slate-200">
+                    {selectedOrderForReceipt.deliveryAddressSnapshot.addressLine1},{' '}
+                    {selectedOrderForReceipt.deliveryAddressSnapshot.city} -{' '}
+                    <span className="font-bold">{selectedOrderForReceipt.deliveryAddressSnapshot.pincode}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Items Table */}
+              <div className="space-y-1.5 pb-3 border-b border-dashed border-slate-700">
+                <div className="flex justify-between text-[10px] font-bold uppercase text-slate-400 pb-1 border-b border-slate-800">
+                  <span>Item / SKU</span>
+                  <span>Qty × Price</span>
+                  <span>Total</span>
+                </div>
+                {selectedOrderForReceipt.items?.map((item) => (
+                  <div key={item.id} className="flex justify-between text-[11px] text-slate-300">
+                    <span className="truncate max-w-[140px] text-white">
+                      {item.productName || item.variantSku}
+                    </span>
+                    <span className="text-slate-400">
+                      {item.quantity} × ${Number(item.unitPriceSnapshot || item.unitPrice).toFixed(2)}
+                    </span>
+                    <span className="font-bold text-white">
+                      ${Number(item.totalPrice).toFixed(2)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Financial Totals */}
+              <div className="space-y-1 text-[11px] pb-3 border-b border-dashed border-slate-700">
+                <div className="flex justify-between text-slate-400">
+                  <span>Subtotal:</span>
+                  <span>${Number(selectedOrderForReceipt.subtotal).toFixed(2)}</span>
+                </div>
+                {Number(selectedOrderForReceipt.discount || 0) > 0 && (
+                  <div className="flex justify-between text-emerald-400">
+                    <span>Discount applied:</span>
+                    <span>-${Number(selectedOrderForReceipt.discount).toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-slate-400">
+                  <span>Tax (Included):</span>
+                  <span>${Number(selectedOrderForReceipt.tax).toFixed(2)}</span>
+                </div>
+                {Number(selectedOrderForReceipt.deliveryFee || 0) > 0 && (
+                  <div className="flex justify-between text-slate-400">
+                    <span>Delivery Fee:</span>
+                    <span>${Number(selectedOrderForReceipt.deliveryFee).toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-sm font-black text-white pt-1">
+                  <span>TOTAL PAID:</span>
+                  <span className="text-emerald-400">${Number(selectedOrderForReceipt.total).toFixed(2)}</span>
+                </div>
+              </div>
+
+              <div className="text-center pt-2 space-y-1">
+                <div className="text-[10px] font-bold text-emerald-400 tracking-wider">
+                  ✓ VERIFIED & SETTLED
+                </div>
+                <div className="text-[9px] text-slate-500">Thank you for visiting Champions Club Pro Shop!</div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="ghost" onClick={() => setSelectedOrderForReceipt(null)}>
+                Close
+              </Button>
+              <Button
+                id="print-receipt-btn"
+                data-testid="print-receipt-btn"
+                variant="primary"
+                onClick={() => window.print()}
+              >
+                <Printer className="w-4 h-4 mr-2" />
+                Print Thermal Receipt
+              </Button>
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   );
