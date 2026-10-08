@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { Award, Calendar, Home, LogOut, Palette, Shield, User, Users, Wallet } from 'lucide-react';
+import { Award, Calendar, Home, LogOut, Palette, Shield, ShoppingBag, User, Users, Wallet } from 'lucide-react';
 import ThemeToggle from '../../components/common/ThemeToggle';
 import CommandPalette from '../../components/common/CommandPalette';
 import NotificationBell from '../../components/notification/NotificationBell';
@@ -15,6 +15,7 @@ export const MemberLayout = () => {
     { label: 'Overview', path: '/app', icon: Home },
     { label: 'Book Court', path: '/app/book', icon: Calendar },
     { label: 'Social Play', path: '/app/social', icon: Users },
+    { label: 'Pro Shop', path: '/app/shop', icon: ShoppingBag },
     { label: 'Wallet & Passes', path: '/app/wallet', icon: Wallet },
     { label: 'Styleguide', path: '/styleguide', icon: Palette },
   ];

@@ -6,5 +6,7 @@ public enum NotificationType {
     CHECK_IN,
     BOOKING,
     ACCOUNT,
-    SYSTEM
+    SYSTEM,
+    SERVICE_JOB,
+    SHOP_ORDER
 }

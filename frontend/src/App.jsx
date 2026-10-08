@@ -29,6 +29,8 @@ import CourtBookingPage from './pages/member/CourtBookingPage';
 import MyBookingsPage from './pages/member/MyBookingsPage';
 import BookingsConsolePage from './pages/staff/BookingsConsolePage';
 import SocialPlayPage from './pages/social/SocialPlayPage';
+import ShopConsolePage from './pages/staff/ShopConsolePage';
+import MemberShopPage from './pages/member/MemberShopPage';
 
 // Auth Pages
 import LoginPage from './pages/auth/LoginPage';
@@ -76,6 +78,7 @@ export function App() {
                     <Route path="book" element={<CourtBookingPage />} />
                     <Route path="bookings" element={<MyBookingsPage />} />
                     <Route path="social" element={<SocialPlayPage />} />
+                    <Route path="shop" element={<MemberShopPage />} />
                     <Route path="wallet" element={<MemberDashboard />} />
                   </Route>
                 </Route>
@@ -111,7 +114,7 @@ export function App() {
                     <Route path="availability" element={<CourtBookingPage />} />
                     <Route path="kitchen" element={<StaffConsoleHome />} />
                     <Route path="bar" element={<StaffConsoleHome />} />
-                    <Route path="shop" element={<StaffConsoleHome />} />
+                    <Route path="shop" element={<ShopConsolePage />} />
                     <Route path="audit" element={<StaffConsoleHome />} />
                     <Route path="settings" element={<StaffConsoleHome />} />
                     <Route path="users" element={<UserManagementPage />} />
