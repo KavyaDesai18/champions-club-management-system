@@ -105,9 +105,10 @@ public class ShopPosService {
             ProductVariant variant = null;
             ClubService service = null;
 
-            if (variantId != null) {
-                variant = variantRepository.findByIdAndIsDeletedFalse(variantId)
-                        .orElseThrow(() -> new ResourceNotFoundException("Variant not found: " + variantId));
+            final UUID resolvedVariantId = variantId;
+            if (resolvedVariantId != null) {
+                variant = variantRepository.findByIdAndIsDeletedFalse(resolvedVariantId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Variant not found: " + resolvedVariantId));
 
                 // Atomic stock deduction through ONE single service
                 inventoryService.deductStockForSale(
