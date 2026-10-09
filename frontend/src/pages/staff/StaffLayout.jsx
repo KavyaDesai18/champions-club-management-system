@@ -55,6 +55,7 @@ export const allConsoleMenuItems = [
   { id: 'bar-shifts', label: 'Bar Staff Shifts', icon: Clock, path: '/console/bar-shifts', roles: ['OWNER', 'MANAGER', 'BAR_STAFF'] },
   { id: 'daily-close', label: 'Daily Close & Ledger', icon: Receipt, path: '/console/daily-close', roles: ['OWNER', 'MANAGER', 'BAR_STAFF'] },
   { id: 'shop', label: 'Pro Shop & Equipment', icon: ShoppingBag, path: '/console/shop', roles: ['OWNER', 'MANAGER', 'SHOP_STAFF'] },
+  { id: 'hr', label: 'HR & Payroll', icon: UserCheck, path: '/console/hr', roles: ['OWNER', 'MANAGER', 'FRONT_DESK', 'SHOP_STAFF', 'BAR_STAFF', 'KITCHEN', 'COACH'] },
   { id: 'audit', label: 'Audit & Compliance', icon: FileText, path: '/console/audit', roles: ['OWNER', 'MANAGER'] },
   { id: 'settings', label: 'System Configuration', icon: Settings, path: '/console/settings', roles: ['OWNER'] },
   { id: 'users', label: 'User & Role Management', icon: Shield, path: '/console/users', roles: ['OWNER', 'MANAGER'] },

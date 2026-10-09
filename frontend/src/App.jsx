@@ -39,6 +39,7 @@ import KitchenDisplayPage from './pages/staff/KitchenDisplayPage';
 import ShiftConsolePage from './pages/staff/ShiftConsolePage';
 import DailyClosePage from './pages/staff/DailyClosePage';
 import LeadCrmPage from './pages/staff/LeadCrmPage';
+import HrPayrollPage from './pages/staff/HrPayrollPage';
 
 // Auth Pages
 import LoginPage from './pages/auth/LoginPage';
@@ -131,6 +132,7 @@ export function App() {
                     <Route path="bar-shifts" element={<ShiftConsolePage />} />
                     <Route path="daily-close" element={<DailyClosePage />} />
                     <Route path="shop" element={<ShopConsolePage />} />
+                    <Route path="hr" element={<HrPayrollPage />} />
                     <Route path="audit" element={<StaffConsoleHome />} />
                     <Route path="settings" element={<StaffConsoleHome />} />
                     <Route path="users" element={<UserManagementPage />} />
