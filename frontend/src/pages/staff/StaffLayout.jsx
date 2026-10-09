@@ -24,6 +24,7 @@ import {
   ShieldAlert,
   ShoppingBag,
   Tag,
+  UserCheck,
   Users,
   UtensilsCrossed,
   X,
@@ -36,6 +37,7 @@ import { useAuth } from '../../context/AuthContext';
 
 export const allConsoleMenuItems = [
   { id: 'dashboard', label: 'Operations Board', icon: LayoutDashboard, path: '/console', roles: ['OWNER', 'MANAGER', 'FRONT_DESK', 'COACH'] },
+  { id: 'leads', label: 'Lead CRM & Quotes', icon: UserCheck, path: '/console/leads', roles: ['OWNER', 'MANAGER', 'FRONT_DESK'] },
   { id: 'invoices', label: 'Invoices & Ledger', icon: Receipt, path: '/console/invoices', roles: ['OWNER', 'MANAGER', 'FRONT_DESK'] },
   { id: 'cashdrawer', label: 'Cash Drawer', icon: Banknote, path: '/console/cash-drawer', roles: ['OWNER', 'MANAGER', 'FRONT_DESK', 'SHOP_STAFF', 'BAR_STAFF'] },
   { id: 'corporate', label: 'Corporate Accounts', icon: Building2, path: '/console/corporate', roles: ['OWNER', 'MANAGER'] },

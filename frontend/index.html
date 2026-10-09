@@ -9,7 +9,68 @@
     <!-- Modern Typography: Outfit & Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Open Graph & SEO Meta Tags -->
+    <meta property="og:title" content="Champions Club — Premier Sports Club & Arenas Near You" />
+    <meta property="og:description" content="Olympic-grade badminton, indoor tennis courts, squash arenas, and pickleball near you. Book a free trial session today." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://championsclub.example.com" />
+    <meta property="og:image" content="https://championsclub.example.com/og-image.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Champions Club — Premier Sports Club & Arenas" />
+    <meta name="twitter:description" content="Olympic-grade badminton, tennis, squash, and pickleball arenas near you." />
+
+    <!-- Schema.org JSON-LD Structured Data: LocalBusiness + SportsActivityLocation -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "LocalBusiness",
+          "@id": "https://championsclub.example.com/#club",
+          "name": "Champions Club",
+          "image": "https://championsclub.example.com/images/facility-exterior.jpg",
+          "telephone": "+91-80-45678900",
+          "email": "enquiries@championsclub.com",
+          "url": "https://championsclub.example.com",
+          "priceRange": "$$",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "42 Olympic Boulevard, Koramangala 4th Block",
+            "addressLocality": "Bengaluru",
+            "addressRegion": "Karnataka",
+            "postalCode": "560034",
+            "addressCountry": "IN"
+          },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": "12.9352",
+            "longitude": "77.6245"
+          },
+          "openingHoursSpecification": [
+            {
+              "@type": "OpeningHoursSpecification",
+              "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+              "opens": "06:00",
+              "closes": "23:00"
+            }
+          ]
+        },
+        {
+          "@type": "SportsActivityLocation",
+          "@id": "https://championsclub.example.com/#arenas",
+          "name": "Champions Club Multi-Sport Arena",
+          "sport": ["Badminton", "Tennis", "Squash", "Pickleball", "Swimming"],
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "42 Olympic Boulevard, Koramangala 4th Block",
+            "addressLocality": "Bengaluru",
+            "postalCode": "560034",
+            "addressCountry": "IN"
+          }
+        }
+      ]
+    }
+    </script>
   </head>
   <body class="bg-surface-950 text-slate-100 min-h-screen font-sans antialiased selection:bg-brand-500 selection:text-white">
     <div id="root"></div>

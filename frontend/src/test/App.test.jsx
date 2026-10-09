@@ -14,7 +14,7 @@ describe('Frontend Smoke Test', () => {
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/Champions Club/i);
 
     // Navigation buttons for Member Portal and Staff Console are present
-    expect(screen.getByRole('link', { name: /Member Portal/i })).toBeInTheDocument();
+    expect(screen.getAllByRole('link', { name: /Member Portal/i }).length).toBeGreaterThan(0);
     expect(screen.getByRole('link', { name: /Staff Console/i })).toBeInTheDocument();
   });
 

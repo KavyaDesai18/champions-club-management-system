@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Allow: /sports
+Allow: /plans
+Allow: /schedule
+Allow: /shop
+Allow: /styleguide
+Disallow: /console/
+Disallow: /app/
+Disallow: /api/
+
+Sitemap: https://championsclub.example.com/sitemap.xml

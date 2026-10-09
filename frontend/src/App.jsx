@@ -38,6 +38,7 @@ import BarPosPage from './pages/staff/BarPosPage';
 import KitchenDisplayPage from './pages/staff/KitchenDisplayPage';
 import ShiftConsolePage from './pages/staff/ShiftConsolePage';
 import DailyClosePage from './pages/staff/DailyClosePage';
+import LeadCrmPage from './pages/staff/LeadCrmPage';
 
 // Auth Pages
 import LoginPage from './pages/auth/LoginPage';
@@ -108,6 +109,7 @@ export function App() {
                 >
                   <Route path="/console" element={<StaffLayout />}>
                     <Route index element={<StaffConsoleHome />} />
+                    <Route path="leads" element={<LeadCrmPage />} />
                     <Route path="social" element={<SocialPlayPage />} />
                     <Route path="members" element={<MembersListPage />} />
                     <Route path="members/expiring" element={<ExpiringMembershipsPage />} />

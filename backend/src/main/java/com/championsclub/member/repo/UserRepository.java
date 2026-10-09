@@ -23,6 +23,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     long countByRoleAndIsDeletedFalse(Role role);
 
+    java.util.List<User> findByRoleInAndStatusAndIsDeletedFalseOrderByCreatedAtAsc(java.util.Collection<Role> roles, String status);
+
     @Query("""
         SELECT u FROM User u
         WHERE u.isDeleted = false
