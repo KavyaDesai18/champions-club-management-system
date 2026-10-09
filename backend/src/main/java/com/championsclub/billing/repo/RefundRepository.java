@@ -20,4 +20,10 @@ public interface RefundRepository extends JpaRepository<Refund, UUID> {
 
     @Query("SELECT COALESCE(SUM(r.amount), 0) FROM Refund r WHERE r.payment.id = :paymentId AND r.status = 'SUCCEEDED'")
     BigDecimal getTotalRefundedForPayment(@Param("paymentId") UUID paymentId);
+
+    @Query("SELECT r FROM Refund r WHERE r.status = 'SUCCEEDED' AND r.createdAt >= :start AND r.createdAt <= :end")
+    List<Refund> findSuccessfulRefundsBetween(@Param("start") java.time.Instant start, @Param("end") java.time.Instant end);
+
+    @Query("SELECT COALESCE(SUM(r.amount), 0) FROM Refund r WHERE r.status = 'SUCCEEDED' AND r.createdAt >= :start AND r.createdAt <= :end")
+    BigDecimal sumSuccessfulRefundsBetween(@Param("start") java.time.Instant start, @Param("end") java.time.Instant end);
 }

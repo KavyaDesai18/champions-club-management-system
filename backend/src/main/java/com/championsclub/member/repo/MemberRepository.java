@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -52,4 +54,16 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
             @Param("planCode") String planCode,
             Pageable pageable
     );
+
+    @Query("SELECT COALESCE(SUM(m.walletBalance), 0) FROM Member m WHERE m.isDeleted = false AND m.walletBalance > 0")
+    BigDecimal sumUnsettledWalletBalances();
+
+    @Query("SELECT COUNT(m) FROM Member m WHERE m.isDeleted = false AND m.status = 'ACTIVE'")
+    long countActiveMembers();
+
+    @Query("SELECT COUNT(m) FROM Member m WHERE m.isDeleted = false AND m.status = 'ACTIVE' AND m.endDate BETWEEN :today AND :cutoff")
+    long countExpiringSoonMembers(@Param("today") LocalDate today, @Param("cutoff") LocalDate cutoff);
+
+    @Query("SELECT COUNT(m) FROM Member m WHERE m.isDeleted = false AND m.status = 'EXPIRED'")
+    long countExpiredMembers();
 }

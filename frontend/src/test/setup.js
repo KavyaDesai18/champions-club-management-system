@@ -14,3 +14,22 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: () => {},
   }),
 });
+
+// Polyfill ResizeObserver for jsdom
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+window.ResizeObserver = global.ResizeObserver;
+
+// Polyfill navigator.clipboard
+if (!navigator.clipboard) {
+  Object.defineProperty(navigator, 'clipboard', {
+    value: {
+      writeText: () => Promise.resolve(),
+      readText: () => Promise.resolve(''),
+    },
+    configurable: true,
+  });
+}

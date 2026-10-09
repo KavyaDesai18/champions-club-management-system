@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -38,4 +39,10 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID> {
 
     @Query("SELECT p FROM Payment p ORDER BY p.createdAt DESC")
     Page<Payment> findAllOrdered(Pageable pageable);
+
+    @Query("SELECT p FROM Payment p WHERE p.status = 'SUCCEEDED' AND p.createdAt >= :start AND p.createdAt <= :end")
+    List<Payment> findSuccessfulPaymentsBetween(@Param("start") Instant start, @Param("end") Instant end);
+
+    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.status = 'SUCCEEDED' AND p.createdAt >= :start AND p.createdAt <= :end")
+    BigDecimal sumSuccessfulPaymentsBetween(@Param("start") Instant start, @Param("end") Instant end);
 }

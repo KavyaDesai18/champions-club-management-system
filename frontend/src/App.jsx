@@ -40,6 +40,8 @@ import ShiftConsolePage from './pages/staff/ShiftConsolePage';
 import DailyClosePage from './pages/staff/DailyClosePage';
 import LeadCrmPage from './pages/staff/LeadCrmPage';
 import HrPayrollPage from './pages/staff/HrPayrollPage';
+import OwnerDashboardPage from './pages/staff/OwnerDashboardPage';
+import SharedReportViewPage from './pages/public/SharedReportViewPage';
 
 // Auth Pages
 import LoginPage from './pages/auth/LoginPage';
@@ -79,6 +81,10 @@ export function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
+
+                {/* Public Shared Report Routes (No auth required) */}
+                <Route path="/shared-report/:token" element={<SharedReportViewPage />} />
+                <Route path="/public/reports/share/:token" element={<SharedReportViewPage />} />
 
                 {/* 2. Member Shell Area (Protected) */}
                 <Route element={<ProtectedRoute allowedRoles={['MEMBER', 'COACH', 'OWNER', 'MANAGER']} />}>
@@ -133,6 +139,9 @@ export function App() {
                     <Route path="daily-close" element={<DailyClosePage />} />
                     <Route path="shop" element={<ShopConsolePage />} />
                     <Route path="hr" element={<HrPayrollPage />} />
+                    <Route path="analytics" element={<OwnerDashboardPage />} />
+                    <Route path="owner" element={<OwnerDashboardPage />} />
+                    <Route path="reports" element={<OwnerDashboardPage />} />
                     <Route path="audit" element={<StaffConsoleHome />} />
                     <Route path="settings" element={<StaffConsoleHome />} />
                     <Route path="users" element={<UserManagementPage />} />

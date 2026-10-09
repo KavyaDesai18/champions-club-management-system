@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -51,4 +52,13 @@ public interface InvoiceRepository extends JpaRepository<Invoice, UUID> {
 
     @Query("SELECT i FROM Invoice i WHERE i.status IN ('SENT', 'DRAFT') AND i.dueDate IS NOT NULL AND i.dueDate < :today")
     List<Invoice> findOverdueInvoices(@Param("today") LocalDate today);
+
+    @Query("SELECT i FROM Invoice i WHERE i.status != 'VOID' AND i.issueDate >= :start AND i.issueDate <= :end")
+    List<Invoice> findNonVoidInvoicesBetween(@Param("start") LocalDate start, @Param("end") LocalDate end);
+
+    @Query("SELECT i FROM Invoice i WHERE i.status != 'VOID' AND i.balanceDue > 0 ORDER BY i.dueDate ASC NULLS LAST")
+    List<Invoice> findActiveReceivables();
+
+    @Query("SELECT COALESCE(SUM(i.balanceDue), 0) FROM Invoice i WHERE i.status != 'VOID' AND i.balanceDue > 0")
+    BigDecimal sumTotalActiveReceivables();
 }

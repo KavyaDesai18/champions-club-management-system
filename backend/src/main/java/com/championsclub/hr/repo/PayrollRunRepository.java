@@ -2,8 +2,10 @@ package com.championsclub.hr.repo;
 
 import com.championsclub.hr.domain.PayrollRun;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -16,4 +18,10 @@ public interface PayrollRunRepository extends JpaRepository<PayrollRun, UUID> {
     List<PayrollRun> findAllByOrderByYearDescMonthDesc();
 
     boolean existsByYearAndMonth(int year, int month);
+
+    @Query("SELECT COALESCE(SUM(p.totalNet), 0) FROM PayrollRun p WHERE p.status IN ('APPROVED', 'REVIEW')")
+    BigDecimal sumUnpaidNetPayroll();
+
+    @Query("SELECT COALESCE(SUM(p.totalNet), 0) FROM PayrollRun p WHERE p.status = 'PAID'")
+    BigDecimal sumPaidNetPayroll();
 }

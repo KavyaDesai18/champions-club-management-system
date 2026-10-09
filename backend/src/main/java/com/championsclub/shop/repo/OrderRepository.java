@@ -44,4 +44,7 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
             @Param("search") String search,
             Pageable pageable
     );
+
+    @Query("SELECT o FROM Order o WHERE o.status != 'CANCELLED' AND o.createdAt >= :start AND o.createdAt <= :end")
+    List<Order> findCompletedOrdersBetween(@Param("start") Instant start, @Param("end") Instant end);
 }
