@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Activity,
@@ -9,6 +10,7 @@ import {
   Camera,
   CheckCircle2,
   Clock,
+  Coffee,
   QrCode,
   RotateCcw,
   Search,
@@ -230,6 +232,33 @@ export const FrontDeskCheckInPage = () => {
                 </button>
               )}
             </div>
+
+            {/* Unsettled Bar Tabs Safeguard Banner */}
+            {result.hasUnsettledBarTabs && (
+              <div className="p-4 rounded-2xl bg-amber-500/15 border border-amber-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+                    <Coffee className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-black text-amber-300 uppercase tracking-wider">
+                      Unsettled Bar / Cafeteria Tab Alert
+                    </div>
+                    <div className="text-sm text-slate-200 mt-0.5">
+                      Member has {result.unsettledTabsCount} open tab(s) totaling ₹{Number(result.unsettledTabsAmount || 0).toFixed(2)}. Settlement required prior to new court bookings.
+                    </div>
+                  </div>
+                </div>
+
+                <Link
+                  to="/console/bar"
+                  className="px-4 py-2 rounded-xl bg-amber-500 text-surface-950 font-bold text-xs hover:bg-amber-400 transition flex items-center gap-2 shrink-0 self-start sm:self-auto"
+                >
+                  <Coffee className="w-4 h-4" />
+                  Open Bar POS
+                </Link>
+              </div>
+            )}
 
             {/* 2. Member Profile Details Card */}
             <div className="glass-card rounded-3xl p-6 sm:p-8 border-slate-700/80 bg-surface-950/80 shadow-xl grid md:grid-cols-4 gap-6">

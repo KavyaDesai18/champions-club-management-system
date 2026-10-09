@@ -24,6 +24,9 @@ public class Member360Dto {
     private List<BookingSummaryDto> recentBookings;
     private List<OrderSummaryDto> recentOrders;
     private List<WalletActivityDto> recentWalletActivity;
+    private Boolean hasUnsettledTabs;
+    private Long unsettledTabsCount;
+    private BigDecimal unsettledTabsAmount;
 
     @Data
     @Builder

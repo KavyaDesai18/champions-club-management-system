@@ -79,7 +79,11 @@ public class SecurityConfig {
                                 "/api/payments/webhook/**",
                                 "/api/v1/payments/webhook/**",
                                 "/api/payments/intent/**",
-                                "/api/v1/payments/intent/**"
+                                "/api/v1/payments/intent/**",
+                                "/api/v1/bar/menu/**",
+                                "/api/bar/menu/**",
+                                "/api/v1/bar/kitchen-display/stream",
+                                "/api/bar/kitchen-display/stream"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

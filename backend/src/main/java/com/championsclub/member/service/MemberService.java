@@ -63,6 +63,9 @@ public class MemberService {
     private final ClubTimeUtils timeUtils;
     private final AuditService auditService;
 
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.championsclub.bar.repo.TabRepository tabRepository;
+
     // Fallback counter if sequence is not supported in in-memory test databases
     private final AtomicLong fallbackCounter = new AtomicLong(100);
 
@@ -499,6 +502,20 @@ public class MemberService {
                         .build()
         );
 
+        boolean hasUnsettled = false;
+        long unsettledCount = 0;
+        BigDecimal unsettledAmount = BigDecimal.ZERO;
+        if (tabRepository != null && member.getId() != null) {
+            try {
+                var openTabs = tabRepository.findAllByMemberIdAndStatus(member.getId(), com.championsclub.bar.domain.TabStatus.OPEN);
+                hasUnsettled = !openTabs.isEmpty();
+                unsettledCount = openTabs.size();
+                unsettledAmount = openTabs.stream()
+                        .map(com.championsclub.bar.domain.Tab::getTotalAmount)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+            } catch (Exception ignored) {}
+        }
+
         return Member360Dto.builder()
                 .profile(profileInfo)
                 .plan(planDto)
@@ -508,6 +525,9 @@ public class MemberService {
                 .recentBookings(recentBookings)
                 .recentOrders(recentOrders)
                 .recentWalletActivity(walletActivities)
+                .hasUnsettledTabs(hasUnsettled)
+                .unsettledTabsCount(unsettledCount)
+                .unsettledTabsAmount(unsettledAmount)
                 .build();
     }
 }

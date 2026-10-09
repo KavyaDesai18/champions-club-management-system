@@ -29,6 +29,9 @@ public interface LedgerEntryRepository extends JpaRepository<LedgerEntry, UUID> 
     @Query("SELECT COALESCE(SUM(CASE WHEN l.entryType = 'CREDIT' THEN l.amount ELSE -l.amount END), 0) FROM LedgerEntry l WHERE l.account = :account")
     BigDecimal calculateAccountNetBalance(@Param("account") LedgerAccount account);
 
+    @Query("SELECT COALESCE(SUM(CASE WHEN l.entryType = 'CREDIT' THEN l.amount ELSE -l.amount END), 0) FROM LedgerEntry l WHERE l.account = :account AND l.createdAt BETWEEN :start AND :end")
+    BigDecimal calculateAccountNetBalanceBetween(@Param("account") LedgerAccount account, @Param("start") java.time.Instant start, @Param("end") java.time.Instant end);
+
     @Query("SELECT l.transactionId FROM LedgerEntry l GROUP BY l.transactionId HAVING SUM(CASE WHEN l.entryType = 'DEBIT' THEN l.amount ELSE -l.amount END) != 0")
     List<UUID> findUnbalancedTransactions();
 }

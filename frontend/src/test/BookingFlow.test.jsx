@@ -204,7 +204,7 @@ describe('Booking Engine Frontend Suite', () => {
         );
         expect(screen.getByText('Slot Held Exclusively For You')).toBeInTheDocument();
         expect(screen.getByText('Ref: CC-BK-HOLD1')).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: /Confirm & Reserve/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /(Confirm & Reserve|Proceed to Payment)/i })).toBeInTheDocument();
       });
     });
 

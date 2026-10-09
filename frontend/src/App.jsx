@@ -34,6 +34,10 @@ import MemberShopPage from './pages/member/MemberShopPage';
 import InvoicesConsolePage from './pages/staff/InvoicesConsolePage';
 import CashDrawerConsolePage from './pages/staff/CashDrawerConsolePage';
 import CorporateAccountsPage from './pages/staff/CorporateAccountsPage';
+import BarPosPage from './pages/staff/BarPosPage';
+import KitchenDisplayPage from './pages/staff/KitchenDisplayPage';
+import ShiftConsolePage from './pages/staff/ShiftConsolePage';
+import DailyClosePage from './pages/staff/DailyClosePage';
 
 // Auth Pages
 import LoginPage from './pages/auth/LoginPage';
@@ -118,8 +122,12 @@ export function App() {
                     <Route path="hours" element={<OpeningHoursConsolePage />} />
                     <Route path="blackouts" element={<BlackoutsConsolePage />} />
                     <Route path="availability" element={<CourtBookingPage />} />
-                    <Route path="kitchen" element={<StaffConsoleHome />} />
-                    <Route path="bar" element={<StaffConsoleHome />} />
+                    <Route path="kitchen" element={<KitchenDisplayPage />} />
+                    <Route path="kitchen-display" element={<KitchenDisplayPage />} />
+                    <Route path="bar" element={<BarPosPage />} />
+                    <Route path="bar-pos" element={<BarPosPage />} />
+                    <Route path="bar-shifts" element={<ShiftConsolePage />} />
+                    <Route path="daily-close" element={<DailyClosePage />} />
                     <Route path="shop" element={<ShopConsolePage />} />
                     <Route path="audit" element={<StaffConsoleHome />} />
                     <Route path="settings" element={<StaffConsoleHome />} />

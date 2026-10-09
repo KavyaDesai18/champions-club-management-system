@@ -26,4 +26,7 @@ public class CheckInResponse {
     String message;
     boolean duplicate;
     Instant previousCheckInAt;
+    Boolean hasUnsettledTabs;
+    Integer unsettledTabsCount;
+    BigDecimal unsettledTabsAmount;
 }

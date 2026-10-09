@@ -24,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -44,6 +45,9 @@ public class CheckInService {
     private final NotificationDispatcher notificationDispatcher;
     private final ClubTimeUtils timeUtils;
     private final AuditService auditService;
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.championsclub.bar.repo.TabRepository tabRepository;
 
     public CheckInService(
             MemberRepository memberRepository,
@@ -154,6 +158,23 @@ public class CheckInService {
                 "{\"checkInId\":\"" + checkIn.getId() + "\",\"statusBanner\":\"" + statusBanner + "\"}"
         );
 
+        boolean hasUnsettled = false;
+        int unsettledCount = 0;
+        BigDecimal unsettledAmount = BigDecimal.ZERO;
+        if (tabRepository != null && member.getId() != null) {
+            try {
+                var openTabs = tabRepository.findAllByMemberIdAndStatus(member.getId(), com.championsclub.bar.domain.TabStatus.OPEN);
+                hasUnsettled = !openTabs.isEmpty();
+                unsettledCount = openTabs.size();
+                unsettledAmount = openTabs.stream()
+                        .map(com.championsclub.bar.domain.Tab::getTotalAmount)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                if (hasUnsettled) {
+                    message = message + " [ALERT: Member has " + unsettledCount + " unsettled Bar Tab(s) totaling ₹" + unsettledAmount + "]";
+                }
+            } catch (Exception ignored) {}
+        }
+
         return CheckInResponse.builder()
                 .memberId(member.getId())
                 .memberNo(member.getMemberNo())
@@ -169,6 +190,9 @@ public class CheckInService {
                 .checkedInAt(now)
                 .message(message)
                 .duplicate(false)
+                .hasUnsettledTabs(hasUnsettled)
+                .unsettledTabsCount(unsettledCount)
+                .unsettledTabsAmount(unsettledAmount)
                 .build();
     }
 

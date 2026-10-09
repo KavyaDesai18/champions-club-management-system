@@ -23,7 +23,8 @@ import {
   RefreshCw,
   Award,
   Layers,
-  HeartHandshake
+  HeartHandshake,
+  Coffee
 } from 'lucide-react';
 import { membersApi, plansApi } from '../../api/membersApi';
 import { useToast } from '../../context/ToastContext';
@@ -317,6 +318,32 @@ export default function Member360Page() {
           </Button>
         </div>
       </div>
+
+      {/* Unsettled Bar Tab Warning Banner */}
+      {member.hasUnsettledBarTabs && (
+        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0">
+              <Coffee className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-amber-200">
+                Unsettled Bar & Cafeteria Tabs ({member.unsettledTabsCount || 1})
+              </h4>
+              <p className="text-xs text-amber-300/80 mt-0.5">
+                Member has ₹{Number(member.unsettledTabsAmount || 0).toFixed(2)} in open bar tabs (Credit limit: ₹5,000). Settlement required prior to new court bookings.
+              </p>
+            </div>
+          </div>
+          <Link
+            to="/console/bar"
+            className="px-4 py-2 rounded-xl bg-amber-500 text-slate-950 font-bold text-xs hover:bg-amber-400 transition flex items-center gap-2 flex-shrink-0"
+          >
+            <Coffee className="w-4 h-4" />
+            Open Bar POS
+          </Link>
+        </div>
+      )}
 
       {/* Upgrade Due Warning Banner */}
       {member.upgradeDue && (

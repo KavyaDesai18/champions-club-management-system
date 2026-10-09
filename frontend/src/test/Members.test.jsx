@@ -142,14 +142,25 @@ describe('Members & Plans Module Frontend Suite', () => {
       await user.type(screen.getByLabelText(/Phone Number/i), '9876543210');
       fireEvent.change(screen.getByLabelText(/Date of Birth/i), { target: { value: '1995-05-20' } });
 
+      await waitFor(() => {
+        expect(screen.getByText(/Adult Member/i)).toBeInTheDocument();
+      });
+
       // Step 1 -> Step 2 (Plan)
-      await user.click(screen.getByRole('button', { name: /Next Step/i }));
+      fireEvent.click(screen.getByRole('button', { name: /Next Step/i }));
+
+      await waitFor(() => {
+        expect(screen.getByText(/Choose the membership tier/i)).toBeInTheDocument();
+      });
+
       // Step 2 -> Step 3 (Review & Portal)
-      await user.click(screen.getByRole('button', { name: /Next Step/i }));
+      fireEvent.click(screen.getByRole('button', { name: /Next Step/i }));
 
       // Submit registration
-      const submitBtn = screen.getByRole('button', { name: /Complete Registration/i });
-      await user.click(submitBtn);
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Complete Registration/i })).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByRole('button', { name: /Complete Registration/i }));
 
       await waitFor(() => {
         expect(screen.getByText(/Member Already Exists/i)).toBeInTheDocument();
