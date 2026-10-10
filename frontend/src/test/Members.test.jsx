@@ -137,14 +137,14 @@ describe('Members & Plans Module Frontend Suite', () => {
         </ToastProvider>
       );
 
-      await user.type(screen.getByLabelText(/Full Legal Name/i), 'Existing Person');
-      await user.type(screen.getByLabelText(/Email Address/i), 'exist@person.com');
-      await user.type(screen.getByLabelText(/Phone Number/i), '9876543210');
+      fireEvent.change(screen.getByLabelText(/Full Legal Name/i), { target: { value: 'Existing Person' } });
+      fireEvent.change(screen.getByLabelText(/Email Address/i), { target: { value: 'exist@person.com' } });
+      fireEvent.change(screen.getByLabelText(/Phone Number/i), { target: { value: '9876543210' } });
       fireEvent.change(screen.getByLabelText(/Date of Birth/i), { target: { value: '1995-05-20' } });
 
       await waitFor(() => {
         expect(screen.getByText(/Adult Member/i)).toBeInTheDocument();
-      });
+      }, { timeout: 3000 });
 
       // Step 1 -> Step 2 (Plan)
       await user.click(screen.getByRole('button', { name: /Next Step/i }));

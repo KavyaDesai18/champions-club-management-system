@@ -22,6 +22,8 @@ app:
   timezone: Asia/Kolkata
   membership:
     grace-period-days: 0
+  rate-limit:
+    enabled: false
 
 logging:
   level:

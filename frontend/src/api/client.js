@@ -7,7 +7,7 @@ export const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 15000,
+  timeout: 30000,
 });
 
 // Toast notification listeners
@@ -46,12 +46,16 @@ export const emitSessionExpired = () => {
   });
 };
 
-// Request Interceptor: Attach JWT Bearer token and optional Idempotency-Key
+// Request Interceptor: Attach JWT Bearer token, X-Trace-Id and optional Idempotency-Key
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('champions_token');
     if (token && !config.headers.Authorization) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    if (!config.headers['X-Trace-Id'] && typeof crypto !== 'undefined' && crypto.randomUUID) {
+      config.headers['X-Trace-Id'] = crypto.randomUUID().replace(/-/g, '').slice(0, 16);
     }
 
     if (config.idempotencyKey) {

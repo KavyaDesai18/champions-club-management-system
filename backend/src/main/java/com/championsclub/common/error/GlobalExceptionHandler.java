@@ -181,6 +181,10 @@ public class GlobalExceptionHandler {
     }
 
     private String getTraceId() {
+        String mdcTrace = org.slf4j.MDC.get("traceId");
+        if (mdcTrace != null && !mdcTrace.isBlank()) {
+            return mdcTrace;
+        }
         return UUID.randomUUID().toString().replace("-", "").substring(0, 16);
     }
 }

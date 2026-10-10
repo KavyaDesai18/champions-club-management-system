@@ -39,10 +39,37 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public TraceIdFilter traceIdFilter() {
+        return new TraceIdFilter();
+    }
+
+    @Bean
+    public RateLimitingFilter rateLimitingFilter(
+            @Value("${app.rate-limit.enabled:true}") boolean enabled,
+            @Value("${app.rate-limit.auth-rpm:60}") int authRpm,
+            @Value("${app.rate-limit.general-rpm:300}") int generalRpm
+    ) {
+        return new RateLimitingFilter(enabled, authRpm, generalRpm);
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            TraceIdFilter traceIdFilter,
+            RateLimitingFilter rateLimitingFilter
+    ) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
+                .headers(headers -> {
+                    headers.frameOptions(frame -> frame.deny())
+                            .contentTypeOptions(org.springframework.security.config.Customizer.withDefaults())
+                            .xssProtection(org.springframework.security.config.Customizer.withDefaults())
+                            .httpStrictTransportSecurity(hsts -> hsts.includeSubDomains(true).maxAgeInSeconds(31536000))
+                            .referrerPolicy(referrer -> referrer.policy(org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+                            .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' http://localhost:* ws://localhost:* https:; frame-ancestors 'none';"));
+                    headers.permissionsPolicy().policy("camera=(), microphone=(), geolocation=()");
+                })
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(authenticationEntryPoint())
@@ -88,6 +115,8 @@ public class SecurityConfig {
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
+                .addFilterBefore(traceIdFilter, org.springframework.security.web.context.SecurityContextHolderFilter.class)
+                .addFilterBefore(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -120,8 +149,8 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOriginPatterns(allowedOrigins);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Idempotency-Key", "X-Requested-With"));
-        config.setExposedHeaders(List.of("Idempotency-Key", "Location"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Idempotency-Key", "X-Requested-With", "X-Trace-Id", "X-Request-Id"));
+        config.setExposedHeaders(List.of("Idempotency-Key", "Location", "X-Trace-Id", "Retry-After"));
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);
 
