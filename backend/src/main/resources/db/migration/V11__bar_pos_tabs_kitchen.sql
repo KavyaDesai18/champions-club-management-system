@@ -212,44 +212,44 @@ ON CONFLICT (code) DO NOTHING;
 INSERT INTO menu_items (id, category_id, name, description, price, tax_category, prep_station, is_available, modifiers, is_alcoholic)
 VALUES
     -- Coffee & Tea (Bar)
-    ('m1000001-0000-0000-0000-000000000001', 'c1000001-0000-0000-0000-000000000001', 'Champions Espresso Roast', 'Double-shot artisanal single origin roast', 140.00, 'GST_5', 'BAR', true, '[{"group":"Milk","options":["Whole Milk","Oat Milk","Almond Milk"]},{"group":"Sugar","options":["No Sugar","Normal","Extra Sugar"]}]', false),
-    ('m1000002-0000-0000-0000-000000000002', 'c1000001-0000-0000-0000-000000000001', 'Oat Milk Cappuccino', 'Velvety microfoam over organic espresso', 190.00, 'GST_5', 'BAR', true, '[{"group":"Temperature","options":["Hot","Iced"]},{"group":"Flavour","options":["Vanilla","Caramel","None"]}]', false),
-    ('m1000003-0000-0000-0000-000000000003', 'c1000001-0000-0000-0000-000000000001', 'Matcha Green Tea Latte', 'Ceremonial grade Uji matcha with steamed milk', 220.00, 'GST_5', 'BAR', true, '[]', false),
+    ('d1000001-0000-0000-0000-000000000001', 'c1000001-0000-0000-0000-000000000001', 'Champions Espresso Roast', 'Double-shot artisanal single origin roast', 140.00, 'GST_5', 'BAR', true, '[{"group":"Milk","options":["Whole Milk","Oat Milk","Almond Milk"]},{"group":"Sugar","options":["No Sugar","Normal","Extra Sugar"]}]', false),
+    ('d1000002-0000-0000-0000-000000000002', 'c1000001-0000-0000-0000-000000000001', 'Oat Milk Cappuccino', 'Velvety microfoam over organic espresso', 190.00, 'GST_5', 'BAR', true, '[{"group":"Temperature","options":["Hot","Iced"]},{"group":"Flavour","options":["Vanilla","Caramel","None"]}]', false),
+    ('d1000003-0000-0000-0000-000000000003', 'c1000001-0000-0000-0000-000000000001', 'Matcha Green Tea Latte', 'Ceremonial grade Uji matcha with steamed milk', 220.00, 'GST_5', 'BAR', true, '[]', false),
 
     -- Smoothies & Hydration (Bar)
-    ('m1000004-0000-0000-0000-000000000004', 'c1000002-0000-0000-0000-000000000002', 'Electrolyte Citrus Booster', 'Fresh orange, lemon, sea salt, electrolyte blend', 160.00, 'GST_5', 'BAR', true, '[{"group":"Ice","options":["Regular Ice","Light Ice","No Ice"]}]', false),
-    ('m1000005-0000-0000-0000-000000000005', 'c1000002-0000-0000-0000-000000000002', 'High Protein Berry Blast', 'Whey isolate, blueberries, Greek yogurt, chia', 280.00, 'GST_5', 'BAR', true, '[{"group":"Protein Choice","options":["Whey Vanilla","Whey Chocolate","Plant Protein"]}]', false),
+    ('d1000004-0000-0000-0000-000000000004', 'c1000002-0000-0000-0000-000000000002', 'Electrolyte Citrus Booster', 'Fresh orange, lemon, sea salt, electrolyte blend', 160.00, 'GST_5', 'BAR', true, '[{"group":"Ice","options":["Regular Ice","Light Ice","No Ice"]}]', false),
+    ('d1000005-0000-0000-0000-000000000005', 'c1000002-0000-0000-0000-000000000002', 'High Protein Berry Blast', 'Whey isolate, blueberries, Greek yogurt, chia', 280.00, 'GST_5', 'BAR', true, '[{"group":"Protein Choice","options":["Whey Vanilla","Whey Chocolate","Plant Protein"]}]', false),
 
     -- Alcohol (Bar) - Safeguarded for 18+
-    ('m1000006-0000-0000-0000-000000000006', 'c1000003-0000-0000-0000-000000000003', 'Classic Mojito', 'White rum, fresh mint leaves, lime juice, sparkling soda', 380.00, 'GST_18', 'BAR', true, '[{"group":"Ice","options":["Standard Ice","Extra Ice"]}]', true),
-    ('m1000007-0000-0000-0000-000000000007', 'c1000003-0000-0000-0000-000000000003', 'Club Craft IPA Draught (500ml)', 'Freshly tapped hoppy Indian Pale Ale', 340.00, 'GST_18', 'BAR', true, '[]', true),
-    ('m1000008-0000-0000-0000-000000000008', 'c1000003-0000-0000-0000-000000000003', 'Single Malt Scotch (60ml)', '12-Year aged Highland single malt whiskey', 650.00, 'GST_18', 'BAR', true, '[{"group":"Serve","options":["Neat","On The Rocks","With Water"]}]', true),
+    ('d1000006-0000-0000-0000-000000000006', 'c1000003-0000-0000-0000-000000000003', 'Classic Mojito', 'White rum, fresh mint leaves, lime juice, sparkling soda', 380.00, 'GST_18', 'BAR', true, '[{"group":"Ice","options":["Standard Ice","Extra Ice"]}]', true),
+    ('d1000007-0000-0000-0000-000000000007', 'c1000003-0000-0000-0000-000000000003', 'Club Craft IPA Draught (500ml)', 'Freshly tapped hoppy Indian Pale Ale', 340.00, 'GST_18', 'BAR', true, '[]', true),
+    ('d1000008-0000-0000-0000-000000000008', 'c1000003-0000-0000-0000-000000000003', 'Single Malt Scotch (60ml)', '12-Year aged Highland single malt whiskey', 650.00, 'GST_18', 'BAR', true, '[{"group":"Serve","options":["Neat","On The Rocks","With Water"]}]', true),
 
     -- Kitchen Appetizers
-    ('m1000009-0000-0000-0000-000000000009', 'c1000004-0000-0000-0000-000000000004', 'Truffle Parmesan Fries', 'Hand-cut fries, truffle essence, aged parmesan, herb dip', 240.00, 'GST_5', 'KITCHEN', true, '[{"group":"Dip","options":["Herb Aioli","Spicy Sriracha","Truffle Mayo"]}]', false),
-    ('m1000010-0000-0000-0000-000000000010', 'c1000004-0000-0000-0000-000000000004', 'Crispy Falafel & Hummus Platter', 'House spiced falafels, roasted garlic hummus, warm pita', 290.00, 'GST_5', 'KITCHEN', true, '[]', false),
+    ('d1000009-0000-0000-0000-000000000009', 'c1000004-0000-0000-0000-000000000004', 'Truffle Parmesan Fries', 'Hand-cut fries, truffle essence, aged parmesan, herb dip', 240.00, 'GST_5', 'KITCHEN', true, '[{"group":"Dip","options":["Herb Aioli","Spicy Sriracha","Truffle Mayo"]}]', false),
+    ('d1000010-0000-0000-0000-000000000010', 'c1000004-0000-0000-0000-000000000004', 'Crispy Falafel & Hummus Platter', 'House spiced falafels, roasted garlic hummus, warm pita', 290.00, 'GST_5', 'KITCHEN', true, '[]', false),
 
     -- Kitchen Mains
-    ('m1000011-0000-0000-0000-000000000011', 'c1000005-0000-0000-0000-000000000005', 'Artisan Sourdough Club Sandwich', 'Smoked chicken breast, avocado, butter lettuce, sourdough', 350.00, 'GST_5', 'KITCHEN', true, '[{"group":"Side","options":["Fries","House Salad","Sweet Potato Wedges"]}]', false),
-    ('m1000012-0000-0000-0000-000000000012', 'c1000005-0000-0000-0000-000000000005', 'Wood-Fired Margherita Pizza', 'San Marzano tomato sauce, fresh buffalo mozzarella, basil', 420.00, 'GST_5', 'KITCHEN', true, '[{"group":"Crust","options":["Thin Crust","Standard Neapolitan"]}]', false),
+    ('d1000011-0000-0000-0000-000000000011', 'c1000005-0000-0000-0000-000000000005', 'Artisan Sourdough Club Sandwich', 'Smoked chicken breast, avocado, butter lettuce, sourdough', 350.00, 'GST_5', 'KITCHEN', true, '[{"group":"Side","options":["Fries","House Salad","Sweet Potato Wedges"]}]', false),
+    ('d1000012-0000-0000-0000-000000000012', 'c1000005-0000-0000-0000-000000000005', 'Wood-Fired Margherita Pizza', 'San Marzano tomato sauce, fresh buffalo mozzarella, basil', 420.00, 'GST_5', 'KITCHEN', true, '[{"group":"Crust","options":["Thin Crust","Standard Neapolitan"]}]', false),
 
     -- Bowls (Kitchen)
-    ('m1000013-0000-0000-0000-000000000013', 'c1000006-0000-0000-0000-000000000006', 'Grilled Norwegian Salmon Bowl', 'Wild quinoa, edamame, avocado, ginger miso vinaigrette', 490.00, 'GST_5', 'KITCHEN', true, '[{"group":"Dressing","options":["Ginger Miso","Tahini Lemon","Balsamic"]}]', false)
+    ('d1000013-0000-0000-0000-000000000013', 'c1000006-0000-0000-0000-000000000006', 'Grilled Norwegian Salmon Bowl', 'Wild quinoa, edamame, avocado, ginger miso vinaigrette', 490.00, 'GST_5', 'KITCHEN', true, '[{"group":"Dressing","options":["Ginger Miso","Tahini Lemon","Balsamic"]}]', false)
 ON CONFLICT (id) DO NOTHING;
 
 -- 13. Seed Bar Tables
 INSERT INTO bar_tables (id, label, seats, status, pos_x, pos_y, is_active)
 VALUES
-    ('t1000001-0000-0000-0000-000000000001', 'T-01', 2, 'FREE', 1, 1, true),
-    ('t1000002-0000-0000-0000-000000000002', 'T-02', 4, 'FREE', 2, 1, true),
-    ('t1000003-0000-0000-0000-000000000003', 'T-03', 4, 'FREE', 3, 1, true),
-    ('t1000004-0000-0000-0000-000000000004', 'T-04', 6, 'FREE', 4, 1, true),
-    ('t1000005-0000-0000-0000-000000000005', 'T-05', 4, 'FREE', 1, 2, true),
-    ('t1000006-0000-0000-0000-000000000006', 'T-06', 4, 'FREE', 2, 2, true),
-    ('t1000007-0000-0000-0000-000000000007', 'T-07', 8, 'FREE', 3, 2, true),
-    ('t1000008-0000-0000-0000-000000000008', 'T-08', 2, 'FREE', 4, 2, true),
-    ('t1000009-0000-0000-0000-000000000009', 'Bar 1', 1, 'FREE', 1, 3, true),
-    ('t1000010-0000-0000-0000-000000000010', 'Bar 2', 1, 'FREE', 2, 3, true),
-    ('t1000011-0000-0000-0000-000000000011', 'Bar 3', 1, 'FREE', 3, 3, true),
-    ('t1000012-0000-0000-0000-000000000012', 'Lounge 1', 6, 'FREE', 4, 3, true)
+    ('b1000001-0000-0000-0000-000000000001', 'T-01', 2, 'FREE', 1, 1, true),
+    ('b1000002-0000-0000-0000-000000000002', 'T-02', 4, 'FREE', 2, 1, true),
+    ('b1000003-0000-0000-0000-000000000003', 'T-03', 4, 'FREE', 3, 1, true),
+    ('b1000004-0000-0000-0000-000000000004', 'T-04', 6, 'FREE', 4, 1, true),
+    ('b1000005-0000-0000-0000-000000000005', 'T-05', 4, 'FREE', 1, 2, true),
+    ('b1000006-0000-0000-0000-000000000006', 'T-06', 4, 'FREE', 2, 2, true),
+    ('b1000007-0000-0000-0000-000000000007', 'T-07', 8, 'FREE', 3, 2, true),
+    ('b1000008-0000-0000-0000-000000000008', 'T-08', 2, 'FREE', 4, 2, true),
+    ('b1000009-0000-0000-0000-000000000009', 'Bar 1', 1, 'FREE', 1, 3, true),
+    ('b1000010-0000-0000-0000-000000000010', 'Bar 2', 1, 'FREE', 2, 3, true),
+    ('b1000011-0000-0000-0000-000000000011', 'Bar 3', 1, 'FREE', 3, 3, true),
+    ('b1000012-0000-0000-0000-000000000012', 'Lounge 1', 6, 'FREE', 4, 3, true)
 ON CONFLICT (label) DO NOTHING;

@@ -119,9 +119,9 @@ ON CONFLICT (id) DO NOTHING;
 -- Seed Sample Quote
 INSERT INTO quotes (id, lead_id, quote_number, lines, subtotal, tax, total, valid_until, status, pdf_url, notes, created_at)
 VALUES
-    ('q1111111-1111-1111-1111-111111111101', 'e1111111-1111-1111-1111-111111111103', 'QT-2026-1001', 
+    ('d1111111-1111-1111-1111-111111111101', 'e1111111-1111-1111-1111-111111111103', 'QT-2026-1001', 
     '[{"description":"Corporate Annual Gold Membership (25 Pax)","quantity":25,"unitPrice":1200.00,"amount":30000.00},{"description":"Dedicated Squash Court Priority Booking Block","quantity":1,"unitPrice":5000.00,"amount":5000.00}]',
-    35000.00, 6300.00, 41300.00, CURRENT_TIMESTAMP + INTERVAL '14 days', 'SENT', '/api/v1/crm/quotes/q1111111-1111-1111-1111-111111111101/pdf', 'Custom corporate package with 18% GST included.', CURRENT_TIMESTAMP - INTERVAL '2 days')
+    35000.00, 6300.00, 41300.00, CURRENT_TIMESTAMP + INTERVAL '14 days', 'SENT', '/api/v1/crm/quotes/d1111111-1111-1111-1111-111111111101/pdf', 'Custom corporate package with 18% GST included.', CURRENT_TIMESTAMP - INTERVAL '2 days')
 ON CONFLICT (id) DO NOTHING;
 
 -- Seed Corporate Client
