@@ -292,13 +292,13 @@ export default function CourtBookingPage() {
         }
       />
 
-      {/* Booking Drawer / Hold Modal */}
+      {/* Booking Drawer / Hold Modal (Thumb-friendly & Athletic Tokens) */}
       {bookingDrawerSlot && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-lg w-full shadow-2xl flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="font-bold text-lg text-white flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-emerald-400" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-court-950/80 backdrop-blur-sm">
+          <div className="court-card bg-white dark:bg-court-900 border border-court-200 dark:border-court-800 rounded-2xl p-6 sm:p-7 max-w-lg w-full shadow-court-xl flex flex-col gap-4 max-h-[90vh] overflow-y-auto text-court-900 dark:text-court-100">
+            <div className="flex items-center justify-between border-b border-court-200 dark:border-court-800 pb-3">
+              <h3 className="font-heading font-black text-lg uppercase tracking-tight text-court-950 dark:text-white flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-optic-500 stroke-[2]" />
                 Reserve Court Session
               </h3>
               <button
@@ -307,7 +307,7 @@ export default function CourtBookingPage() {
                   setActiveHeldBooking(null);
                   setSlotTakenError(null);
                 }}
-                className="text-slate-400 hover:text-white"
+                className="p-1 rounded-md text-court-400 hover:text-court-900 dark:hover:text-white hover:bg-court-100 dark:hover:bg-court-800"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -315,9 +315,9 @@ export default function CourtBookingPage() {
 
             {/* 409 Conflict State: Friendly Alternatives */}
             {slotTakenError && (
-              <div className="p-4 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs flex flex-col gap-3">
-                <div className="flex items-center gap-2 font-bold text-sm text-amber-300">
-                  <AlertCircle className="w-4 h-4" />
+              <div className="p-4 rounded-xl bg-clay-500/10 border border-clay-500/30 text-clay-800 dark:text-clay-200 text-xs flex flex-col gap-3 font-sans">
+                <div className="flex items-center gap-2 font-heading font-bold text-sm text-clay-700 dark:text-clay-300 uppercase">
+                  <AlertCircle className="w-4 h-4 stroke-[2]" />
                   {slotTakenError.message}
                 </div>
                 <p>Another athlete just booked or held this slot. Here are nearby open alternatives today:</p>
@@ -330,18 +330,18 @@ export default function CourtBookingPage() {
                           setBookingDrawerSlot(alt);
                           setSlotTakenError(null);
                         }}
-                        className="flex items-center justify-between p-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-amber-500/20 text-left transition"
+                        className="flex items-center justify-between p-3 rounded-lg bg-court-50 dark:bg-court-950 hover:bg-court-100 dark:hover:bg-court-850 border border-court-200 dark:border-court-800 text-left transition"
                       >
                         <div>
-                          <strong className="block text-white text-xs">{alt.court.courtName}</strong>
-                          <span className="text-[11px] text-slate-400">{alt.slot.localStartTime} - {alt.slot.localEndTime}</span>
+                          <strong className="block text-court-950 dark:text-white text-xs font-heading font-bold uppercase">{alt.court.courtName}</strong>
+                          <span className="text-[11px] text-court-500 font-mono">{alt.slot.localStartTime} - {alt.slot.localEndTime}</span>
                         </div>
-                        <span className="text-emerald-400 font-bold font-mono text-xs">{alt.slot.formattedPrice}</span>
+                        <span className="text-grass-600 dark:text-grass-400 font-bold font-mono text-xs tabular-nums">{alt.slot.formattedPrice}</span>
                       </button>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-slate-400 italic">No other open slots for this sport today.</p>
+                  <p className="text-court-500 italic">No other open slots for this sport today.</p>
                 )}
                 {/* Join Waitlist CTA */}
                 <button
@@ -354,37 +354,37 @@ export default function CourtBookingPage() {
                       memberId: user?.memberId,
                     })
                   }
-                  className="mt-1 py-2 px-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-xs flex items-center justify-center gap-1.5"
+                  className="mt-1 py-3 px-4 bg-clay-500 hover:bg-clay-600 text-white font-heading font-bold uppercase tracking-wider rounded-lg text-xs flex items-center justify-center gap-1.5 shadow-court-xs min-h-[44px]"
                 >
-                  <Hourglass className="w-3.5 h-3.5" />
+                  <Hourglass className="w-4 h-4" />
                   Join Waitlist (Get notified if released)
                 </button>
               </div>
             )}
 
             {/* Slot Details Card */}
-            <div className="flex flex-col gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800/80 text-sm">
-              <div className="flex justify-between items-center text-slate-300">
-                <span className="text-slate-500">Court:</span>
-                <span className="font-bold text-white">{bookingDrawerSlot.court.courtName}</span>
+            <div className="flex flex-col gap-3 bg-court-50 dark:bg-court-950 p-4 rounded-xl border border-court-200 dark:border-court-800 text-sm font-sans">
+              <div className="flex justify-between items-center text-court-600 dark:text-court-300">
+                <span className="text-court-500">Court:</span>
+                <span className="font-heading font-bold text-court-950 dark:text-white uppercase">{bookingDrawerSlot.court.courtName}</span>
               </div>
-              <div className="flex justify-between items-center text-slate-300">
-                <span className="text-slate-500">Sport & Surface:</span>
+              <div className="flex justify-between items-center text-court-600 dark:text-court-300">
+                <span className="text-court-500">Sport & Surface:</span>
                 <span>{bookingDrawerSlot.court.sportName} • {bookingDrawerSlot.court.surface}</span>
               </div>
-              <div className="flex justify-between items-center text-slate-300">
-                <span className="text-slate-500">Date:</span>
-                <span className="font-mono text-emerald-300">{selectedDate}</span>
+              <div className="flex justify-between items-center text-court-600 dark:text-court-300">
+                <span className="text-court-500">Date:</span>
+                <span className="font-mono text-grass-600 dark:text-grass-400 font-semibold">{selectedDate}</span>
               </div>
-              <div className="flex justify-between items-center text-slate-300">
-                <span className="text-slate-500">Session Window:</span>
-                <span className="font-mono font-bold text-white">
+              <div className="flex justify-between items-center text-court-600 dark:text-court-300">
+                <span className="text-court-500">Session Window:</span>
+                <span className="font-mono font-bold text-court-950 dark:text-white tabular-nums">
                   {bookingDrawerSlot.slot.localStartTime} - {bookingDrawerSlot.slot.localEndTime} (60 min)
                 </span>
               </div>
-              <div className="flex justify-between items-center border-t border-slate-800 pt-2 text-slate-300">
-                <span className="text-slate-500">Base Slot Price:</span>
-                <span className="font-mono text-emerald-400 font-bold">
+              <div className="flex justify-between items-center border-t border-court-200 dark:border-court-800 pt-2 text-court-600 dark:text-court-300">
+                <span className="text-court-500">Base Slot Price:</span>
+                <span className="font-mono text-grass-600 dark:text-grass-400 font-bold tabular-nums">
                   {bookingDrawerSlot.slot.formattedPrice}
                 </span>
               </div>
@@ -392,21 +392,21 @@ export default function CourtBookingPage() {
 
             {/* Co-players / Extra Players */}
             {!activeHeldBooking && (
-              <div className="flex flex-col gap-3 bg-slate-950/60 p-4 rounded-xl border border-slate-800 text-xs">
+              <div className="flex flex-col gap-3 bg-court-50/70 dark:bg-court-950/70 p-4 rounded-xl border border-court-200 dark:border-court-800 text-xs font-sans">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-200 flex items-center gap-1.5">
-                    <Users className="w-4 h-4 text-emerald-400" /> Co-Players & Doubles Partners
+                  <span className="font-heading font-bold uppercase tracking-wider text-court-950 dark:text-white flex items-center gap-1.5">
+                    <Users className="w-4 h-4 text-optic-500 stroke-[2]" /> Co-Players & Doubles Partners
                   </span>
-                  <span className="text-[11px] text-slate-400">Quota counts owner only</span>
+                  <span className="text-[11px] text-court-500">Quota counts owner only</span>
                 </div>
 
                 {coPlayers.map((cp) => (
-                  <div key={cp.id} className="flex items-center justify-between bg-slate-900 p-2 rounded-lg border border-slate-800">
+                  <div key={cp.id} className="flex items-center justify-between bg-white dark:bg-court-900 p-2.5 rounded-lg border border-court-200 dark:border-court-800">
                     <div>
-                      <span className="font-medium text-white">{cp.name}</span>
-                      {cp.isGuest && <span className="ml-2 text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded">Guest (+$5.00)</span>}
+                      <span className="font-medium text-court-950 dark:text-white">{cp.name}</span>
+                      {cp.isGuest && <span className="ml-2 text-[10px] bg-clay-500/15 text-clay-700 dark:text-clay-300 font-heading font-bold uppercase px-1.5 py-0.5 rounded border border-clay-500/30">Guest (+$5.00)</span>}
                     </div>
-                    <button onClick={() => handleRemoveCoPlayer(cp.id)} className="text-rose-400 hover:text-rose-300 p-1">
+                    <button onClick={() => handleRemoveCoPlayer(cp.id)} className="text-danger-500 hover:text-danger-600 p-1">
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -418,67 +418,67 @@ export default function CourtBookingPage() {
                     placeholder="Player Name"
                     value={newPlayerName}
                     onChange={(e) => setNewPlayerName(e.target.value)}
-                    className="flex-1 px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white"
+                    className="flex-1 px-3 py-2 bg-white dark:bg-court-900 border border-court-300 dark:border-court-700 rounded-lg text-xs text-court-900 dark:text-white focus:outline-none focus:border-optic-500"
                   />
                   <input
                     type="text"
                     placeholder="Phone (optional)"
                     value={newPlayerPhone}
                     onChange={(e) => setNewPlayerPhone(e.target.value)}
-                    className="flex-1 px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white"
+                    className="flex-1 px-3 py-2 bg-white dark:bg-court-900 border border-court-300 dark:border-court-700 rounded-lg text-xs text-court-900 dark:text-white focus:outline-none focus:border-optic-500"
                   />
-                  <label className="flex items-center gap-1 text-[11px] text-slate-300 cursor-pointer">
+                  <label className="flex items-center gap-1.5 text-xs text-court-700 dark:text-court-300 cursor-pointer select-none">
                     <input
                       type="checkbox"
                       checked={isGuestPlayer}
                       onChange={(e) => setIsGuestPlayer(e.target.checked)}
-                      className="rounded bg-slate-800 border-slate-700 text-emerald-500"
+                      className="rounded border-court-300 text-optic-500 focus:ring-optic-500"
                     />
                     Guest
                   </label>
                   <button
                     onClick={handleAddCoPlayer}
-                    className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs flex items-center gap-1 font-semibold"
+                    className="px-4 py-2 bg-court-100 dark:bg-court-800 hover:bg-court-200 dark:hover:bg-court-700 text-court-900 dark:text-white border border-court-200 dark:border-court-700 rounded-lg text-xs flex items-center justify-center gap-1 font-heading font-bold uppercase tracking-wider min-h-[38px]"
                   >
-                    <Plus className="w-3 h-3" /> Add
+                    <Plus className="w-3.5 h-3.5" /> Add
                   </button>
                 </div>
               </div>
             )}
 
             {/* Total Summary */}
-            <div className="flex justify-between items-center px-1 text-sm">
-              <span className="text-slate-400 font-medium">Total Payable:</span>
-              <span className="text-xl font-extrabold font-mono text-emerald-400">
+            <div className="flex justify-between items-center px-1 text-sm font-sans border-t border-court-100 dark:border-court-800 pt-2">
+              <span className="text-court-500 font-medium">Total Payable:</span>
+              <span className="text-2xl font-black font-mono tabular-nums text-grass-600 dark:text-grass-400">
                 ${totalCalculatedPrice()}
               </span>
             </div>
 
             {/* Active Hold Countdown Badge */}
             {activeHeldBooking && (
-              <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3.5 flex items-center justify-between text-xs text-emerald-300">
+              <div className="bg-grass-500/10 border border-grass-500/30 rounded-xl p-3.5 flex items-center justify-between text-xs text-grass-800 dark:text-grass-300 font-sans">
                 <div className="flex items-center gap-2">
-                  <Lock className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <Lock className="w-4 h-4 text-grass-600 dark:text-grass-400 shrink-0" />
                   <div>
-                    <strong className="block font-semibold">Slot Held Exclusively For You</strong>
-                    <span className="text-[11px] text-slate-400">Ref: {activeHeldBooking.bookingReference}</span>
+                    <strong className="block font-heading font-bold uppercase">Slot Held Exclusively For You</strong>
+                    <span className="text-[11px] text-court-500 font-mono">Ref: {activeHeldBooking.bookingReference}</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-1.5 bg-slate-900 px-3 py-1.5 rounded-lg border border-emerald-500/40 font-mono font-bold text-sm text-emerald-400">
+                <div className="flex items-center gap-1.5 bg-white dark:bg-court-950 px-3 py-1.5 rounded-lg border border-grass-500/40 font-mono font-bold text-sm text-grass-600 dark:text-grass-400 tabular-nums shadow-court-xs">
                   <Clock className="w-3.5 h-3.5" />
                   {formatTimer(holdSecondsRemaining)}
                 </div>
               </div>
             )}
 
-            {/* Action Buttons */}
-            <div className="flex justify-end gap-3 border-t border-slate-800 pt-3">
+            {/* Action Buttons (48px thumb-friendly targets) */}
+            <div className="flex justify-end gap-3 border-t border-court-200 dark:border-court-800 pt-3">
               <button
                 onClick={() => {
                   setBookingDrawerSlot(null);
                   setActiveHeldBooking(null);
                 }}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold"
+                className="px-4 py-2.5 bg-court-100 dark:bg-court-800 hover:bg-court-200 dark:hover:bg-court-700 text-court-800 dark:text-court-200 rounded-lg text-xs font-heading font-bold uppercase tracking-wider border border-court-200 dark:border-court-700 min-h-[48px]"
               >
                 Cancel
               </button>
@@ -486,9 +486,9 @@ export default function CourtBookingPage() {
                 <button
                   disabled={holdBookingMutation.isPending || !!slotTakenError}
                   onClick={handleProceedToHold}
-                  className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-slate-950 font-bold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-emerald-500/20"
+                  className="px-6 py-2.5 bg-optic-500 hover:bg-optic-400 disabled:opacity-50 text-court-950 font-heading font-bold uppercase tracking-wider rounded-lg text-xs flex items-center justify-center gap-2 shadow-court-sm min-h-[48px]"
                 >
-                  <Lock className="w-3.5 h-3.5" />
+                  <Lock className="w-4 h-4" />
                   {holdBookingMutation.isPending ? 'Holding...' : 'Hold Slot (5 Min)'}
                 </button>
               ) : (
@@ -502,9 +502,9 @@ export default function CourtBookingPage() {
                       confirmBookingMutation.mutate(activeHeldBooking.id);
                     }
                   }}
-                  className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-slate-950 font-bold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-emerald-500/20"
+                  className="px-6 py-2.5 bg-optic-500 hover:bg-optic-400 disabled:opacity-50 text-court-950 font-heading font-bold uppercase tracking-wider rounded-lg text-xs flex items-center justify-center gap-2 shadow-court-sm min-h-[48px]"
                 >
-                  <CreditCard className="w-3.5 h-3.5" />
+                  <CreditCard className="w-4 h-4" />
                   {confirmBookingMutation.isPending
                     ? 'Confirming...'
                     : parseFloat(totalCalculatedPrice()) > 0

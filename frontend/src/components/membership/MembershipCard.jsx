@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { AlertTriangle, Award, Calendar, CheckCircle2, Clock, Sparkles, Trophy, XCircle } from 'lucide-react';
 import Button from '../ui/Button';
+import Badge from '../ui/Badge';
 import RenewMembershipModal from './RenewMembershipModal';
 
 export const MembershipCard = ({
@@ -41,12 +42,12 @@ export const MembershipCard = ({
 
   // Color theming based on plan & expiry
   const ringColor = isExpired || isSuspended
-    ? '#f43f5e' // red
+    ? '#ef4444' // red
     : isExpiringSoon
-    ? '#f59e0b' // amber
+    ? '#f97316' // amber/clay
     : planCode === 'GOLD'
-    ? '#eab308' // gold
-    : '#10b981'; // emerald
+    ? '#eab308' // optic gold
+    : '#10b981'; // grass
 
   const radius = 42;
   const circumference = 2 * Math.PI * radius;
@@ -55,80 +56,73 @@ export const MembershipCard = ({
   return (
     <>
       <div
-        className={`glass-card rounded-3xl p-6 sm:p-8 border-slate-700/80 bg-gradient-to-br from-surface-950 via-surface-900 to-surface-950 shadow-2xl relative overflow-hidden ${className}`}
+        className={`court-card relative rounded-2xl p-6 sm:p-8 border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-md overflow-hidden ${className}`}
       >
-        {/* Glow ambient background */}
-        <div
-          className={`absolute -top-24 -right-24 w-64 h-64 rounded-full blur-3xl opacity-20 pointer-events-none ${
-            isExpired
-              ? 'bg-red-500'
-              : isExpiringSoon
-              ? 'bg-amber-500'
-              : planCode === 'GOLD'
-              ? 'bg-yellow-400'
-              : 'bg-emerald-500'
-          }`}
-        />
-
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
-          {/* Left: Tier and Dates */}
-          <div className="space-y-4 flex-1">
+          {/* Left: Tier, Member info, and Validity Dates */}
+          <div className="space-y-4 flex-1 w-full text-left">
             <div className="flex items-center gap-3 flex-wrap">
-              <span
-                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border ${
+              <Badge
+                variant={
                   planCode === 'GOLD'
-                    ? 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+                    ? 'gold'
                     : planCode === 'SILVER'
-                    ? 'bg-slate-400/15 text-slate-300 border-slate-400/30'
-                    : 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30'
-                }`}
+                    ? 'court'
+                    : 'optic'
+                }
               >
-                <Trophy className="w-3.5 h-3.5" />
+                <Trophy className="w-3.5 h-3.5 mr-1 stroke-[2]" />
                 {planName}
-              </span>
+              </Badge>
 
               {/* Status Banner Pill */}
               {isSuspended ? (
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-heading font-bold uppercase tracking-wider bg-danger-500/15 text-danger-600 dark:text-danger-400 border border-danger-500/30">
                   <XCircle className="w-3.5 h-3.5" /> SUSPENDED
                 </span>
               ) : isExpired ? (
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-red-600 text-white animate-pulse shadow-glow">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-heading font-bold uppercase tracking-wider bg-danger-500 text-white animate-pulse">
                   <AlertTriangle className="w-3.5 h-3.5" /> EXPIRED
                 </span>
               ) : isExpiringSoon ? (
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-heading font-bold uppercase tracking-wider bg-clay-500/15 text-clay-700 dark:text-clay-300 border border-clay-500/30">
                   <Clock className="w-3.5 h-3.5" /> EXPIRING SOON
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-heading font-bold uppercase tracking-wider bg-grass-500/15 text-grass-700 dark:text-grass-300 border border-grass-500/30">
                   <CheckCircle2 className="w-3.5 h-3.5" /> ACTIVE
                 </span>
               )}
             </div>
 
             <div>
-              <h3 className="text-2xl font-black text-white tracking-tight">
+              <h3 className="text-2xl sm:text-3xl font-heading font-black text-court-950 dark:text-white uppercase tracking-tight">
                 {member?.fullName || 'Active Club Athlete'}
               </h3>
-              <p className="text-xs text-slate-400 font-mono mt-0.5">
+              <p className="text-xs text-court-500 dark:text-court-400 font-mono mt-0.5">
                 Member ID: {member?.memberNo || 'CC-001000'}
               </p>
             </div>
 
-            <div className="flex items-center gap-6 text-xs text-slate-300 pt-2 border-t border-slate-800/80">
+            <div className="flex items-center gap-6 text-xs font-sans text-court-600 dark:text-court-400 pt-3 border-t border-court-100 dark:border-court-800">
               <div>
-                <span className="text-[10px] uppercase tracking-wider text-slate-500 block">
+                <span className="text-[10px] font-heading font-bold uppercase tracking-wider text-court-500 block">
                   Valid From
                 </span>
-                <span className="font-semibold text-white">{startDate}</span>
+                <span className="font-mono font-semibold text-court-900 dark:text-court-100 tabular-nums">
+                  {startDate}
+                </span>
               </div>
-              <div className="w-px h-6 bg-slate-800" />
+              <div className="w-px h-6 bg-court-200 dark:bg-court-800" />
               <div>
-                <span className="text-[10px] uppercase tracking-wider text-slate-500 block">
+                <span className="text-[10px] font-heading font-bold uppercase tracking-wider text-court-500 block">
                   Valid Through
                 </span>
-                <span className={`font-semibold ${isExpired ? 'text-red-400' : 'text-white'}`}>
+                <span
+                  className={`font-mono font-semibold tabular-nums ${
+                    isExpired ? 'text-danger-600 dark:text-danger-400 font-bold' : 'text-court-900 dark:text-court-100'
+                  }`}
+                >
                   {endDate}
                 </span>
               </div>
@@ -136,17 +130,17 @@ export const MembershipCard = ({
 
             {/* Expired warning / CTA note */}
             {isExpired && (
-              <div className="p-3 rounded-xl bg-red-950/40 border border-red-800/60 text-xs text-red-200">
+              <div className="p-3 rounded-lg bg-danger-500/10 border border-danger-500/30 text-xs text-danger-700 dark:text-danger-300 font-sans">
                 <strong>Membership Expired:</strong> Member-rate court discounts are currently paused.
                 Renew now to restore your privileges.
               </div>
             )}
           </div>
 
-          {/* Right: Progress Ring + Renew CTA */}
+          {/* Right: Radial Progress Ring with Days Left & Renew Action */}
           <div className="flex flex-col items-center justify-center gap-4 shrink-0">
             {/* SVG Circular Progress Ring */}
-            <div className="relative w-32 h-32 flex items-center justify-center">
+            <div className="relative w-32 h-32 sm:w-36 sm:h-36 flex items-center justify-center">
               <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
                 {/* Background Ring */}
                 <circle
@@ -156,7 +150,7 @@ export const MembershipCard = ({
                   stroke="currentColor"
                   strokeWidth="8"
                   fill="transparent"
-                  className="text-slate-800/80"
+                  className="text-court-100 dark:text-court-800"
                 />
                 {/* Dynamic Progress Ring */}
                 <motion.circle
@@ -174,21 +168,23 @@ export const MembershipCard = ({
                 />
               </svg>
 
-              {/* Inside Ring Text */}
+              {/* Inside Ring Text with Tabular Numerals */}
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
                 {isExpired ? (
                   <>
-                    <span className="text-base font-black text-red-400 leading-none">0</span>
-                    <span className="text-[9px] uppercase tracking-widest text-slate-400 font-bold mt-1">
+                    <span className="text-3xl font-heading font-black text-danger-600 dark:text-danger-400 leading-none">
+                      0
+                    </span>
+                    <span className="text-[9px] font-heading font-bold uppercase tracking-widest text-court-500 mt-1">
                       EXPIRED
                     </span>
                   </>
                 ) : (
                   <>
-                    <span className="text-2xl font-black text-white leading-none">
+                    <span className="text-3xl sm:text-4xl font-heading font-black text-court-950 dark:text-white leading-none font-mono tabular-nums">
                       {daysLeft}
                     </span>
-                    <span className="text-[9px] uppercase tracking-widest text-slate-400 font-bold mt-1">
+                    <span className="text-[9px] font-heading font-bold uppercase tracking-widest text-court-500 mt-1">
                       DAYS LEFT
                     </span>
                   </>
@@ -204,7 +200,7 @@ export const MembershipCard = ({
               onClick={() => setRenewModalOpen(true)}
               className={
                 isExpired || isExpiringSoon
-                  ? 'shadow-glow animate-pulse'
+                  ? 'shadow-court-sm animate-pulse'
                   : ''
               }
             >
