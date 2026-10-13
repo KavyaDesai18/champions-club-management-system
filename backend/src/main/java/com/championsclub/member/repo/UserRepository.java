@@ -25,13 +25,26 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     java.util.List<User> findByRoleInAndStatusAndIsDeletedFalseOrderByCreatedAtAsc(java.util.Collection<Role> roles, String status);
 
+    Page<User> findByIsDeletedFalse(Pageable pageable);
+
+    Page<User> findByRoleAndIsDeletedFalse(Role role, Pageable pageable);
+
     @Query("""
         SELECT u FROM User u
         WHERE u.isDeleted = false
-          AND (:role IS NULL OR u.role = :role)
-          AND (:search IS NULL OR LOWER(u.fullName) LIKE LOWER(CONCAT('%', :search, '%'))
-                             OR LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%')))
+          AND (LOWER(u.fullName) LIKE LOWER(CONCAT('%', :search, '%'))
+            OR LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%')))
         ORDER BY u.createdAt DESC
     """)
-    Page<User> searchUsers(@Param("search") String search, @Param("role") Role role, Pageable pageable);
+    Page<User> findBySearch(@Param("search") String search, Pageable pageable);
+
+    @Query("""
+        SELECT u FROM User u
+        WHERE u.isDeleted = false
+          AND u.role = :role
+          AND (LOWER(u.fullName) LIKE LOWER(CONCAT('%', :search, '%'))
+            OR LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%')))
+        ORDER BY u.createdAt DESC
+    """)
+    Page<User> findBySearchAndRole(@Param("search") String search, @Param("role") Role role, Pageable pageable);
 }

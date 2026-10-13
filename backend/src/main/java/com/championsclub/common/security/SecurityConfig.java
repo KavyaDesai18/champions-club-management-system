@@ -85,6 +85,7 @@ public class SecurityConfig {
                                 "/public/**",
                                 "/api/v1/plans/**",
                                 "/api/v1/auth/login",
+                                "/api/v1/auth/register",
                                 "/api/v1/auth/refresh",
                                 "/api/v1/auth/logout",
                                 "/api/v1/auth/forgot-password",
@@ -147,7 +148,14 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(allowedOrigins);
+        java.util.List<String> origins = new java.util.ArrayList<>(allowedOrigins);
+        origins.add("http://localhost:[*]");
+        origins.add("http://127.0.0.1:[*]");
+        origins.add("http://localhost:5173");
+        origins.add("http://127.0.0.1:5173");
+        origins.add("http://localhost:3000");
+        origins.add("http://127.0.0.1:3000");
+        config.setAllowedOriginPatterns(origins.stream().distinct().toList());
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Idempotency-Key", "X-Requested-With", "X-Trace-Id", "X-Request-Id"));
         config.setExposedHeaders(List.of("Idempotency-Key", "Location", "X-Trace-Id", "Retry-After"));

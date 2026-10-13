@@ -22,30 +22,34 @@ import {
   X,
 } from 'lucide-react';
 
+import { useAuth } from '../../context/AuthContext';
+
 export const CommandPalette = ({ isOpen, onClose }) => {
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const userRole = user?.role || 'GUEST';
 
   const commands = [
     { id: 'home', label: 'Public Home Portal', path: '/', icon: Compass, category: 'Navigation', shortcut: 'H' },
-    { id: 'member-dash', label: 'Member Dashboard & Quota', path: '/app', icon: LayoutDashboard, category: 'Member', shortcut: 'M D' },
-    { id: 'member-book', label: 'Book Court Session (60m)', path: '/app/book', icon: Calendar, category: 'Member', shortcut: 'M B' },
-    { id: 'console-ops', label: 'Staff Operations Command Board', path: '/console', icon: Shield, category: 'Staff', shortcut: 'G O' },
-    { id: 'console-members', label: 'Fast Member Directory & Lookup', path: '/console/members', icon: Users, category: 'Staff', shortcut: 'G M' },
-    { id: 'console-checkin', label: 'Front Desk Access Check-In', path: '/console/checkin', icon: Activity, category: 'Staff', shortcut: 'G C' },
-    { id: 'console-availability', label: 'Court Availability Matrix', path: '/console/availability', icon: Layers, category: 'Staff', shortcut: 'G A' },
-    { id: 'console-leads', label: 'Lead CRM & Trial Conversions', path: '/console/leads', icon: UserCheck, category: 'Staff', shortcut: 'G L' },
-    { id: 'console-kds', label: 'Kitchen Display KDS Queue', path: '/console/kitchen', icon: UtensilsCrossed, category: 'Operations', shortcut: 'G K' },
-    { id: 'console-cash', label: 'POS Cash Drawer & Reconcile', path: '/console/cash-drawer', icon: DollarSign, category: 'Finance', shortcut: 'G D' },
-    { id: 'console-analytics', label: 'Owner Financial Analytics', path: '/console/analytics', icon: TrendingUp, category: 'Owner', shortcut: 'G R' },
+    { id: 'member-dash', label: 'Member Dashboard & Quota', path: '/app', icon: LayoutDashboard, category: 'Member', shortcut: 'M D', roles: ['MEMBER', 'COACH', 'OWNER', 'MANAGER'] },
+    { id: 'member-book', label: 'Book Court Session (60m)', path: '/app/book', icon: Calendar, category: 'Member', shortcut: 'M B', roles: ['MEMBER', 'COACH', 'OWNER', 'MANAGER'] },
+    { id: 'console-ops', label: 'Staff Operations Command Board', path: '/console', icon: Shield, category: 'Staff', shortcut: 'G O', roles: ['OWNER', 'MANAGER', 'FRONT_DESK', 'SHOP_STAFF', 'BAR_STAFF', 'KITCHEN', 'COACH'] },
+    { id: 'console-members', label: 'Fast Member Directory & Lookup', path: '/console/members', icon: Users, category: 'Staff', shortcut: 'G M', roles: ['OWNER', 'MANAGER', 'FRONT_DESK'] },
+    { id: 'console-checkin', label: 'Front Desk Access Check-In', path: '/console/checkin', icon: Activity, category: 'Staff', shortcut: 'G C', roles: ['OWNER', 'MANAGER', 'FRONT_DESK'] },
+    { id: 'console-availability', label: 'Court Availability Matrix', path: '/console/availability', icon: Layers, category: 'Staff', shortcut: 'G A', roles: ['OWNER', 'MANAGER', 'FRONT_DESK', 'COACH'] },
+    { id: 'console-leads', label: 'Lead CRM & Trial Conversions', path: '/console/leads', icon: UserCheck, category: 'Staff', shortcut: 'G L', roles: ['OWNER', 'MANAGER', 'FRONT_DESK'] },
+    { id: 'console-kds', label: 'Kitchen Display KDS Queue', path: '/console/kitchen', icon: UtensilsCrossed, category: 'Operations', shortcut: 'G K', roles: ['OWNER', 'MANAGER', 'KITCHEN'] },
+    { id: 'console-cash', label: 'POS Cash Drawer & Reconcile', path: '/console/cash-drawer', icon: DollarSign, category: 'Finance', shortcut: 'G D', roles: ['OWNER', 'MANAGER', 'FRONT_DESK', 'SHOP_STAFF', 'BAR_STAFF'] },
+    { id: 'console-analytics', label: 'Owner Financial Analytics', path: '/console/analytics', icon: TrendingUp, category: 'Owner', shortcut: 'G R', roles: ['OWNER'] },
+    { id: 'console-users', label: 'User & Role Management', path: '/console/users', icon: Shield, category: 'Admin', shortcut: 'G U', roles: ['OWNER'] },
     { id: 'styleguide', label: 'Design System Tokens & Styleguide', path: '/styleguide', icon: Palette, category: 'System', shortcut: 'G S' },
-    { id: 'err-404', label: '404 Page Preview', path: '/404', icon: X, category: 'Status Pages' },
-    { id: 'err-403', label: '403 Forbidden Preview', path: '/403', icon: Shield, category: 'Status Pages' },
-    { id: 'err-500', label: '500 Server Error Preview', path: '/500', icon: X, category: 'Status Pages' },
   ];
 
-  const filtered = commands.filter((cmd) =>
+  // Strictly filter by role and query
+  const roleAllowed = commands.filter((cmd) => !cmd.roles || cmd.roles.includes(userRole));
+  const filtered = roleAllowed.filter((cmd) =>
     cmd.label.toLowerCase().includes(query.toLowerCase()) ||
     cmd.category.toLowerCase().includes(query.toLowerCase()) ||
     (cmd.shortcut && cmd.shortcut.toLowerCase().includes(query.toLowerCase()))

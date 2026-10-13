@@ -63,6 +63,31 @@ export const AuthProvider = ({ children }) => {
     return userData;
   };
 
+  const register = async (userData) => {
+    const cleanEmail = userData.email.trim().toLowerCase();
+    const res = await apiClient.post(
+      '/auth/register',
+      {
+        fullName: userData.fullName.trim(),
+        email: cleanEmail,
+        password: userData.password,
+        phone: userData.phone ? userData.phone.trim() : null,
+      },
+      { suppressErrorToast: true }
+    );
+
+    const { accessToken, refreshToken, user: registeredUser } = res.data;
+
+    localStorage.setItem('champions_token', accessToken);
+    if (refreshToken) {
+      localStorage.setItem('champions_refresh_token', refreshToken);
+    }
+    localStorage.setItem('champions_user', JSON.stringify(registeredUser));
+
+    setUser(registeredUser);
+    return registeredUser;
+  };
+
   const logout = async () => {
     const refreshToken = localStorage.getItem('champions_refresh_token');
     try {
@@ -103,6 +128,7 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated: Boolean(user),
     isLoading,
     login,
+    register,
     logout,
     logoutAll,
     hasRole,

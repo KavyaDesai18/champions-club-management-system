@@ -44,7 +44,7 @@ export const HrPayrollPage = () => {
   const { user } = useAuth();
   const isManagerOrOwner = user?.role === 'OWNER' || user?.role === 'MANAGER';
 
-  const [activeTab, setActiveTab] = useState('directory'); // directory, roster, attendance, leave, payroll
+  const [activeTab, setActiveTab] = useState(isManagerOrOwner ? 'directory' : 'attendance');
   const [loading, setLoading] = useState(true);
 
   // -------------------------------------------------------------
@@ -541,15 +541,22 @@ export const HrPayrollPage = () => {
         </div>
       </div>
 
-      {/* Navigation Tabs */}
+      {/* Navigation Tabs - Filtered strictly by role for staff privacy */}
       <div className="flex items-center gap-2 border-b border-slate-800 pb-1 overflow-x-auto">
-        {[
-          { id: 'directory', label: 'Staff Directory', icon: Users, count: employees.length },
-          { id: 'roster', label: 'Roster Calendar', icon: Calendar, count: rosterShifts.length },
-          { id: 'attendance', label: 'Attendance Board', icon: Clock, count: todayAttendance.length },
-          { id: 'leave', label: 'Leave & Absences', icon: CalendarDays, count: leaveRequests.filter((r) => r.status === 'PENDING').length },
-          { id: 'payroll', label: 'Payroll Run Wizard', icon: DollarSign, count: payrollRuns.length },
-        ].map((tab) => {
+        {(isManagerOrOwner
+          ? [
+              { id: 'directory', label: 'Staff Directory', icon: Users, count: employees.length },
+              { id: 'roster', label: 'Roster Calendar', icon: Calendar, count: rosterShifts.length },
+              { id: 'attendance', label: 'Attendance Board', icon: Clock, count: todayAttendance.length },
+              { id: 'leave', label: 'Leave & Absences', icon: CalendarDays, count: leaveRequests.filter((r) => r.status === 'PENDING').length },
+              { id: 'payroll', label: 'Payroll Run Wizard', icon: DollarSign, count: payrollRuns.length },
+            ]
+          : [
+              { id: 'attendance', label: 'My Attendance & Clock', icon: Clock, count: todayAttendance.length },
+              { id: 'leave', label: 'My Leave Requests', icon: CalendarDays, count: leaveRequests.filter((r) => r.status === 'PENDING').length },
+              { id: 'payroll', label: 'My Payslips', icon: DollarSign, count: payrollPayslips.length },
+            ]
+        ).map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
           return (

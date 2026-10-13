@@ -51,8 +51,17 @@ public class UserService {
 
     public Page<UserDto> getUsers(String search, Role role, Pageable pageable) {
         String cleanSearch = (search != null && !search.isBlank()) ? search.trim() : null;
-        return userRepository.searchUsers(cleanSearch, role, pageable)
-                .map(UserDto::fromEntity);
+        Page<User> users;
+        if (cleanSearch != null && role != null) {
+            users = userRepository.findBySearchAndRole(cleanSearch, role, pageable);
+        } else if (cleanSearch != null) {
+            users = userRepository.findBySearch(cleanSearch, pageable);
+        } else if (role != null) {
+            users = userRepository.findByRoleAndIsDeletedFalse(role, pageable);
+        } else {
+            users = userRepository.findByIsDeletedFalse(pageable);
+        }
+        return users.map(UserDto::fromEntity);
     }
 
     public UserDto getUserById(UUID id) {

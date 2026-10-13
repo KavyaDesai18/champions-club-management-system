@@ -4,6 +4,7 @@ import com.championsclub.auth.dto.AuthResponse;
 import com.championsclub.auth.dto.ChangePasswordRequest;
 import com.championsclub.auth.dto.ForgotPasswordRequest;
 import com.championsclub.auth.dto.LoginRequest;
+import com.championsclub.auth.dto.RegisterRequest;
 import com.championsclub.auth.dto.RefreshTokenRequest;
 import com.championsclub.auth.dto.ResetPasswordRequest;
 import com.championsclub.auth.dto.TokenRefreshResponse;
@@ -45,6 +46,18 @@ public class AuthController {
         String userAgent = servletRequest.getHeader("User-Agent");
         AuthResponse response = authService.login(request, ipAddress, userAgent);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/register")
+    @Operation(summary = "Register new member account")
+    public ResponseEntity<AuthResponse> register(
+            @Valid @RequestBody RegisterRequest request,
+            HttpServletRequest servletRequest
+    ) {
+        String ipAddress = extractClientIp(servletRequest);
+        String userAgent = servletRequest.getHeader("User-Agent");
+        AuthResponse response = authService.register(request, ipAddress, userAgent);
+        return ResponseEntity.status(org.springframework.http.HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/refresh")

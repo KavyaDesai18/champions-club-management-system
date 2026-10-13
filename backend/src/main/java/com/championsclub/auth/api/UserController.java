@@ -44,8 +44,8 @@ public class UserController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('OWNER', 'MANAGER')")
-    @Operation(summary = "List and filter club users")
+    @PreAuthorize("hasRole('OWNER')")
+    @Operation(summary = "List and filter club users (Admin/Owner only)")
     public ResponseEntity<Page<UserDto>> listUsers(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) Role role,
@@ -56,37 +56,29 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('OWNER', 'MANAGER')")
-    @Operation(summary = "Get user details by ID")
+    @PreAuthorize("hasRole('OWNER')")
+    @Operation(summary = "Get user details by ID (Admin/Owner only)")
     public ResponseEntity<UserDto> getUser(@PathVariable UUID id) {
         UserDto user = userService.getUserById(id);
         return ResponseEntity.ok(user);
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('OWNER', 'MANAGER')")
-    @Operation(summary = "Create new club staff or member account")
+    @PreAuthorize("hasRole('OWNER')")
+    @Operation(summary = "Create new club staff or member account (Admin/Owner only)")
     public ResponseEntity<UserDto> createUser(
             @Valid @RequestBody CreateUserRequest request,
             Authentication authentication,
             HttpServletRequest servletRequest
     ) {
-        boolean isOwner = authentication.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_OWNER"));
-
-        // Managers cannot create Owners or other Managers
-        if (!isOwner && (request.getRole() == Role.OWNER || request.getRole() == Role.MANAGER)) {
-            throw new BusinessValidationException("Managers cannot create Owner or Manager accounts.");
-        }
-
         String ipAddress = extractClientIp(servletRequest);
         UserDto created = userService.createUser(request, authentication.getName(), ipAddress);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasAnyRole('OWNER', 'MANAGER')")
-    @Operation(summary = "Update user details")
+    @PreAuthorize("hasRole('OWNER')")
+    @Operation(summary = "Update user details (Admin/Owner only)")
     public ResponseEntity<UserDto> updateUser(
             @PathVariable UUID id,
             @Valid @RequestBody UpdateUserRequest request,
@@ -99,8 +91,8 @@ public class UserController {
     }
 
     @PatchMapping("/{id}/status")
-    @PreAuthorize("hasAnyRole('OWNER', 'MANAGER')")
-    @Operation(summary = "Activate or disable user account")
+    @PreAuthorize("hasRole('OWNER')")
+    @Operation(summary = "Activate or disable user account (Admin/Owner only)")
     public ResponseEntity<UserDto> updateStatus(
             @PathVariable UUID id,
             @Valid @RequestBody UpdateStatusRequest request,
@@ -127,8 +119,8 @@ public class UserController {
     }
 
     @PostMapping("/{id}/logout")
-    @PreAuthorize("hasAnyRole('OWNER', 'MANAGER')")
-    @Operation(summary = "Force logout user across all devices")
+    @PreAuthorize("hasRole('OWNER')")
+    @Operation(summary = "Force logout user across all devices (Admin/Owner only)")
     public ResponseEntity<Map<String, String>> forceLogout(
             @PathVariable UUID id,
             Principal principal,

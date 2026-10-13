@@ -29,7 +29,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Owner Dashboard & Reporting", description = "Read-optimized endpoints for financial summary, operations KPIs, exports, and report shares")
-@PreAuthorize("hasAnyRole('OWNER', 'MANAGER')")
+@PreAuthorize("hasRole('OWNER')")
 public class OwnerReportingController {
 
     private final ReportingService reportingService;

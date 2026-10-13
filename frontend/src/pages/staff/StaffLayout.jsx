@@ -38,8 +38,8 @@ import Tooltip from '../../components/ui/Tooltip';
 import { useAuth } from '../../context/AuthContext';
 
 export const allConsoleMenuItems = [
-  { id: 'dashboard', label: 'Operations Board', icon: LayoutDashboard, path: '/console', roles: ['OWNER', 'MANAGER', 'FRONT_DESK', 'COACH'] },
-  { id: 'analytics', label: 'Owner Analytics & Reports', icon: TrendingUp, path: '/console/analytics', roles: ['OWNER', 'MANAGER'] },
+  { id: 'dashboard', label: 'Operations Board', icon: LayoutDashboard, path: '/console', roles: ['OWNER', 'MANAGER', 'FRONT_DESK', 'COACH', 'SHOP_STAFF', 'BAR_STAFF', 'KITCHEN'] },
+  { id: 'analytics', label: 'Owner Analytics & Reports', icon: TrendingUp, path: '/console/analytics', roles: ['OWNER'] },
   { id: 'leads', label: 'Lead CRM & Quotes', icon: UserCheck, path: '/console/leads', roles: ['OWNER', 'MANAGER', 'FRONT_DESK'] },
   { id: 'invoices', label: 'Invoices & Ledger', icon: Receipt, path: '/console/invoices', roles: ['OWNER', 'MANAGER', 'FRONT_DESK'] },
   { id: 'cashdrawer', label: 'Cash Drawer', icon: Banknote, path: '/console/cash-drawer', roles: ['OWNER', 'MANAGER', 'FRONT_DESK', 'SHOP_STAFF', 'BAR_STAFF'] },
@@ -53,43 +53,27 @@ export const allConsoleMenuItems = [
   { id: 'members', label: 'Members Directory', icon: Users, path: '/console/members', roles: ['OWNER', 'MANAGER', 'FRONT_DESK'] },
   { id: 'checkin', label: 'Front Desk Check-in', icon: Activity, path: '/console/checkin', roles: ['OWNER', 'MANAGER', 'FRONT_DESK'] },
   { id: 'expiring', label: 'Expiring Soon', icon: Clock, path: '/console/members/expiring', roles: ['OWNER', 'MANAGER', 'FRONT_DESK'] },
-  { id: 'kitchen', label: 'Kitchen KDS Queue', icon: UtensilsCrossed, path: '/console/kitchen', roles: ['OWNER', 'MANAGER', 'KITCHEN', 'BAR_STAFF'] },
+  { id: 'kitchen', label: 'Kitchen KDS Queue', icon: UtensilsCrossed, path: '/console/kitchen', roles: ['OWNER', 'MANAGER', 'KITCHEN'] },
   { id: 'bar', label: 'Bar & Lounge Tabs', icon: Coffee, path: '/console/bar', roles: ['OWNER', 'MANAGER', 'BAR_STAFF'] },
   { id: 'bar-shifts', label: 'Bar Staff Shifts', icon: Clock, path: '/console/bar-shifts', roles: ['OWNER', 'MANAGER', 'BAR_STAFF'] },
   { id: 'daily-close', label: 'Daily Close & Ledger', icon: Receipt, path: '/console/daily-close', roles: ['OWNER', 'MANAGER', 'BAR_STAFF'] },
   { id: 'shop', label: 'Pro Shop & Equipment', icon: ShoppingBag, path: '/console/shop', roles: ['OWNER', 'MANAGER', 'SHOP_STAFF'] },
-  { id: 'hr', label: 'HR & Payroll', icon: UserCheck, path: '/console/hr', roles: ['OWNER', 'MANAGER', 'FRONT_DESK', 'SHOP_STAFF', 'BAR_STAFF', 'KITCHEN', 'COACH'] },
-  { id: 'audit', label: 'Audit & Compliance', icon: FileText, path: '/console/audit', roles: ['OWNER', 'MANAGER'] },
+  { id: 'hr', label: 'HR & Payroll', icon: UserCheck, path: '/console/hr', roles: ['OWNER'] },
+  { id: 'audit', label: 'Audit & Compliance', icon: FileText, path: '/console/audit', roles: ['OWNER'] },
   { id: 'settings', label: 'System Configuration', icon: Settings, path: '/console/settings', roles: ['OWNER'] },
-  { id: 'users', label: 'User & Role Management', icon: Shield, path: '/console/users', roles: ['OWNER', 'MANAGER'] },
+  { id: 'users', label: 'User & Role Management', icon: Shield, path: '/console/users', roles: ['OWNER'] },
 ];
 
 export const StaffLayout = () => {
   const { user, logout } = useAuth();
-  const [currentRole, setCurrentRole] = useState(user?.role || 'FRONT_DESK');
+  const userRole = user?.role || 'FRONT_DESK';
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const location = useLocation();
 
-  useEffect(() => {
-    if (user?.role) {
-      setCurrentRole(user.role);
-    }
-  }, [user?.role]);
-
-  const roles = [
-    'OWNER',
-    'MANAGER',
-    'FRONT_DESK',
-    'SHOP_STAFF',
-    'BAR_STAFF',
-    'KITCHEN',
-    'COACH',
-  ];
-
-  // Filter navigation items by current role
+  // Filter navigation items strictly by authenticated user's actual role
   const visibleMenuItems = allConsoleMenuItems.filter((item) =>
-    item.roles.includes(currentRole)
+    item.roles.includes(userRole)
   );
 
   // Global keyboard shortcuts (Ctrl+K or /)
@@ -264,23 +248,15 @@ export const StaffLayout = () => {
               </kbd>
             </button>
 
-            {/* Role Switcher Select */}
-            <div className="hidden sm:flex items-center gap-2 shrink-0">
-              <span className="text-[11px] font-heading font-bold uppercase text-court-500 hidden lg:inline">
+            {/* Operational Role Badge (Strictly locked to authenticated user) */}
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-court-100 dark:bg-court-800 border border-court-200 dark:border-court-700/80 text-xs shrink-0" data-testid="staff-role-badge">
+              <span className="w-2 h-2 rounded-full bg-success-500 animate-pulse" />
+              <span className="text-[10px] font-heading font-bold uppercase text-court-500 hidden lg:inline">
                 Role:
               </span>
-              <select
-                value={currentRole}
-                onChange={(e) => setCurrentRole(e.target.value)}
-                className="bg-court-50 dark:bg-court-800 border border-court-200 dark:border-court-700 rounded-lg px-2.5 py-1.5 text-xs font-heading font-bold text-court-950 dark:text-white outline-none focus:border-optic-500 cursor-pointer uppercase"
-                aria-label="Select staff role"
-              >
-                {roles.map((r) => (
-                  <option key={r} value={r} className="bg-white dark:bg-court-900 text-court-900 dark:text-white">
-                    {r}
-                  </option>
-                ))}
-              </select>
+              <span className="font-heading font-black text-court-950 dark:text-optic-300 uppercase tracking-wider text-xs">
+                {userRole}
+              </span>
             </div>
 
             <div className="shrink-0">
@@ -306,7 +282,7 @@ export const StaffLayout = () => {
 
         {/* Content View */}
         <main className="flex-1 p-4 sm:p-7 max-w-7xl w-full mx-auto">
-          <Outlet context={{ currentRole }} />
+          <Outlet context={{ currentRole: userRole }} />
         </main>
       </div>
 

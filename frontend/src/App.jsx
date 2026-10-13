@@ -21,6 +21,7 @@ const SharedReportViewPage = lazy(() => import('./pages/public/SharedReportViewP
 
 // Auth Pages (Lazy Loaded)
 const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
+const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'));
 const ForgotPasswordPage = lazy(() => import('./pages/auth/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('./pages/auth/ResetPasswordPage'));
 
@@ -106,6 +107,7 @@ export function App() {
 
                   {/* Auth Routes */}
                   <Route path="/login" element={<LoginPage />} />
+                  <Route path="/register" element={<RegisterPage />} />
                   <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                   <Route path="/reset-password" element={<ResetPasswordPage />} />
 
@@ -143,35 +145,67 @@ export function App() {
                   >
                     <Route path="/console" element={<StaffLayout />}>
                       <Route index element={<StaffConsoleHome />} />
-                      <Route path="leads" element={<LeadCrmPage />} />
-                      <Route path="social" element={<SocialPlayPage />} />
-                      <Route path="members" element={<MembersListPage />} />
-                      <Route path="members/expiring" element={<ExpiringMembershipsPage />} />
-                      <Route path="members/:id" element={<Member360Page />} />
-                      <Route path="checkin" element={<FrontDeskCheckInPage />} />
-                      <Route path="bookings" element={<BookingsConsolePage />} />
-                      <Route path="invoices" element={<InvoicesConsolePage />} />
-                      <Route path="cash-drawer" element={<CashDrawerConsolePage />} />
-                      <Route path="corporate" element={<CorporateAccountsPage />} />
-                      <Route path="courts" element={<CourtsConsolePage />} />
-                      <Route path="pricing" element={<PricingConsolePage />} />
-                      <Route path="hours" element={<OpeningHoursConsolePage />} />
-                      <Route path="blackouts" element={<BlackoutsConsolePage />} />
-                      <Route path="availability" element={<CourtBookingPage />} />
-                      <Route path="kitchen" element={<KitchenDisplayPage />} />
-                      <Route path="kitchen-display" element={<KitchenDisplayPage />} />
-                      <Route path="bar" element={<BarPosPage />} />
-                      <Route path="bar-pos" element={<BarPosPage />} />
-                      <Route path="bar-shifts" element={<ShiftConsolePage />} />
-                      <Route path="daily-close" element={<DailyClosePage />} />
-                      <Route path="shop" element={<ShopConsolePage />} />
-                      <Route path="hr" element={<HrPayrollPage />} />
-                      <Route path="analytics" element={<OwnerDashboardPage />} />
-                      <Route path="owner" element={<OwnerDashboardPage />} />
-                      <Route path="reports" element={<OwnerDashboardPage />} />
-                      <Route path="audit" element={<StaffConsoleHome />} />
-                      <Route path="settings" element={<StaffConsoleHome />} />
-                      <Route path="users" element={<UserManagementPage />} />
+
+                      {/* Owner / Admin Exclusive Tools & Financials */}
+                      <Route element={<ProtectedRoute allowedRoles={['OWNER']} />}>
+                        <Route path="analytics" element={<OwnerDashboardPage />} />
+                        <Route path="owner" element={<OwnerDashboardPage />} />
+                        <Route path="reports" element={<OwnerDashboardPage />} />
+                        <Route path="users" element={<UserManagementPage />} />
+                        <Route path="hr" element={<HrPayrollPage />} />
+                        <Route path="audit" element={<StaffConsoleHome />} />
+                        <Route path="settings" element={<StaffConsoleHome />} />
+                      </Route>
+
+                      {/* Manager & Owner Administrative Controls */}
+                      <Route element={<ProtectedRoute allowedRoles={['OWNER', 'MANAGER']} />}>
+                        <Route path="corporate" element={<CorporateAccountsPage />} />
+                        <Route path="pricing" element={<PricingConsolePage />} />
+                        <Route path="hours" element={<OpeningHoursConsolePage />} />
+                      </Route>
+
+                      {/* Front Desk Operations */}
+                      <Route element={<ProtectedRoute allowedRoles={['OWNER', 'MANAGER', 'FRONT_DESK']} />}>
+                        <Route path="leads" element={<LeadCrmPage />} />
+                        <Route path="members" element={<MembersListPage />} />
+                        <Route path="members/expiring" element={<ExpiringMembershipsPage />} />
+                        <Route path="members/:id" element={<Member360Page />} />
+                        <Route path="checkin" element={<FrontDeskCheckInPage />} />
+                        <Route path="bookings" element={<BookingsConsolePage />} />
+                        <Route path="invoices" element={<InvoicesConsolePage />} />
+                        <Route path="courts" element={<CourtsConsolePage />} />
+                        <Route path="blackouts" element={<BlackoutsConsolePage />} />
+                      </Route>
+
+                      {/* Cash Drawer (Front Desk, Shop, Bar) */}
+                      <Route element={<ProtectedRoute allowedRoles={['OWNER', 'MANAGER', 'FRONT_DESK', 'SHOP_STAFF', 'BAR_STAFF']} />}>
+                        <Route path="cash-drawer" element={<CashDrawerConsolePage />} />
+                      </Route>
+
+                      {/* Social Play & Court Availability (Staff & Coaches) */}
+                      <Route element={<ProtectedRoute allowedRoles={['OWNER', 'MANAGER', 'FRONT_DESK', 'COACH']} />}>
+                        <Route path="social" element={<SocialPlayPage />} />
+                        <Route path="availability" element={<CourtBookingPage />} />
+                      </Route>
+
+                      {/* Bar & Lounge Operations */}
+                      <Route element={<ProtectedRoute allowedRoles={['OWNER', 'MANAGER', 'BAR_STAFF']} />}>
+                        <Route path="bar" element={<BarPosPage />} />
+                        <Route path="bar-pos" element={<BarPosPage />} />
+                        <Route path="bar-shifts" element={<ShiftConsolePage />} />
+                        <Route path="daily-close" element={<DailyClosePage />} />
+                      </Route>
+
+                      {/* Kitchen Prep Display */}
+                      <Route element={<ProtectedRoute allowedRoles={['OWNER', 'MANAGER', 'KITCHEN', 'BAR_STAFF']} />}>
+                        <Route path="kitchen" element={<KitchenDisplayPage />} />
+                        <Route path="kitchen-display" element={<KitchenDisplayPage />} />
+                      </Route>
+
+                      {/* Pro Shop Fulfillment */}
+                      <Route element={<ProtectedRoute allowedRoles={['OWNER', 'MANAGER', 'SHOP_STAFF']} />}>
+                        <Route path="shop" element={<ShopConsolePage />} />
+                      </Route>
                     </Route>
                   </Route>
 

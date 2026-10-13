@@ -26,7 +26,7 @@ import java.util.UUID;
 @RequestMapping({"/api/v1/reporting/expenses", "/api/reporting/expenses"})
 @RequiredArgsConstructor
 @Tag(name = "Operating Expenses", description = "Endpoints for club operating expenses (rent, utilities, maintenance, etc.)")
-@PreAuthorize("hasAnyRole('OWNER', 'MANAGER')")
+@PreAuthorize("hasRole('OWNER')")
 public class ExpenseController {
 
     private final ExpenseService expenseService;

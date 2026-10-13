@@ -5,9 +5,11 @@ import com.championsclub.auth.domain.RefreshToken;
 import com.championsclub.auth.dto.AuthResponse;
 import com.championsclub.auth.dto.ChangePasswordRequest;
 import com.championsclub.auth.dto.LoginRequest;
+import com.championsclub.auth.dto.RegisterRequest;
 import com.championsclub.auth.dto.ResetPasswordRequest;
 import com.championsclub.auth.dto.TokenRefreshResponse;
 import com.championsclub.auth.dto.UserDto;
+import com.championsclub.common.security.Role;
 import com.championsclub.auth.repo.PasswordResetTokenRepository;
 import com.championsclub.auth.repo.RefreshTokenRepository;
 import com.championsclub.common.audit.AuditService;
@@ -150,6 +152,67 @@ public class AuthService {
                 .tokenType("Bearer")
                 .expiresInSeconds(tokenProvider.getAccessTokenExpirationSeconds())
                 .user(UserDto.fromEntity(user))
+                .build();
+    }
+
+    @Transactional
+    public AuthResponse register(RegisterRequest request, String ipAddress, String userAgent) {
+        String normalizedEmail = request.getEmail().trim().toLowerCase();
+
+        if (userRepository.findByEmailAndIsDeletedFalse(normalizedEmail).isPresent()) {
+            throw new ChampionsClubException(HttpStatus.CONFLICT, "EMAIL_ALREADY_EXISTS", "An account with this email address already exists. Please sign in instead.");
+        }
+
+        passwordPolicyValidator.validate(request.getPassword());
+
+        Instant now = clock.instant();
+
+        User newUser = User.builder()
+                .email(normalizedEmail)
+                .fullName(request.getFullName().trim())
+                .phone(StringUtils.hasText(request.getPhone()) ? request.getPhone().trim() : null)
+                .passwordHash(passwordEncoder.encode(request.getPassword()))
+                .role(Role.MEMBER)
+                .status("ACTIVE")
+                .failedAttempts(0)
+                .tokenVersion(1)
+                .createdAt(now)
+                .updatedAt(now)
+                .isDeleted(false)
+                .build();
+
+        User savedUser = userRepository.save(newUser);
+
+        // Generate initial authentication session
+        String accessToken = tokenProvider.generateAccessToken(
+                savedUser.getId(),
+                savedUser.getEmail(),
+                savedUser.getRole(),
+                savedUser.getTokenVersion()
+        );
+
+        String rawRefreshToken = tokenProvider.generateSecureRandomToken();
+        String tokenHash = tokenProvider.hashToken(rawRefreshToken);
+
+        RefreshToken refreshToken = RefreshToken.builder()
+                .user(savedUser)
+                .tokenHash(tokenHash)
+                .familyId(UUID.randomUUID())
+                .expiresAt(now.plus(Duration.ofDays(7)))
+                .ip(ipAddress)
+                .userAgent(userAgent)
+                .createdAt(now)
+                .build();
+        refreshTokenRepository.save(refreshToken);
+
+        auditService.record(savedUser.getId(), "USER_REGISTERED", "USER", savedUser.getId().toString(), "New member self-registration", ipAddress);
+
+        return AuthResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(rawRefreshToken)
+                .tokenType("Bearer")
+                .expiresInSeconds(tokenProvider.getAccessTokenExpirationSeconds())
+                .user(UserDto.fromEntity(savedUser))
                 .build();
     }
 

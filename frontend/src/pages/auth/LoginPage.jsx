@@ -95,14 +95,21 @@ export const LoginPage = () => {
               </button>
               <button
                 type="button"
-                onClick={() => handleDemoFill('manager@testclub.com', 'MANAGER')}
+                onClick={() => handleDemoFill('maya.manager@championsclub.com', 'MANAGER')}
                 className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-slate-800 text-amber-300 hover:bg-slate-700 transition border border-slate-700/80"
               >
                 Manager
               </button>
               <button
                 type="button"
-                onClick={() => handleDemoFill('member@testclub.com', 'MEMBER')}
+                onClick={() => handleDemoFill('alice.frontdesk@championsclub.com', 'FRONT_DESK')}
+                className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-slate-800 text-blue-300 hover:bg-slate-700 transition border border-slate-700/80"
+              >
+                Front Desk
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDemoFill('sania.mirza@championsclub.demo', 'MEMBER')}
                 className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-slate-800 text-emerald-300 hover:bg-slate-700 transition border border-slate-700/80"
               >
                 Member
@@ -181,7 +188,13 @@ export const LoginPage = () => {
             </form>
           </CardContent>
 
-          <CardFooter className="flex justify-center border-t border-slate-800/80 pt-4">
+          <CardFooter className="flex flex-col gap-2 border-t border-slate-800/80 pt-4 text-center">
+            <p className="text-xs text-slate-400">
+              New athlete?{' '}
+              <Link to="/register" className="text-emerald-400 hover:text-emerald-300 font-bold transition">
+                Create an account / Register here
+              </Link>
+            </p>
             <Link to="/" className="text-xs text-slate-400 hover:text-white transition">
               ← Back to Club Home
             </Link>

@@ -36,8 +36,8 @@ public class PayrollController {
     }
 
     @PostMapping("/runs")
-    @PreAuthorize("hasAnyRole('OWNER', 'MANAGER')")
-    @Operation(summary = "Generate or recalculate monthly payroll run (idempotent)")
+    @PreAuthorize("hasRole('OWNER')")
+    @Operation(summary = "Generate or recalculate monthly payroll run (idempotent - Owner only)")
     public ResponseEntity<PayrollRunDto> generatePayroll(
             @Valid @RequestBody GeneratePayrollRequest request,
             Authentication authentication
@@ -50,22 +50,22 @@ public class PayrollController {
     }
 
     @GetMapping("/runs")
-    @PreAuthorize("hasAnyRole('OWNER', 'MANAGER')")
-    @Operation(summary = "Get all payroll runs")
+    @PreAuthorize("hasRole('OWNER')")
+    @Operation(summary = "Get all payroll runs (Owner only)")
     public ResponseEntity<List<PayrollRunDto>> getAllPayrollRuns() {
         return ResponseEntity.ok(payrollService.getAllPayrollRuns());
     }
 
     @GetMapping("/runs/{id}")
-    @PreAuthorize("hasAnyRole('OWNER', 'MANAGER')")
-    @Operation(summary = "Get payroll run by ID")
+    @PreAuthorize("hasRole('OWNER')")
+    @Operation(summary = "Get payroll run by ID (Owner only)")
     public ResponseEntity<PayrollRunDto> getPayrollRunById(@PathVariable UUID id) {
         return ResponseEntity.ok(payrollService.getPayrollRunById(id));
     }
 
     @PutMapping("/runs/{id}/status")
-    @PreAuthorize("hasAnyRole('OWNER', 'MANAGER')")
-    @Operation(summary = "Update payroll run status (DRAFT -> REVIEW -> APPROVED -> PAID)")
+    @PreAuthorize("hasRole('OWNER')")
+    @Operation(summary = "Update payroll run status (DRAFT -> REVIEW -> APPROVED -> PAID - Owner only)")
     public ResponseEntity<PayrollRunDto> updatePayrollStatus(
             @PathVariable UUID id,
             @Valid @RequestBody UpdatePayrollStatusRequest request,
@@ -79,8 +79,8 @@ public class PayrollController {
     }
 
     @GetMapping("/runs/{id}/payslips")
-    @PreAuthorize("hasAnyRole('OWNER', 'MANAGER')")
-    @Operation(summary = "Get all payslips for a given payroll run")
+    @PreAuthorize("hasRole('OWNER')")
+    @Operation(summary = "Get all payslips for a given payroll run (Owner only)")
     public ResponseEntity<List<PayslipDto>> getPayslipsForRun(@PathVariable UUID id) {
         return ResponseEntity.ok(payrollService.getPayslipsForRun(id));
     }
