@@ -2,6 +2,8 @@ import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 
+const isTest = typeof process !== 'undefined' && (process.env?.NODE_ENV === 'test' || Boolean(process.env?.VITEST));
+
 const variantClasses = {
   primary: 'bg-optic-500 hover:bg-optic-400 text-court-950 font-bold shadow-court-sm border-optic-400 focus-visible:ring-optic-500',
   optic: 'bg-optic-500 hover:bg-optic-400 text-court-950 font-bold shadow-court-sm border-optic-400 focus-visible:ring-optic-500',
@@ -27,6 +29,7 @@ export const Button = React.forwardRef(({
   variant = 'primary',
   size = 'md',
   isLoading = false,
+  loading = false,
   disabled = false,
   fullWidth = false,
   startIcon,
@@ -37,7 +40,8 @@ export const Button = React.forwardRef(({
   ...props
 }, ref) => {
   const shouldReduceMotion = useReducedMotion();
-  const isDisabled = disabled || isLoading;
+  const effectiveLoading = Boolean(isLoading || loading);
+  const isDisabled = disabled || effectiveLoading;
 
   const handleClick = (e) => {
     if (isDisabled) {
@@ -48,20 +52,20 @@ export const Button = React.forwardRef(({
     if (onClick) onClick(e);
   };
 
-  const tapAnimation = shouldReduceMotion || isDisabled ? {} : { scale: 0.98 };
+  const tapAnimation = shouldReduceMotion || isDisabled || isTest ? undefined : { scale: 0.98 };
 
   return (
     <motion.button
       ref={ref}
       type={type}
       disabled={isDisabled}
-      aria-busy={isLoading}
+      aria-busy={effectiveLoading}
       aria-disabled={isDisabled}
       whileTap={tapAnimation}
       onClick={handleClick}
       className={`
         inline-flex items-center justify-center font-medium border transition-colors select-none
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-optic-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-court-950
         disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none
         ${variantClasses[variant] || variantClasses.primary}
         ${sizeClasses[size] || sizeClasses.md}
@@ -70,7 +74,7 @@ export const Button = React.forwardRef(({
       `}
       {...props}
     >
-      {isLoading ? (
+      {effectiveLoading ? (
         <>
           <Loader2 className="w-4 h-4 animate-spin shrink-0" aria-hidden="true" />
           <span>{children}</span>

@@ -61,33 +61,35 @@ export const CommandPalette = ({ isOpen, onClose }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm"
+            className="fixed inset-0 bg-court-950/70 backdrop-blur-sm"
           />
 
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: -20 }}
+            initial={{ opacity: 0, scale: 0.96, y: -16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -20 }}
+            exit={{ opacity: 0, scale: 0.96, y: -16 }}
             transition={{ duration: 0.15 }}
-            className="relative w-full max-w-xl rounded-3xl border border-slate-800 bg-surface-900/95 dark:bg-slate-900/95 p-3 shadow-2xl backdrop-blur-xl z-10"
+            className="relative w-full max-w-xl rounded-xl border border-court-200 dark:border-court-800 bg-white/98 dark:bg-court-900/98 p-3 shadow-court-xl backdrop-blur-xl z-10"
           >
-            <div className="flex items-center gap-3 px-3 py-2 border-b border-slate-800">
-              <Search className="w-5 h-5 text-slate-400" />
+            <div className="flex items-center gap-3 px-3 py-2 border-b border-court-200 dark:border-court-800">
+              <Search className="w-5 h-5 text-court-400 dark:text-court-500 stroke-[1.75]" />
               <input
                 autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Type a command or jump to page... (ESC to close)"
-                className="w-full bg-transparent text-sm text-white placeholder:text-slate-500 outline-none"
+                className="w-full bg-transparent text-sm text-court-900 dark:text-white placeholder:text-court-400 dark:placeholder:text-court-500 outline-none font-sans"
               />
-              <span className="text-[10px] font-mono bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-slate-700">
+              <span className="text-[10px] font-mono bg-court-100 dark:bg-court-800 text-court-500 dark:text-court-400 px-1.5 py-0.5 rounded-xs border border-court-200 dark:border-court-700">
                 ESC
               </span>
             </div>
 
             <div className="py-2 max-h-80 overflow-y-auto space-y-1">
               {filtered.length === 0 ? (
-                <div className="p-4 text-center text-xs text-slate-500">No matching commands found.</div>
+                <div className="p-4 text-center text-xs text-court-400 dark:text-court-500 font-sans">
+                  No matching commands found.
+                </div>
               ) : (
                 filtered.map((cmd, idx) => {
                   const Icon = cmd.icon;
@@ -101,15 +103,21 @@ export const CommandPalette = ({ isOpen, onClose }) => {
                       }}
                       onMouseEnter={() => setSelectedIndex(idx)}
                       className={`
-                        flex items-center justify-between px-3.5 py-2.5 rounded-xl cursor-pointer text-xs font-semibold transition
-                        ${isSelected ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' : 'text-slate-300 hover:bg-slate-800/60'}
+                        flex items-center justify-between px-3.5 py-2.5 rounded-md cursor-pointer text-xs font-medium transition-all
+                        ${
+                          isSelected
+                            ? 'bg-optic-500/15 text-court-950 dark:text-optic-300 border border-optic-500/35'
+                            : 'text-court-700 dark:text-court-300 hover:bg-court-100 dark:hover:bg-court-800/60 border border-transparent'
+                        }
                       `}
                     >
                       <div className="flex items-center gap-3">
-                        <Icon className="w-4 h-4 text-slate-400" />
-                        <span>{cmd.label}</span>
+                        <Icon className={`w-4 h-4 stroke-[1.75] ${isSelected ? 'text-optic-600 dark:text-optic-400' : 'text-court-400 dark:text-court-500'}`} />
+                        <span className="font-sans">{cmd.label}</span>
                       </div>
-                      <span className="text-[10px] uppercase font-bold text-slate-500">{cmd.category}</span>
+                      <span className="text-[10px] uppercase font-heading font-bold tracking-wider text-court-400 dark:text-court-500">
+                        {cmd.category}
+                      </span>
                     </div>
                   );
                 })

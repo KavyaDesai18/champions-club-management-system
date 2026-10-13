@@ -29,8 +29,8 @@ export const Switch = ({
     <div className={`flex items-center justify-between gap-4 select-none ${className}`}>
       {(label || description) && (
         <div className="flex flex-col cursor-pointer" onClick={handleToggle}>
-          {label && <span className="text-sm font-semibold text-slate-200">{label}</span>}
-          {description && <span className="text-xs text-slate-400 mt-0.5">{description}</span>}
+          {label && <span className="text-sm font-semibold text-court-900 dark:text-court-100">{label}</span>}
+          {description && <span className="text-xs text-court-600 dark:text-court-400 mt-0.5">{description}</span>}
         </div>
       )}
 
@@ -45,16 +45,16 @@ export const Switch = ({
         onKeyDown={handleKeyDown}
         className={`
           relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950
+          focus:outline-none focus-visible:ring-2 focus-visible:ring-optic-500 focus-visible:ring-offset-2 focus-visible:ring-offset-court-950
           disabled:cursor-not-allowed disabled:opacity-50
-          ${checked ? 'bg-emerald-500' : 'bg-slate-800'}
+          ${checked ? 'bg-optic-500' : 'bg-court-300 dark:bg-court-700'}
         `}
       >
         <motion.span
           layout
           transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 500, damping: 30 }}
           className={`
-            pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0
+            pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white dark:bg-court-950 shadow-xs ring-0
             ${checked ? 'translate-x-5' : 'translate-x-0'}
           `}
         />

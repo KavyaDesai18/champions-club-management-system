@@ -8,9 +8,9 @@ export const Skeleton = ({
   ...props
 }) => {
   const variantStyles = {
-    text: 'h-4 w-full rounded-md',
+    text: 'h-4 w-full rounded-xs',
     circular: 'rounded-full shrink-0',
-    rectangular: 'rounded-2xl',
+    rectangular: 'rounded-md',
   };
 
   const inlineStyles = {};
@@ -22,7 +22,7 @@ export const Skeleton = ({
       aria-hidden="true"
       style={inlineStyles}
       className={`
-        animate-pulse bg-slate-800/80 dark:bg-slate-800/80
+        animate-pulse bg-court-200/80 dark:bg-court-800/80
         ${variantStyles[variant] || variantStyles.rectangular}
         ${className}
       `}

@@ -23,8 +23,8 @@ export const DatePicker = React.forwardRef(({
   return (
     <div className={`w-full flex flex-col gap-1.5 ${className}`}>
       {label && (
-        <label htmlFor={id} className="text-xs font-semibold tracking-wide text-slate-300">
-          {label} {required && <span className="text-rose-400">*</span>}
+        <label htmlFor={id} className="text-xs font-semibold uppercase tracking-wider text-court-700 dark:text-court-300">
+          {label} {required && <span className="text-clay-600 dark:text-clay-400">*</span>}
         </label>
       )}
 
@@ -42,12 +42,12 @@ export const DatePicker = React.forwardRef(({
           aria-invalid={Boolean(error)}
           aria-describedby={error ? errorId : helperText ? helperId : undefined}
           className={`
-            w-full rounded-2xl text-sm transition-all outline-none border px-4 py-2.5 min-h-[42px]
-            bg-slate-900/60 dark:bg-slate-900/80 text-slate-100 scheme-dark
+            w-full rounded-md text-sm transition-all outline-none border px-4 py-2.5 min-h-[44px]
+            bg-white dark:bg-court-900 text-court-900 dark:text-court-100
             ${
               error
-                ? 'border-rose-500 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20'
-                : 'border-slate-800 dark:border-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'
+                ? 'border-clay-500 focus:border-clay-500 focus:ring-2 focus:ring-clay-500/20'
+                : 'border-court-300 dark:border-court-700 focus:border-optic-500 focus:ring-2 focus:ring-optic-500/25'
             }
             disabled:opacity-50 disabled:cursor-not-allowed
           `}
@@ -56,11 +56,11 @@ export const DatePicker = React.forwardRef(({
       </div>
 
       {error ? (
-        <p id={errorId} role="alert" className="text-xs text-rose-400 font-medium">
+        <p id={errorId} role="alert" className="text-xs text-clay-600 dark:text-clay-400 font-medium">
           {error}
         </p>
       ) : helperText ? (
-        <p id={helperId} className="text-xs text-slate-400">
+        <p id={helperId} className="text-xs text-court-500 dark:text-court-400">
           {helperText}
         </p>
       ) : null}
@@ -69,5 +69,4 @@ export const DatePicker = React.forwardRef(({
 });
 
 DatePicker.displayName = 'DatePicker';
-
 export default DatePicker;

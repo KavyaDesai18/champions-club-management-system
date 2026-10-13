@@ -55,8 +55,9 @@ export const Tooltip = ({
             transition={{ duration: 0.12 }}
             className={`
               absolute ${positions[position] || positions.top} z-50 pointer-events-none whitespace-nowrap
-              rounded-xl bg-slate-900 border border-slate-700/80 px-2.5 py-1 text-xs font-medium text-slate-200
-              shadow-xl shadow-black/40 backdrop-blur-md
+              rounded-xs bg-court-900 dark:bg-court-100 text-court-100 dark:text-court-950
+              border border-court-700/80 dark:border-court-200/80 px-2 py-0.5 text-[11px] font-medium
+              shadow-court-md backdrop-blur-md tracking-tight
             `}
           >
             {content}

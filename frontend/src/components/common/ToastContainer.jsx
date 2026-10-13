@@ -31,34 +31,34 @@ export const ToastContainer = () => {
         {toasts.map((toast) => (
           <motion.div
             key={toast.id}
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            initial={{ opacity: 0, y: 20, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            exit={{ opacity: 0, y: 10, scale: 0.96 }}
             transition={{ duration: 0.2 }}
-            className={`pointer-events-auto p-4 rounded-xl border shadow-xl flex items-start gap-3 backdrop-blur-md ${
+            className={`pointer-events-auto p-4 rounded-lg border shadow-court-lg flex items-start gap-3 backdrop-blur-md ${
               toast.type === 'error'
-                ? 'bg-rose-950/90 border-rose-700/50 text-rose-100'
+                ? 'bg-clay-950/95 border-clay-800 text-clay-100'
                 : toast.type === 'success'
-                ? 'bg-emerald-950/90 border-emerald-700/50 text-emerald-100'
-                : 'bg-slate-900/90 border-slate-700 text-slate-100'
+                ? 'bg-grass-950/95 border-grass-800 text-grass-100'
+                : 'bg-court-900/95 border-court-700 text-court-100'
             }`}
           >
             <div className="shrink-0 mt-0.5">
               {toast.type === 'error' ? (
-                <AlertCircle className="w-5 h-5 text-rose-400" />
+                <AlertCircle className="w-5 h-5 text-clay-400 stroke-[1.75]" />
               ) : toast.type === 'success' ? (
-                <CheckCircle className="w-5 h-5 text-emerald-400" />
+                <CheckCircle className="w-5 h-5 text-grass-400 stroke-[1.75]" />
               ) : (
-                <Info className="w-5 h-5 text-sky-400" />
+                <Info className="w-5 h-5 text-optic-400 stroke-[1.75]" />
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <h4 className="text-sm font-semibold tracking-wide">{toast.title}</h4>
-              <p className="text-xs text-slate-300 mt-0.5 leading-relaxed break-words">
+              <h4 className="text-sm font-semibold tracking-tight">{toast.title}</h4>
+              <p className="text-xs text-court-300 mt-0.5 leading-relaxed break-words font-sans">
                 {toast.message}
               </p>
               {toast.fieldErrors && toast.fieldErrors.length > 0 && (
-                <ul className="mt-2 text-xs text-rose-300/90 list-disc list-inside space-y-0.5">
+                <ul className="mt-2 text-xs text-clay-300/90 list-disc list-inside space-y-0.5 font-mono">
                   {toast.fieldErrors.map((fe, idx) => (
                     <li key={idx}>
                       <span className="font-semibold">{fe.field}</span>: {fe.message}
@@ -69,10 +69,10 @@ export const ToastContainer = () => {
             </div>
             <button
               onClick={() => removeToast(toast.id)}
-              className="text-slate-400 hover:text-white transition p-1 rounded-lg hover:bg-white/10 shrink-0"
+              className="text-court-400 hover:text-white transition p-1 rounded-sm hover:bg-white/10 shrink-0"
               aria-label="Close notification"
             >
-              <X className="w-4 h-4" />
+              <X className="w-4 h-4 stroke-[1.75]" />
             </button>
           </motion.div>
         ))}

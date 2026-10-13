@@ -34,12 +34,12 @@ export const Textarea = React.forwardRef(({
     <div className={`w-full flex flex-col gap-1.5 ${className}`}>
       <div className="flex items-center justify-between">
         {label && (
-          <label htmlFor={id} className="text-xs font-semibold tracking-wide text-slate-300">
-            {label} {required && <span className="text-rose-400">*</span>}
+          <label htmlFor={id} className="text-xs font-semibold uppercase tracking-wider text-court-700 dark:text-court-300">
+            {label} {required && <span className="text-clay-600 dark:text-clay-400">*</span>}
           </label>
         )}
         {showCount && maxLength && (
-          <span className="text-[11px] text-slate-400">
+          <span className="text-[11px] font-mono text-court-500 dark:text-court-400 tabular-nums">
             {charCount}/{maxLength}
           </span>
         )}
@@ -58,12 +58,12 @@ export const Textarea = React.forwardRef(({
         aria-invalid={Boolean(error)}
         aria-describedby={error ? errorId : helperText ? helperId : undefined}
         className={`
-          w-full rounded-2xl text-sm transition-all outline-none border p-3.5
-          bg-slate-900/60 dark:bg-slate-900/80 text-slate-100 placeholder:text-slate-500
+          w-full rounded-md text-sm transition-all outline-none border p-3.5
+          bg-white dark:bg-court-900 text-court-900 dark:text-court-100 placeholder:text-court-400 dark:placeholder:text-court-500
           ${
             error
-              ? 'border-rose-500 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20'
-              : 'border-slate-800 dark:border-slate-800 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'
+              ? 'border-clay-500 focus:border-clay-500 focus:ring-2 focus:ring-clay-500/20'
+              : 'border-court-300 dark:border-court-700 focus:border-optic-500 focus:ring-2 focus:ring-optic-500/25'
           }
           disabled:opacity-50 disabled:cursor-not-allowed
         `}
@@ -71,11 +71,11 @@ export const Textarea = React.forwardRef(({
       />
 
       {error ? (
-        <p id={errorId} role="alert" className="text-xs text-rose-400 font-medium">
+        <p id={errorId} role="alert" className="text-xs text-clay-600 dark:text-clay-400 font-medium">
           {error}
         </p>
       ) : helperText ? (
-        <p id={helperId} className="text-xs text-slate-400">
+        <p id={helperId} className="text-xs text-court-500 dark:text-court-400">
           {helperText}
         </p>
       ) : null}
@@ -84,5 +84,4 @@ export const Textarea = React.forwardRef(({
 });
 
 Textarea.displayName = 'Textarea';
-
 export default Textarea;

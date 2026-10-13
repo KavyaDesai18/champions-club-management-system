@@ -8,17 +8,24 @@ export const ConfirmDialog = ({
   onClose,
   onConfirm,
   title = 'Are you sure?',
-  message = 'This action cannot be undone.',
-  confirmText = 'Confirm',
+  message,
+  description,
+  confirmText,
+  confirmLabel,
   cancelText = 'Cancel',
-  variant = 'danger', // 'danger' | 'warning' | 'primary'
+  variant = 'danger', // 'danger' | 'warning' | 'primary' | 'clay' | 'optic'
   isLoading = false,
 }) => {
+  const dialogMessage = description || message || 'This action cannot be undone.';
+  const dialogConfirmText = confirmLabel || confirmText || 'Confirm';
+
   const iconConfig = {
-    danger: { icon: Trash2, color: 'text-rose-400 bg-rose-950/60 border-rose-800/40' },
-    warning: { icon: AlertTriangle, color: 'text-amber-400 bg-amber-950/60 border-amber-800/40' },
-    primary: { icon: Info, color: 'text-emerald-400 bg-emerald-950/60 border-emerald-800/40' },
-  }[variant] || { icon: AlertTriangle, color: 'text-rose-400 bg-rose-950/60 border-rose-800/40' };
+    danger: { icon: Trash2, color: 'text-clay-600 dark:text-clay-400 bg-clay-500/10 border-clay-500/30' },
+    clay: { icon: Trash2, color: 'text-clay-600 dark:text-clay-400 bg-clay-500/10 border-clay-500/30' },
+    warning: { icon: AlertTriangle, color: 'text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/30' },
+    primary: { icon: Info, color: 'text-optic-600 dark:text-optic-400 bg-optic-500/10 border-optic-500/30' },
+    optic: { icon: Info, color: 'text-optic-600 dark:text-optic-400 bg-optic-500/10 border-optic-500/30' },
+  }[variant] || { icon: AlertTriangle, color: 'text-clay-600 dark:text-clay-400 bg-clay-500/10 border-clay-500/30' };
 
   const Icon = iconConfig.icon;
 
@@ -28,12 +35,12 @@ export const ConfirmDialog = ({
         {cancelText}
       </Button>
       <Button
-        variant={variant === 'danger' ? 'danger' : 'primary'}
+        variant={variant === 'danger' || variant === 'clay' ? 'clay' : 'optic'}
         size="sm"
         isLoading={isLoading}
         onClick={onConfirm}
       >
-        {confirmText}
+        {dialogConfirmText}
       </Button>
     </>
   );
@@ -46,12 +53,12 @@ export const ConfirmDialog = ({
       maxWidth="max-w-md"
     >
       <div className="flex items-start gap-4">
-        <div className={`p-3 rounded-2xl border ${iconConfig.color} shrink-0`}>
-          <Icon className="w-5 h-5" />
+        <div className={`p-3 rounded-md border ${iconConfig.color} shrink-0 shadow-xs`}>
+          <Icon className="w-5 h-5 stroke-[1.75]" />
         </div>
         <div className="space-y-1">
-          <h4 className="text-base font-bold text-white">{title}</h4>
-          <p className="text-xs text-slate-300 leading-relaxed">{message}</p>
+          <h4 className="text-base font-extrabold font-heading uppercase text-court-900 dark:text-court-100">{title}</h4>
+          <p className="text-xs text-court-600 dark:text-court-400 leading-relaxed">{dialogMessage}</p>
         </div>
       </div>
     </Modal>

@@ -47,14 +47,14 @@ export const Dropdown = ({
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.95, y: -4 }}
+            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.96, y: -4 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.95, y: -4 }}
-            transition={{ duration: 0.15 }}
+            exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.96, y: -4 }}
+            transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
             onClick={closeOnClick ? () => setIsOpen(false) : undefined}
             className={`
-              absolute ${alignClass} mt-2 w-56 rounded-2xl border border-slate-800 bg-surface-900/95 dark:bg-slate-900/95
-              p-1.5 shadow-xl shadow-black/50 backdrop-blur-xl z-50 focus:outline-none
+              absolute ${alignClass} mt-2 w-56 rounded-md border border-court-200 dark:border-court-800
+              bg-white/98 dark:bg-court-900/98 p-1.5 shadow-court-md backdrop-blur-md z-50 focus:outline-none
             `}
           >
             {children}
@@ -79,22 +79,24 @@ export const DropdownItem = ({
       disabled={disabled}
       onClick={onClick}
       className={`
-        w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-left transition select-none
+        w-full flex items-center gap-2.5 px-3 py-2 rounded-sm text-xs font-medium text-left transition-colors select-none
         ${
           danger
-            ? 'text-rose-400 hover:bg-rose-950/50 hover:text-rose-300'
-            : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+            ? 'text-clay-600 dark:text-clay-400 hover:bg-clay-50 dark:hover:bg-clay-950/60 hover:text-clay-700 dark:hover:text-clay-300'
+            : 'text-court-700 dark:text-court-200 hover:bg-court-100 dark:hover:bg-court-800/80 hover:text-court-950 dark:hover:text-white'
         }
         disabled:opacity-40 disabled:cursor-not-allowed
         ${className}
       `}
     >
-      {icon && <span className="shrink-0 text-slate-400">{icon}</span>}
+      {icon && <span className="shrink-0 text-court-400 dark:text-court-500">{icon}</span>}
       <span className="flex-1 truncate">{children}</span>
     </button>
   );
 };
 
-export const DropdownDivider = () => <div className="my-1 border-t border-slate-800/80" />;
+export const DropdownDivider = () => (
+  <div className="my-1 border-t border-court-200 dark:border-court-800/80" />
+);
 
 export default Dropdown;

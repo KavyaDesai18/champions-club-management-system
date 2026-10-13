@@ -14,9 +14,9 @@ export const ThemeToggle = ({ className = '' }) => {
       onClick={toggleTheme}
       aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
       className={`
-        p-2 rounded-xl border border-slate-700/80 bg-surface-900/60 dark:bg-slate-900/80
-        text-slate-300 hover:text-white hover:border-slate-500 transition-all select-none
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400
+        p-2 rounded-md border border-court-200 dark:border-court-800 bg-white/80 dark:bg-court-900/80
+        text-court-700 dark:text-court-300 hover:text-court-950 dark:hover:text-white hover:border-court-400 dark:hover:border-court-600 transition-all select-none
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-optic-500
         ${className}
       `}
     >
@@ -28,9 +28,9 @@ export const ThemeToggle = ({ className = '' }) => {
         transition={{ duration: 0.2 }}
       >
         {isDark ? (
-          <Sun className="w-4 h-4 text-amber-400" />
+          <Sun className="w-4 h-4 text-optic-400 stroke-[1.75]" />
         ) : (
-          <Moon className="w-4 h-4 text-indigo-400" />
+          <Moon className="w-4 h-4 text-court-600 stroke-[1.75]" />
         )}
       </motion.div>
     </button>

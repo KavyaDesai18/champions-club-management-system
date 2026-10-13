@@ -31,6 +31,8 @@ import {
   DatePicker,
   Drawer,
   Dropdown,
+  DropdownItem,
+  DropdownDivider,
   ConfirmDialog,
   Input,
   Modal,
@@ -41,6 +43,13 @@ import {
   Tabs,
   Textarea,
   Tooltip,
+  PricingCard,
+  KanbanBoard,
+  KanbanColumn,
+  KanbanCard,
+  EmptyState,
+  ErrorState,
+  Stepper,
 } from '../../components/ui';
 import { emitToast } from '../../api/client';
 import ThemeToggle from '../../components/common/ThemeToggle';
@@ -729,6 +738,245 @@ export const StyleguidePage = () => {
           confirmLabel="Release Slot"
           variant="danger"
         />
+      </section>
+
+      {/* 9. Specialized Building Blocks (Pricing, Stepper, Dropdown & Tooltips) */}
+      <section className="space-y-6">
+        <div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-court-900 dark:text-court-100 uppercase font-heading">
+            9. Operational Building Blocks
+          </h2>
+          <p className="text-xs text-court-600 dark:text-court-400">
+            Reference building blocks adapted from 21st.dev to our tokens: pricing tiers, step wizards, dropdowns, and micro-tooltips.
+          </p>
+        </div>
+
+        {/* Stepper Demo */}
+        <div className="court-card rounded-lg p-6 space-y-4">
+          <span className="text-xs font-bold text-court-700 dark:text-court-300 uppercase tracking-wide block font-heading">
+            Booking & Onboarding Stepper
+          </span>
+          <Stepper
+            steps={[
+              { title: 'Select Court', description: 'Taraflex Matting' },
+              { title: 'Pick Slot', description: '18:00 - 19:00' },
+              { title: 'Guest Details', description: 'Doubles Match' },
+              { title: 'Payment', description: 'UPI / Member Tab' },
+            ]}
+            activeStep={activeStep}
+            onStepClick={(idx) => setActiveStep(idx)}
+          />
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={activeStep === 0}
+              onClick={() => setActiveStep((prev) => Math.max(0, prev - 1))}
+            >
+              Previous Step
+            </Button>
+            <Button
+              size="sm"
+              variant="optic"
+              disabled={activeStep >= 3}
+              onClick={() => setActiveStep((prev) => Math.min(3, prev + 1))}
+            >
+              Next Step
+            </Button>
+          </div>
+        </div>
+
+        {/* Dropdowns & Tooltips row */}
+        <div className="court-card rounded-lg p-6 flex flex-wrap items-center justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <Dropdown
+              trigger={
+                <Button variant="secondary" size="sm">
+                  Quick Actions Menu
+                </Button>
+              }
+            >
+              <DropdownItem onClick={() => emitToast({ type: 'info', title: 'Court Assigned', message: 'Assigned to Court 2' })}>
+                Assign to Court 2
+              </DropdownItem>
+              <DropdownItem onClick={() => emitToast({ type: 'info', title: 'Rackets Added', message: '2x Wilson Pro Staff added' })}>
+                Add Equipment Rental
+              </DropdownItem>
+              <DropdownDivider />
+              <DropdownItem danger onClick={() => setConfirmOpen(true)}>
+                Release Court Hold
+              </DropdownItem>
+            </Dropdown>
+
+            <Tooltip content="Live court availability updated every 3 seconds">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-court-100 dark:bg-court-800 text-xs font-medium text-court-700 dark:text-court-300 cursor-help border border-court-200 dark:border-court-700">
+                <Info className="w-3.5 h-3.5 stroke-[1.75]" />
+                Hover for Tooltip
+              </span>
+            </Tooltip>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-court-500 font-sans">Skeleton Shimmer:</span>
+            <Skeleton variant="text" width={100} height={16} />
+            <Skeleton variant="circular" width={28} height={28} />
+          </div>
+        </div>
+
+        {/* Pricing Cards Grid */}
+        <div className="grid md:grid-cols-3 gap-6">
+          <PricingCard
+            name="Silver Player"
+            tier="SILVER"
+            price="₹2,500"
+            period="/month"
+            description="Essential access for casual racquet sports enthusiasts"
+            features={[
+              'Access to all 6 Badminton Courts',
+              '7-Day Advance Slot Booking',
+              'Member Rates for Pro-Shop gear',
+              { text: 'Peak Tennis Court Access', included: false },
+            ]}
+            onCtaClick={() => emitToast({ type: 'info', title: 'Plan Selected', message: 'Silver Player tier chosen.' })}
+          />
+
+          <PricingCard
+            name="Gold Champion"
+            tier="GOLD"
+            popular
+            price="₹4,800"
+            period="/month"
+            description="Full-facility access with peak priority and guest privileges"
+            features={[
+              'All Courts (Tennis Clay & Acrylic + Badminton)',
+              '14-Day Advance Prime Slot Booking',
+              '2 Complimentary Guest Passes / month',
+              'Free Racquet Restringing & Grips',
+              'Member Lounge & Sauna Access',
+            ]}
+            onCtaClick={() => emitToast({ type: 'success', title: 'Plan Selected', message: 'Gold Champion tier chosen.' })}
+          />
+
+          <PricingCard
+            name="Junior Academy"
+            tier="JUNIOR"
+            price="₹1,800"
+            period="/month"
+            description="Structured coaching & weekend developmental matches"
+            features={[
+              'Supervised Academy Sessions (Mon-Fri)',
+              'Coach Video Analysis (Monthly)',
+              'Tournament Entry Fee Subsidies',
+              { text: 'Evening Bar & Lounge Access', included: false },
+            ]}
+            onCtaClick={() => emitToast({ type: 'info', title: 'Plan Selected', message: 'Junior Academy tier chosen.' })}
+          />
+        </div>
+      </section>
+
+      {/* 10. Kanban Board, Empty States & Error States */}
+      <section className="space-y-6">
+        <div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-court-900 dark:text-court-100 uppercase font-heading">
+            10. Kanban Workflow & Status States
+          </h2>
+          <p className="text-xs text-court-600 dark:text-court-400">
+            High-density task columns for Lead CRM, Bar Orders, and tournament match tracking.
+          </p>
+        </div>
+
+        {/* Kanban Board */}
+        <KanbanBoard>
+          <KanbanColumn
+            id="new"
+            title="Incoming Inquiries"
+            count={2}
+            accentColor="court"
+          >
+            <KanbanCard onClick={() => emitToast({ type: 'info', title: 'Lead Selected', message: 'Ananya Sharma inquiry' })}>
+              <div className="flex justify-between items-start mb-2">
+                <span className="font-heading font-bold uppercase text-xs text-court-900 dark:text-court-100">Ananya Sharma</span>
+                <Badge variant="junior">Junior</Badge>
+              </div>
+              <p className="text-xs text-court-600 dark:text-court-400">Interested in Weekend Badminton Coaching Batch.</p>
+              <div className="mt-2 pt-2 border-t border-court-200 dark:border-court-800 flex justify-between text-[11px] text-court-500 font-mono">
+                <span>Phone Inquiry</span>
+                <span>Today, 14:20</span>
+              </div>
+            </KanbanCard>
+
+            <KanbanCard onClick={() => emitToast({ type: 'info', title: 'Lead Selected', message: 'Vikram Mehta corporate' })}>
+              <div className="flex justify-between items-start mb-2">
+                <span className="font-heading font-bold uppercase text-xs text-court-900 dark:text-court-100">Vikram Mehta</span>
+                <Badge variant="gold">Gold</Badge>
+              </div>
+              <p className="text-xs text-court-600 dark:text-court-400">Corporate Padel Tournament booking for 24 players.</p>
+              <div className="mt-2 pt-2 border-t border-court-200 dark:border-court-800 flex justify-between text-[11px] text-court-500 font-mono">
+                <span>WhatsApp</span>
+                <span>Yesterday</span>
+              </div>
+            </KanbanCard>
+          </KanbanColumn>
+
+          <KanbanColumn
+            id="trial"
+            title="Trial Scheduled"
+            count={1}
+            accentColor="optic"
+          >
+            <KanbanCard onClick={() => emitToast({ type: 'info', title: 'Trial Selected', message: 'Coach trial session' })}>
+              <div className="flex justify-between items-start mb-2">
+                <span className="font-heading font-bold uppercase text-xs text-court-900 dark:text-court-100">Rohit Verma</span>
+                <Badge variant="optic">Trial</Badge>
+              </div>
+              <p className="text-xs text-court-600 dark:text-court-400">Tennis Evaluation on Clay Court 2 with Coach Arun.</p>
+              <div className="mt-2 pt-2 border-t border-court-200 dark:border-court-800 flex justify-between text-[11px] text-court-500 font-mono">
+                <span>Court 2</span>
+                <span>Tomorrow 09:00</span>
+              </div>
+            </KanbanCard>
+          </KanbanColumn>
+
+          <KanbanColumn
+            id="joined"
+            title="Converted & Active"
+            count={1}
+            accentColor="grass"
+          >
+            <KanbanCard>
+              <div className="flex justify-between items-start mb-2">
+                <span className="font-heading font-bold uppercase text-xs text-court-900 dark:text-court-100">Kavya Desai</span>
+                <Badge variant="grass">Paid</Badge>
+              </div>
+              <p className="text-xs text-court-600 dark:text-court-400">Annual Gold Membership activated via Razorpay.</p>
+              <div className="mt-2 pt-2 border-t border-court-200 dark:border-court-800 flex justify-between text-[11px] text-grass-600 dark:text-grass-400 font-mono font-bold">
+                <span>Invoice #8921</span>
+                <span>₹57,600/yr</span>
+              </div>
+            </KanbanCard>
+          </KanbanColumn>
+        </KanbanBoard>
+
+        {/* Empty State & Error State side-by-side demo */}
+        <div className="grid md:grid-cols-2 gap-6 pt-4">
+          <EmptyState
+            title="No Matches Scheduled"
+            description="There are currently no active tournament fixtures scheduled on Court 4 for today."
+            action={
+              <Button size="sm" variant="optic" onClick={() => emitToast({ type: 'info', title: 'Fixture Generator', message: 'Opening match scheduler' })}>
+                Create Match Fixture
+              </Button>
+            }
+          />
+
+          <ErrorState
+            title="Razorpay Gateway Timeout"
+            message="Unable to communicate with the payment processor. The session has been safely preserved."
+            traceId="TXN-ERR-98421"
+            onRetry={() => emitToast({ type: 'info', title: 'Retrying', message: 'Re-polling payment gateway status' })}
+            retryLabel="Retry Transaction"
+          />
+        </div>
       </section>
     </div>
   );

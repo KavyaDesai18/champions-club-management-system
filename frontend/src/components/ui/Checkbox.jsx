@@ -1,5 +1,4 @@
 import React, { useId } from 'react';
-import { motion } from 'framer-motion';
 import { Check } from 'lucide-react';
 
 export const Checkbox = React.forwardRef(({
@@ -34,10 +33,11 @@ export const Checkbox = React.forwardRef(({
           />
           <div
             className={`
-              w-5 h-5 rounded-lg border flex items-center justify-center transition-all
-              bg-slate-900 border-slate-700 peer-focus-visible:ring-2 peer-focus-visible:ring-emerald-400
-              peer-checked:bg-emerald-500 peer-checked:border-emerald-500 text-slate-950
-              ${error ? 'border-rose-500' : ''}
+              w-5 h-5 rounded-xs border flex items-center justify-center transition-all
+              bg-white dark:bg-court-900 border-court-300 dark:border-court-700
+              peer-focus-visible:ring-2 peer-focus-visible:ring-optic-500 peer-focus-visible:ring-offset-1
+              peer-checked:bg-optic-500 peer-checked:border-optic-500 text-court-950
+              ${error ? 'border-clay-500' : ''}
             `}
           >
             <Check className="w-3.5 h-3.5 stroke-[3] opacity-0 peer-checked:opacity-100 transition-opacity" />
@@ -46,17 +46,16 @@ export const Checkbox = React.forwardRef(({
 
         {(label || description) && (
           <div className="flex flex-col text-sm">
-            {label && <span className="font-medium text-slate-200">{label}</span>}
-            {description && <span className="text-xs text-slate-400 mt-0.5">{description}</span>}
+            {label && <span className="font-medium text-court-900 dark:text-court-100">{label}</span>}
+            {description && <span className="text-xs text-court-600 dark:text-court-400 mt-0.5">{description}</span>}
           </div>
         )}
       </label>
 
-      {error && <p className="text-xs text-rose-400 ml-8 font-medium">{error}</p>}
+      {error && <p className="text-xs text-clay-600 dark:text-clay-400 ml-8 font-medium">{error}</p>}
     </div>
   );
 });
 
 Checkbox.displayName = 'Checkbox';
-
 export default Checkbox;

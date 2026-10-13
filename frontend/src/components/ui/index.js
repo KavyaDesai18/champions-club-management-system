@@ -19,3 +19,5 @@ export * from './EmptyState';
 export * from './ErrorState';
 export * from './StatCard';
 export * from './Stepper';
+export * from './PricingCard';
+export * from './Kanban';

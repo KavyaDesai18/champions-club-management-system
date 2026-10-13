@@ -4,7 +4,7 @@ export const Card = ({
   children,
   className = '',
   hover = false,
-  glass = true,
+  glass = false,
   onClick,
   ...props
 }) => {
@@ -12,9 +12,9 @@ export const Card = ({
     <div
       onClick={onClick}
       className={`
-        rounded-3xl border border-slate-800/80 p-6 text-slate-100 transition-all
-        ${glass ? 'glass-card' : 'bg-surface-900'}
-        ${hover ? 'glass-card-hover cursor-pointer' : ''}
+        court-card rounded-lg p-6 text-court-900 dark:text-court-100 transition-all
+        ${hover ? 'hover:border-optic-500/60 hover:shadow-court-md hover:-translate-y-0.5 cursor-pointer' : ''}
+        ${glass ? 'court-header-overlay' : ''}
         ${className}
       `}
       {...props}
@@ -32,21 +32,21 @@ export const CardHeader = ({ children, className = '', action }) => (
 );
 
 export const CardTitle = ({ children, className = '' }) => (
-  <h3 className={`text-lg font-bold tracking-tight text-white ${className}`}>
+  <h3 className={`text-lg font-extrabold tracking-tight font-heading uppercase text-court-900 dark:text-court-100 ${className}`}>
     {children}
   </h3>
 );
 
 export const CardDescription = ({ children, className = '' }) => (
-  <p className={`text-xs text-slate-400 ${className}`}>{children}</p>
+  <p className={`text-xs text-court-600 dark:text-court-400 leading-relaxed ${className}`}>{children}</p>
 );
 
 export const CardContent = ({ children, className = '' }) => (
-  <div className={`text-sm text-slate-300 ${className}`}>{children}</div>
+  <div className={`text-sm text-court-700 dark:text-court-300 leading-normal ${className}`}>{children}</div>
 );
 
 export const CardFooter = ({ children, className = '' }) => (
-  <div className={`mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between gap-4 ${className}`}>
+  <div className={`mt-6 pt-4 border-t border-court-200 dark:border-court-800/80 flex items-center justify-between gap-4 text-xs text-court-600 dark:text-court-400 ${className}`}>
     {children}
   </div>
 );

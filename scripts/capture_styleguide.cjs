@@ -12,7 +12,7 @@ if (!fs.existsSync(OUTPUT_DIR)) {
 async function capture() {
   const browser = await chromium.launch({ headless: true });
 
-  // 1. Desktop 1440px - Dark Mode (default)
+  // 1. Desktop 1440px - Dark Mode (explicitly set)
   {
     const context = await browser.newContext({
       viewport: { width: 1440, height: 900 },
@@ -20,6 +20,12 @@ async function capture() {
     });
     const page = await context.newPage();
     await page.goto('http://localhost:5173/styleguide', { waitUntil: 'networkidle' });
+    await page.evaluate(() => {
+      localStorage.setItem('champions_theme', 'dark');
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    });
+    await page.reload({ waitUntil: 'networkidle' });
     await page.waitForTimeout(1000);
 
     const darkVpPath = path.join(OUTPUT_DIR, 'styleguide_dark_1440px.png');
@@ -31,22 +37,23 @@ async function capture() {
     fs.copyFileSync(darkFullPath, path.join(ARTIFACTS_DIR, 'styleguide_dark_1440px_full.png'));
     console.log('Captured 1440px Dark');
 
-    // Toggle to Light Mode via the theme button
-    const toggleLocator = page.locator('#theme-toggle-btn').first();
-    const count = await toggleLocator.count();
-    console.log(`Found ${count} theme toggle button(s)`);
-    if (count > 0) {
-      await toggleLocator.click();
-      await page.waitForTimeout(1000);
-      const lightVpPath = path.join(OUTPUT_DIR, 'styleguide_light_1440px.png');
-      const lightFullPath = path.join(OUTPUT_DIR, 'styleguide_light_1440px_full.png');
-      await page.screenshot({ path: lightVpPath });
-      await page.screenshot({ path: lightFullPath, fullPage: true });
+    // Toggle to Light Mode explicitly
+    await page.evaluate(() => {
+      localStorage.setItem('champions_theme', 'light');
+      document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
+    });
+    await page.reload({ waitUntil: 'networkidle' });
+    await page.waitForTimeout(1000);
 
-      fs.copyFileSync(lightVpPath, path.join(ARTIFACTS_DIR, 'styleguide_light_1440px.png'));
-      fs.copyFileSync(lightFullPath, path.join(ARTIFACTS_DIR, 'styleguide_light_1440px_full.png'));
-      console.log('Captured 1440px Light');
-    }
+    const lightVpPath = path.join(OUTPUT_DIR, 'styleguide_light_1440px.png');
+    const lightFullPath = path.join(OUTPUT_DIR, 'styleguide_light_1440px_full.png');
+    await page.screenshot({ path: lightVpPath });
+    await page.screenshot({ path: lightFullPath, fullPage: true });
+
+    fs.copyFileSync(lightVpPath, path.join(ARTIFACTS_DIR, 'styleguide_light_1440px.png'));
+    fs.copyFileSync(lightFullPath, path.join(ARTIFACTS_DIR, 'styleguide_light_1440px_full.png'));
+    console.log('Captured 1440px Light');
 
     await context.close();
   }
@@ -59,6 +66,12 @@ async function capture() {
     });
     const page = await context.newPage();
     await page.goto('http://localhost:5173/styleguide', { waitUntil: 'networkidle' });
+    await page.evaluate(() => {
+      localStorage.setItem('champions_theme', 'dark');
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    });
+    await page.reload({ waitUntil: 'networkidle' });
     await page.waitForTimeout(1000);
 
     const darkMobileVp = path.join(OUTPUT_DIR, 'styleguide_dark_390px.png');
@@ -70,21 +83,22 @@ async function capture() {
     fs.copyFileSync(darkMobileFull, path.join(ARTIFACTS_DIR, 'styleguide_dark_390px_full.png'));
     console.log('Captured 390px Dark');
 
-    const toggleLocator = page.locator('#theme-toggle-btn').first();
-    const count = await toggleLocator.count();
-    console.log(`Found ${count} mobile theme toggle button(s)`);
-    if (count > 0) {
-      await toggleLocator.click();
-      await page.waitForTimeout(1000);
-      const lightMobileVp = path.join(OUTPUT_DIR, 'styleguide_light_390px.png');
-      const lightMobileFull = path.join(OUTPUT_DIR, 'styleguide_light_390px_full.png');
-      await page.screenshot({ path: lightMobileVp });
-      await page.screenshot({ path: lightMobileFull, fullPage: true });
+    await page.evaluate(() => {
+      localStorage.setItem('champions_theme', 'light');
+      document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
+    });
+    await page.reload({ waitUntil: 'networkidle' });
+    await page.waitForTimeout(1000);
 
-      fs.copyFileSync(lightMobileVp, path.join(ARTIFACTS_DIR, 'styleguide_light_390px.png'));
-      fs.copyFileSync(lightMobileFull, path.join(ARTIFACTS_DIR, 'styleguide_light_390px_full.png'));
-      console.log('Captured 390px Light');
-    }
+    const lightMobileVp = path.join(OUTPUT_DIR, 'styleguide_light_390px.png');
+    const lightMobileFull = path.join(OUTPUT_DIR, 'styleguide_light_390px_full.png');
+    await page.screenshot({ path: lightMobileVp });
+    await page.screenshot({ path: lightMobileFull, fullPage: true });
+
+    fs.copyFileSync(lightMobileVp, path.join(ARTIFACTS_DIR, 'styleguide_light_390px.png'));
+    fs.copyFileSync(lightMobileFull, path.join(ARTIFACTS_DIR, 'styleguide_light_390px_full.png'));
+    console.log('Captured 390px Light');
 
     await context.close();
   }

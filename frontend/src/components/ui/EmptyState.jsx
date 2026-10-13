@@ -11,16 +11,20 @@ export const EmptyState = ({
   return (
     <div
       className={`
-        w-full p-8 md:p-12 rounded-3xl border border-dashed border-slate-800
-        bg-surface-900/40 text-center flex flex-col items-center justify-center gap-3
+        w-full p-8 md:p-12 rounded-lg border border-dashed border-court-300 dark:border-court-800
+        bg-court-50/50 dark:bg-court-900/40 text-center flex flex-col items-center justify-center gap-3
         ${className}
       `}
     >
-      <div className="w-12 h-12 rounded-2xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 mb-1">
-        <Icon className="w-6 h-6 stroke-1.5" />
+      <div className="w-12 h-12 rounded-md bg-court-100 dark:bg-court-800 border border-court-200 dark:border-court-700/80 flex items-center justify-center text-court-500 dark:text-court-400 mb-1">
+        <Icon className="w-6 h-6 stroke-[1.75]" />
       </div>
-      <h4 className="text-base font-bold text-white tracking-tight">{title}</h4>
-      <p className="text-xs text-slate-400 max-w-sm leading-relaxed">{description}</p>
+      <h4 className="font-heading font-bold uppercase tracking-wider text-court-900 dark:text-court-100 text-base">
+        {title}
+      </h4>
+      <p className="text-xs text-court-600 dark:text-court-400 max-w-sm leading-relaxed">
+        {description}
+      </p>
       {action && <div className="mt-3">{action}</div>}
     </div>
   );

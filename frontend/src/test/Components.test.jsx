@@ -26,6 +26,10 @@ import {
   Tabs,
   Textarea,
   Tooltip,
+  PricingCard,
+  KanbanBoard,
+  KanbanColumn,
+  KanbanCard,
 } from '../components/ui';
 
 describe('Design System UI Components', () => {
@@ -251,5 +255,35 @@ describe('Design System UI Components', () => {
       await user.click(screen.getByRole('button', { name: /Open Menu/i }));
       expect(screen.getByText('Item 1')).toBeInTheDocument();
     });
+
+    it('renders PricingCard with features and popular badge', () => {
+      render(
+        <PricingCard
+          name="Gold Champion"
+          tier="GOLD"
+          price="₹4,800"
+          popular
+          features={['Court Access', 'Member Lounge']}
+        />
+      );
+      expect(screen.getByText('Gold Champion')).toBeInTheDocument();
+      expect(screen.getByText('₹4,800')).toBeInTheDocument();
+      expect(screen.getByText(/Most Popular/i)).toBeInTheDocument();
+      expect(screen.getByText('Court Access')).toBeInTheDocument();
+    });
+
+    it('renders KanbanBoard and KanbanColumn with items and count badge', () => {
+      render(
+        <KanbanBoard>
+          <KanbanColumn id="col1" title="In Progress" count={1} accentColor="optic">
+            <KanbanCard>Test Task</KanbanCard>
+          </KanbanColumn>
+        </KanbanBoard>
+      );
+      expect(screen.getByText('In Progress')).toBeInTheDocument();
+      expect(screen.getByText('1')).toBeInTheDocument();
+      expect(screen.getByText('Test Task')).toBeInTheDocument();
+    });
   });
 });
+

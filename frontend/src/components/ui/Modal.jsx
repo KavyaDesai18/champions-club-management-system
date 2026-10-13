@@ -81,9 +81,9 @@ export const Modal = ({
         exit: { opacity: 0 },
       }
     : {
-        hidden: { opacity: 0, scale: 0.95, y: 15 },
-        visible: { opacity: 1, scale: 1, y: 0, transition: { type: 'spring', damping: 25, stiffness: 300 } },
-        exit: { opacity: 0, scale: 0.95, y: 15, transition: { duration: 0.15 } },
+        hidden: { opacity: 0, scale: 0.96, y: 12 },
+        visible: { opacity: 1, scale: 1, y: 0, transition: { type: 'spring', damping: 26, stiffness: 320 } },
+        exit: { opacity: 0, scale: 0.96, y: 12, transition: { duration: 0.15 } },
       };
 
   return (
@@ -97,7 +97,7 @@ export const Modal = ({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={closeOnBackdropClick ? onClose : undefined}
-            className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm"
+            className="fixed inset-0 bg-court-950/75 dark:bg-black/80 backdrop-blur-xs"
             aria-hidden="true"
           />
 
@@ -114,8 +114,8 @@ export const Modal = ({
             animate="visible"
             exit="exit"
             className={`
-              relative w-full ${maxWidth} rounded-3xl border border-slate-800 bg-surface-900/95 dark:bg-slate-900/95
-              p-6 text-slate-100 shadow-2xl shadow-black/80 backdrop-blur-xl z-10 my-8 outline-none
+              relative w-full ${maxWidth} rounded-xl border border-court-200 dark:border-court-800
+              bg-white dark:bg-court-900 p-6 text-court-900 dark:text-court-100 shadow-court-lg z-10 my-8 outline-none
             `}
           >
             {/* Header */}
@@ -123,12 +123,12 @@ export const Modal = ({
               <div className="flex items-start justify-between gap-4 mb-4">
                 <div>
                   {title && (
-                    <h3 id="modal-title" className="text-xl font-bold tracking-tight text-white">
+                    <h3 id="modal-title" className="text-xl font-extrabold font-heading tracking-tight uppercase text-court-900 dark:text-court-100">
                       {title}
                     </h3>
                   )}
                   {description && (
-                    <p id="modal-description" className="text-xs text-slate-400 mt-1">
+                    <p id="modal-description" className="text-xs text-court-600 dark:text-court-400 mt-1">
                       {description}
                     </p>
                   )}
@@ -138,21 +138,21 @@ export const Modal = ({
                   <button
                     type="button"
                     onClick={onClose}
-                    className="rounded-xl p-1.5 text-slate-400 hover:text-white hover:bg-slate-800/80 transition"
+                    className="rounded-md p-1.5 text-court-500 hover:text-court-900 dark:hover:text-white hover:bg-court-100 dark:hover:bg-court-800 transition"
                     aria-label="Close modal"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-5 h-5 stroke-[2]" />
                   </button>
                 )}
               </div>
             )}
 
             {/* Body */}
-            <div className="text-sm text-slate-200">{children}</div>
+            <div className="text-sm text-court-800 dark:text-court-200">{children}</div>
 
             {/* Footer */}
             {footer && (
-              <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-end gap-3">
+              <div className="mt-6 pt-4 border-t border-court-200 dark:border-court-800/80 flex items-center justify-end gap-3">
                 {footer}
               </div>
             )}
@@ -165,18 +165,18 @@ export const Modal = ({
 
 export const ModalHeader = ({ title, description, children, className = '' }) => (
   <div className={`mb-4 ${className}`}>
-    {title && <h3 className="text-xl font-bold tracking-tight text-white">{title}</h3>}
-    {description && <p className="text-xs text-slate-400 mt-1">{description}</p>}
+    {title && <h3 className="text-xl font-extrabold font-heading tracking-tight uppercase text-court-900 dark:text-court-100">{title}</h3>}
+    {description && <p className="text-xs text-court-600 dark:text-court-400 mt-1">{description}</p>}
     {children}
   </div>
 );
 
 export const ModalBody = ({ children, className = '' }) => (
-  <div className={`text-sm text-slate-200 ${className}`}>{children}</div>
+  <div className={`text-sm text-court-800 dark:text-court-200 ${className}`}>{children}</div>
 );
 
 export const ModalFooter = ({ children, className = '' }) => (
-  <div className={`mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-end gap-3 ${className}`}>
+  <div className={`mt-6 pt-4 border-t border-court-200 dark:border-court-800/80 flex items-center justify-end gap-3 ${className}`}>
     {children}
   </div>
 );

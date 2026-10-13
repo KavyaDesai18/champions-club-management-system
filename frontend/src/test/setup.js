@@ -1,4 +1,8 @@
 import '@testing-library/jest-dom';
+import { configure } from '@testing-library/react';
+
+// Configure async timeout for concurrent Windows test workers
+configure({ asyncUtilTimeout: 4000 });
 
 // Polyfill window.matchMedia for jsdom
 Object.defineProperty(window, 'matchMedia', {

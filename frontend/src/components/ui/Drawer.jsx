@@ -7,19 +7,19 @@ const positionVariants = {
     hidden: { x: '100%' },
     visible: { x: 0 },
     exit: { x: '100%' },
-    classes: 'right-0 top-0 bottom-0 h-full max-w-md w-full border-l',
+    classes: 'right-0 top-0 bottom-0 h-full max-w-md w-full border-l border-court-200 dark:border-court-800',
   },
   left: {
     hidden: { x: '-100%' },
     visible: { x: 0 },
     exit: { x: '-100%' },
-    classes: 'left-0 top-0 bottom-0 h-full max-w-md w-full border-r',
+    classes: 'left-0 top-0 bottom-0 h-full max-w-md w-full border-r border-court-200 dark:border-court-800',
   },
   bottom: {
     hidden: { y: '100%' },
     visible: { y: 0 },
     exit: { y: '100%' },
-    classes: 'left-0 right-0 bottom-0 max-h-[85vh] w-full border-t rounded-t-3xl',
+    classes: 'left-0 right-0 bottom-0 max-h-[85vh] w-full border-t border-court-200 dark:border-court-800 rounded-t-xl',
   },
 };
 
@@ -27,6 +27,7 @@ export const Drawer = ({
   isOpen = false,
   onClose,
   title,
+  subtitle,
   description,
   children,
   footer,
@@ -37,6 +38,7 @@ export const Drawer = ({
   const drawerRef = useRef(null);
   const shouldReduceMotion = useReducedMotion();
   const config = positionVariants[position] || positionVariants.right;
+  const desc = description || subtitle;
 
   useEffect(() => {
     if (!isOpen) return;
@@ -105,7 +107,7 @@ export const Drawer = ({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={closeOnBackdropClick ? onClose : undefined}
-            className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm"
+            className="fixed inset-0 bg-court-950/75 dark:bg-black/80 backdrop-blur-xs"
             aria-hidden="true"
           />
 
@@ -122,36 +124,40 @@ export const Drawer = ({
             exit="exit"
             transition={motionTransition}
             className={`
-              fixed ${config.classes} bg-surface-900/95 dark:bg-slate-900/95 border-slate-800
-              p-6 text-slate-100 shadow-2xl flex flex-col justify-between z-10 backdrop-blur-xl outline-none
+              fixed ${config.classes} bg-white dark:bg-court-900
+              p-6 text-court-900 dark:text-court-100 shadow-court-lg flex flex-col justify-between z-10 outline-none
             `}
           >
             <div>
               {/* Header */}
               <div className="flex items-start justify-between gap-4 mb-6">
                 <div>
-                  {title && <h3 id="drawer-title" className="text-xl font-bold text-white">{title}</h3>}
-                  {description && <p className="text-xs text-slate-400 mt-1">{description}</p>}
+                  {title && (
+                    <h3 id="drawer-title" className="text-xl font-extrabold font-heading tracking-tight uppercase text-court-900 dark:text-court-100">
+                      {title}
+                    </h3>
+                  )}
+                  {desc && <p className="text-xs text-court-600 dark:text-court-400 mt-1">{desc}</p>}
                 </div>
                 <button
                   type="button"
                   onClick={onClose}
-                  className="rounded-xl p-1.5 text-slate-400 hover:text-white hover:bg-slate-800/80 transition"
+                  className="rounded-md p-1.5 text-court-500 hover:text-court-900 dark:hover:text-white hover:bg-court-100 dark:hover:bg-court-800 transition"
                   aria-label="Close drawer"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-5 h-5 stroke-[2]" />
                 </button>
               </div>
 
               {/* Content */}
-              <div className="overflow-y-auto max-h-[calc(100vh-180px)] pr-1">
+              <div className="overflow-y-auto max-h-[calc(100vh-180px)] pr-1 text-court-800 dark:text-court-200">
                 {children}
               </div>
             </div>
 
             {/* Footer */}
             {footer && (
-              <div className="pt-4 border-t border-slate-800/80 flex items-center justify-end gap-3 mt-4">
+              <div className="pt-4 border-t border-court-200 dark:border-court-800/80 flex items-center justify-end gap-3 mt-4">
                 {footer}
               </div>
             )}
