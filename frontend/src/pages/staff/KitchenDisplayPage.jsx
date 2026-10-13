@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Flame,
   Check,
+  Zap,
 } from 'lucide-react';
 import { barApi } from '../../api/barApi';
 import { emitToast } from '../../api/client';
@@ -98,75 +99,61 @@ export const KitchenDisplayPage = () => {
     let eventSource;
     try {
       if (typeof window !== 'undefined' && typeof window.EventSource !== 'undefined') {
-        eventSource = new window.EventSource(sseUrl);
+        eventSource = new EventSource(sseUrl, { withCredentials: true });
 
-        eventSource.addEventListener('NEW_TICKET', (e) => {
-        try {
-          const newTicket = JSON.parse(e.data);
-          playChime();
-          setTickets((prev) => [newTicket, ...prev.filter((t) => t.id !== newTicket.id)]);
-          emitToast({
-            type: 'info',
-            title: `New Ticket #${newTicket.ticketNumber}`,
-            message: `${newTicket.station} order for Table ${newTicket.tableLabel || 'Counter'}`,
-          });
-        } catch (err) {
-          console.error('SSE parse error', err);
-        }
-      });
+        eventSource.addEventListener('KDS_NEW_TICKET', (e) => {
+          try {
+            const ticket = JSON.parse(e.data);
+            setTickets((prev) => [ticket, ...prev.filter((t) => t.id !== ticket.id)]);
+            playChime();
+            emitToast({
+              id: Date.now(),
+              type: 'info',
+              title: `New Order: Ticket #${ticket.ticketNumber}`,
+              message: `Station: ${ticket.station} • Table ${ticket.tableLabel || 'Counter'}`,
+            });
+          } catch (err) {
+            console.error('Failed to parse SSE ticket', err);
+          }
+        });
 
-      eventSource.addEventListener('ITEM_STATUS_UPDATED', (e) => {
-        try {
-          const update = JSON.parse(e.data);
-          setTickets((prev) =>
-            prev.map((t) => {
-              const updatedItems = t.items.map((i) =>
-                i.id === update.ticketItemId ? { ...i, status: update.newStatus } : i
-              );
-              return { ...t, items: updatedItems };
-            })
-          );
-        } catch (err) {
-          console.error(err);
-        }
-      });
+        eventSource.addEventListener('KDS_BUMP_TICKET', (e) => {
+          try {
+            const payload = JSON.parse(e.data);
+            setTickets((prev) => prev.filter((t) => t.id !== payload.ticketId));
+          } catch (err) {
+            console.error('Failed to handle ticket bump SSE', err);
+          }
+        });
 
-      eventSource.addEventListener('TICKET_BUMPED', () => {
-        loadTickets();
-      });
-
-      eventSource.addEventListener('ITEM_VOIDED', () => {
-        loadTickets();
-      });
-
-      eventSource.onerror = () => {
-        // Fallback polling if SSE connection drops
-        loadTickets();
-      };
+        eventSource.onerror = () => {
+          // Fallback to polling or automatic reconnect
+        };
       }
     } catch (err) {
-      console.warn('SSE not initialized', err);
+      console.warn('SSE unsupported or restricted', err);
     }
 
     return () => {
-      if (eventSource) {
-        eventSource.close();
-      }
+      if (eventSource) eventSource.close();
     };
   }, [station, soundEnabled]);
 
   const handleBumpTicket = async (ticketId) => {
     try {
-      const res = await barApi.bumpTicket(ticketId);
-      const updated = res.data || res;
-
-      if (updated.status === 'COMPLETED') {
-        setTickets((prev) => prev.filter((t) => t.id !== ticketId));
-      } else {
-        setTickets((prev) => prev.map((t) => (t.id === ticketId ? updated : t)));
-      }
+      await barApi.bumpTicket(ticketId);
+      setTickets((prev) => prev.filter((t) => t.id !== ticketId));
+      emitToast({
+        type: 'success',
+        title: 'Ticket Bumped',
+        message: 'Order cleared from station queue',
+      });
     } catch (err) {
-      emitToast({ type: 'error', title: 'Bump Failed', message: err.response?.data?.message || err.message });
+      emitToast({
+        type: 'error',
+        title: 'Bump Failed',
+        message: err.response?.data?.message || err.message,
+      });
     }
   };
 
@@ -175,8 +162,8 @@ export const KitchenDisplayPage = () => {
       NEW: 'PREPARING',
       PREPARING: 'READY',
       READY: 'SERVED',
+      SERVED: 'SERVED',
     };
-
     const nextStatus = nextStatusMap[currentStatus] || 'READY';
 
     try {
@@ -208,39 +195,41 @@ export const KitchenDisplayPage = () => {
   };
 
   const getUrgencyClass = (createdAt) => {
-    if (!createdAt) return 'border-emerald-500/40 bg-surface-900/90 text-emerald-400';
+    if (!createdAt) return 'border-grass-500/40 bg-white dark:bg-court-900 text-court-950 dark:text-white shadow-court-sm';
     const start = new Date(createdAt).getTime();
     const mins = (currentTime - start) / 60000;
-    if (mins >= 15) return 'border-rose-500/70 bg-rose-500/10 text-rose-400 ring-1 ring-rose-500/40';
-    if (mins >= 8) return 'border-amber-500/60 bg-amber-500/10 text-amber-300 ring-1 ring-amber-500/30';
-    return 'border-emerald-500/40 bg-surface-900/90 text-emerald-400';
+    if (mins >= 15) return 'border-danger-500/70 bg-danger-500/10 dark:bg-danger-950/40 text-court-950 dark:text-white ring-2 ring-danger-500/50 shadow-court-md';
+    if (mins >= 8) return 'border-optic-500/70 bg-optic-500/10 dark:bg-optic-950/30 text-court-950 dark:text-white ring-2 ring-optic-500/40 shadow-court-md';
+    return 'border-court-200 dark:border-court-800 bg-white dark:bg-court-900 text-court-950 dark:text-white shadow-court-sm';
   };
 
   return (
     <div className="space-y-6 max-w-[1800px] mx-auto pb-12">
-      {/* Header bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-3xl glass-card bg-surface-950/80 border-slate-700/60 shadow-2xl">
+      {/* Header Bar - Arm's Length Readable */}
+      <div className="court-card p-5 sm:p-6 rounded-3xl border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-md flex flex-col lg:flex-row lg:items-center justify-between gap-5">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-400 flex items-center justify-center text-surface-950 shadow-lg shadow-orange-500/20">
-            <ChefHat className="w-8 h-8" />
+          <div className="w-14 h-14 rounded-2xl bg-optic-500 flex items-center justify-center text-court-950 shadow-court-sm shrink-0">
+            <ChefHat className="w-8 h-8 stroke-[2.2]" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-black text-white tracking-tight">Kitchen & Bar Display (KDS)</h1>
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black uppercase tracking-wider bg-orange-500/20 text-orange-300 border border-orange-500/30">
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-2xl sm:text-3xl font-heading font-black text-court-950 dark:text-white tracking-tight uppercase">
+                Kitchen & Bar Display
+              </h1>
+              <span className="px-3 py-1 rounded-full text-xs font-heading font-black uppercase tracking-wider bg-grass-500/15 text-grass-700 dark:text-grass-400 border border-grass-500/30">
                 Live SSE
               </span>
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Realtime touch order pipeline, station ticket bumping & audible alerts
+            <p className="text-xs sm:text-sm text-court-500 dark:text-court-400 mt-0.5 font-sans">
+              Realtime touch order pipeline, station ticket bumping & audible alerts (readable at arm's length)
             </p>
           </div>
         </div>
 
-        {/* Controls: Station filter, Audio toggle, Refresh */}
-        <div className="flex items-center gap-3">
-          {/* Station Selector */}
-          <div className="flex items-center bg-surface-900 p-1 rounded-2xl border border-slate-800">
+        {/* Tablet-First Large Controls (Min 48px Touch Targets) */}
+        <div className="flex items-center gap-3 flex-wrap">
+          {/* Station Selector Pills */}
+          <div className="flex items-center bg-court-100 dark:bg-court-950 p-1.5 rounded-2xl border border-court-200 dark:border-court-800 shrink-0">
             {[
               { id: 'ALL', label: 'All Stations' },
               { id: 'KITCHEN', label: 'Kitchen Only' },
@@ -250,10 +239,10 @@ export const KitchenDisplayPage = () => {
                 key={s.id}
                 type="button"
                 onClick={() => setStation(s.id)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-black transition ${
+                className={`min-h-[48px] px-4 py-2 rounded-xl text-xs font-heading font-black uppercase tracking-wider transition ${
                   station === s.id
-                    ? 'bg-amber-500 text-surface-950 shadow-md'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-optic-500 text-court-950 shadow-court-sm'
+                    : 'text-court-600 dark:text-court-400 hover:text-court-950 dark:hover:text-white'
                 }`}
               >
                 {s.label}
@@ -261,40 +250,54 @@ export const KitchenDisplayPage = () => {
             ))}
           </div>
 
-          {/* Sound Toggle */}
+          {/* Sound Toggle (Min 48px) */}
           <button
             type="button"
             onClick={() => {
               setSoundEnabled(!soundEnabled);
               if (!soundEnabled) playChime();
             }}
-            className={`p-2.5 rounded-2xl border transition ${
+            className={`min-h-[48px] min-w-[48px] p-3 rounded-2xl border transition flex items-center justify-center ${
               soundEnabled
-                ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-                : 'bg-surface-900 text-slate-500 border-slate-800'
+                ? 'bg-optic-500/20 text-optic-700 dark:text-optic-400 border-optic-500/40 shadow-court-xs'
+                : 'bg-court-100 dark:bg-court-800 text-court-400 border-court-200 dark:border-court-700'
             }`}
             title={soundEnabled ? 'Audio Chime Enabled' : 'Audio Chime Muted'}
           >
-            {soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+            {soundEnabled ? <Volume2 className="w-5 h-5 stroke-[2.2]" /> : <VolumeX className="w-5 h-5" />}
           </button>
 
-          <Button type="button" variant="outline" size="sm" icon={RefreshCw} onClick={loadTickets}>
+          {/* Refresh Button (Min 48px) */}
+          <Button
+            type="button"
+            variant="outline"
+            size="md"
+            icon={RefreshCw}
+            onClick={loadTickets}
+            className="min-h-[48px] px-5 font-heading font-black uppercase text-xs border-court-200 dark:border-court-700"
+          >
             Refresh
           </Button>
         </div>
       </div>
 
-      {/* Ticket Cards Grid */}
+      {/* Ticket Cards Grid (Tablet-First 2 to 4 Columns) */}
       {loading ? (
-        <div className="text-center py-20 text-slate-400 text-sm">Loading active kitchen tickets...</div>
+        <div className="text-center py-20 text-court-400 text-sm font-sans animate-pulse">
+          Loading active kitchen tickets...
+        </div>
       ) : tickets.length === 0 ? (
-        <div className="text-center py-24 glass-card rounded-3xl bg-surface-950/60 border-slate-800">
-          <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto mb-3" />
-          <h3 className="text-lg font-black text-white">All Clear! No Pending Tickets</h3>
-          <p className="text-xs text-slate-400 mt-1">Orders placed on the Bar POS will arrive here immediately via SSE.</p>
+        <div className="text-center py-24 court-card rounded-3xl bg-white dark:bg-court-900 border border-court-200 dark:border-court-800 shadow-court-sm">
+          <CheckCircle2 className="w-14 h-14 text-grass-500 mx-auto mb-3 stroke-[2]" />
+          <h3 className="text-xl font-heading font-black text-court-950 dark:text-white uppercase">
+            All Clear! No Pending Tickets
+          </h3>
+          <p className="text-xs text-court-500 dark:text-court-400 mt-1 font-sans">
+            Orders placed on the Bar POS will arrive here immediately via SSE.
+          </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           <AnimatePresence>
             {tickets.map((t) => {
               const urgency = getUrgencyClass(t.createdAt);
@@ -306,77 +309,83 @@ export const KitchenDisplayPage = () => {
                   initial={{ opacity: 0, scale: 0.95, y: 10 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.9 }}
-                  className={`glass-card rounded-3xl p-5 border shadow-2xl flex flex-col justify-between min-h-[340px] ${urgency}`}
+                  className={`court-card rounded-3xl p-5 border flex flex-col justify-between min-h-[380px] transition-all ${urgency}`}
                 >
-                  {/* Card Header */}
-                  <div className="space-y-3">
+                  {/* Card Header: Arm's Length Large Typography */}
+                  <div className="space-y-3.5">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg font-black text-white">#{t.ticketNumber}</span>
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-2xl font-mono font-black text-court-950 dark:text-white tabular-nums">
+                          #{t.ticketNumber}
+                        </span>
                         <span
-                          className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                          className={`text-xs font-heading font-black px-2.5 py-1 rounded-full uppercase tracking-wider ${
                             t.station === 'BAR'
-                              ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
-                              : 'bg-orange-500/20 text-orange-300 border border-orange-500/30'
+                              ? 'bg-clay-500/20 text-clay-700 dark:text-clay-300 border border-clay-500/40'
+                              : 'bg-optic-500/20 text-optic-700 dark:text-optic-400 border border-optic-500/40'
                           }`}
                         >
                           {t.station}
                         </span>
                       </div>
 
-                      {/* Elapsed Timer */}
-                      <div className="flex items-center gap-1.5 font-mono text-sm font-black px-2 py-0.5 rounded-xl bg-surface-950/70 border border-slate-800">
-                        <Timer className="w-3.5 h-3.5" />
+                      {/* Large Elapsed Timer */}
+                      <div className="flex items-center gap-1.5 font-mono text-base font-black px-3 py-1 rounded-xl bg-court-100 dark:bg-court-950 border border-court-200 dark:border-court-800 text-court-900 dark:text-court-100 tabular-nums">
+                        <Timer className="w-4 h-4 text-optic-500 stroke-[2.2]" />
                         <span>{formatElapsed(t.createdAt)}</span>
                       </div>
                     </div>
 
                     {/* Table & Server Subheader */}
-                    <div className="flex items-center justify-between text-xs pb-3 border-b border-slate-800/80">
-                      <span className="font-bold text-white">
-                        {t.tableLabel ? `Table ${t.tableLabel}` : 'Bar Counter'}
+                    <div className="flex items-center justify-between text-xs pb-3 border-b border-court-200 dark:border-court-800">
+                      <span className="font-heading font-black text-base text-court-950 dark:text-white uppercase">
+                        {t.tableLabel || t.tableNumber ? `Table ${t.tableLabel || t.tableNumber}` : 'Bar Counter'}
                       </span>
-                      <span className="text-slate-400 text-[11px]">
+                      <span className="text-court-500 text-xs font-mono">
                         Server: {t.serverName || 'Staff'}
                       </span>
                     </div>
 
-                    {/* Items checklist */}
-                    <div className="space-y-2 py-1 max-h-52 overflow-y-auto pr-1">
+                    {/* Items Checklist with Min 48px Touch Targets */}
+                    <div className="space-y-2.5 py-1 max-h-60 overflow-y-auto pr-1">
                       {t.items?.map((item) => (
                         <button
                           key={item.id}
                           type="button"
                           onClick={() => handleUpdateItemStatus(t.id, item.id, item.status)}
-                          className={`w-full text-left p-2.5 rounded-2xl border transition flex items-center justify-between text-xs group ${
+                          className={`w-full text-left p-3.5 rounded-2xl border transition flex items-center justify-between text-xs min-h-[50px] group ${
                             item.status === 'READY' || item.status === 'SERVED'
-                              ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-200'
+                              ? 'bg-grass-500/15 border-grass-500/35 text-grass-800 dark:text-grass-200'
                               : item.status === 'PREPARING'
-                              ? 'bg-amber-500/15 border-amber-500/30 text-amber-200'
+                              ? 'bg-optic-500/15 border-optic-500/35 text-court-950 dark:text-optic-200'
                               : item.status === 'VOID'
-                              ? 'bg-rose-500/10 border-rose-500/20 line-through opacity-40 text-rose-300'
-                              : 'bg-surface-950/60 border-slate-800 text-white hover:border-slate-700'
+                              ? 'bg-danger-500/10 border-danger-500/20 line-through opacity-40 text-danger-400'
+                              : 'bg-court-50 dark:bg-court-950 border-court-200 dark:border-court-800 text-court-950 dark:text-white hover:border-court-400'
                           }`}
                         >
                           <div>
-                            <div className="flex items-center gap-2">
-                              <span className="font-bold">{item.itemName}</span>
-                              <span className="font-black text-amber-400">×{item.qty}</span>
+                            <div className="flex items-center gap-2.5">
+                              <span className="font-heading font-bold text-sm uppercase">
+                                {item.itemName || item.name}
+                              </span>
+                              <span className="font-mono font-black text-base text-optic-700 dark:text-optic-400 tabular-nums">
+                                ×{item.qty || item.quantity || 1}
+                              </span>
                             </div>
                             {item.notes && (
-                              <div className="text-[10px] text-amber-300/80 font-medium italic mt-0.5">
+                              <div className="text-[11px] text-clay-600 dark:text-clay-300 font-medium italic mt-0.5">
                                 Note: {item.notes}
                               </div>
                             )}
                           </div>
 
                           <span
-                            className={`text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0 ml-2 ${
+                            className={`text-[10px] font-heading font-black px-2.5 py-1 rounded-md uppercase tracking-wider shrink-0 ml-2 ${
                               item.status === 'READY'
-                                ? 'bg-emerald-400 text-surface-950'
+                                ? 'bg-grass-500 text-white shadow-court-xs'
                                 : item.status === 'PREPARING'
-                                ? 'bg-amber-400 text-surface-950'
-                                : 'bg-slate-800 text-slate-300'
+                                ? 'bg-optic-500 text-court-950 shadow-court-xs'
+                                : 'bg-court-200 dark:bg-court-800 text-court-700 dark:text-court-300'
                             }`}
                           >
                             {item.status}
@@ -386,17 +395,18 @@ export const KitchenDisplayPage = () => {
                     </div>
                   </div>
 
-                  {/* Card Bottom: Bump Ticket Action */}
-                  <div className="pt-3 border-t border-slate-800/80 mt-3">
-                    <Button
+                  {/* Card Bottom: Bump Ticket Action (Min 52px Touch Target) */}
+                  <div className="pt-3.5 border-t border-court-200 dark:border-court-800 mt-3">
+                    <button
                       type="button"
-                      variant="primary"
-                      size="sm"
                       onClick={() => handleBumpTicket(t.id)}
-                      className="w-full bg-emerald-500 hover:bg-emerald-400 text-surface-950 font-black shadow-lg shadow-emerald-500/20"
+                      className="w-full min-h-[52px] py-3 rounded-2xl bg-grass-500 hover:bg-grass-400 text-court-950 font-heading font-black uppercase tracking-wider text-sm shadow-court-sm transition flex items-center justify-center gap-2 active:scale-98"
                     >
-                      Bump Ticket ({t.status === 'PENDING' ? 'Start Preparing' : 'Mark Ready / Complete'})
-                    </Button>
+                      <Check className="w-5 h-5 stroke-[2.5]" />
+                      <span>
+                        Bump Ticket ({t.status === 'PENDING' ? 'Start Preparing' : 'Mark Ready / Complete'})
+                      </span>
+                    </button>
                   </div>
                 </motion.div>
               );

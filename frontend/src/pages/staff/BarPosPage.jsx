@@ -479,34 +479,36 @@ export const BarPosPage = () => {
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto pb-12">
       {/* 1. Header & Shift Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-3xl glass-card bg-surface-950/80 border-slate-700/60 shadow-2xl">
+      <div className="court-card p-5 sm:p-6 rounded-3xl border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-md flex flex-col md:flex-row md:items-center justify-between gap-5">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center text-surface-950 shadow-lg shadow-amber-500/20">
-            <Coffee className="w-8 h-8" />
+          <div className="w-14 h-14 rounded-2xl bg-optic-500 flex items-center justify-center text-court-950 shadow-court-sm shrink-0">
+            <Coffee className="w-8 h-8 stroke-[2.2]" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-black text-white tracking-tight">Bar & Cafeteria POS</h1>
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                Tablet Mode
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-2xl sm:text-3xl font-heading font-black text-court-950 dark:text-white tracking-tight uppercase">
+                Bar & Cafeteria POS
+              </h1>
+              <span className="px-3 py-1 rounded-full text-xs font-heading font-black uppercase tracking-wider bg-optic-500/15 text-optic-700 dark:text-optic-400 border border-optic-500/30">
+                Tablet Mode (48px+ Targets)
               </span>
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs sm:text-sm text-court-500 dark:text-court-400 mt-0.5 font-sans">
               Live orders, table map, kitchen dispatch, automatic plan discounts & age safeguards
             </p>
           </div>
         </div>
 
         {/* Shift status & controls */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           {activeShift ? (
-            <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/30 px-4 py-2 rounded-2xl">
-              <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+            <div className="flex items-center gap-3 bg-grass-500/10 border border-grass-500/30 px-4 py-2.5 rounded-2xl min-h-[48px]">
+              <div className="w-2.5 h-2.5 rounded-full bg-grass-500 animate-pulse" />
               <div className="text-left">
-                <div className="text-xs font-black text-emerald-300 uppercase tracking-wide">
+                <div className="text-xs font-heading font-black text-grass-700 dark:text-grass-300 uppercase tracking-wide">
                   Shift Active ({activeShift.station})
                 </div>
-                <div className="text-[11px] text-slate-300">
+                <div className="text-[11px] text-court-600 dark:text-court-300 font-mono tabular-nums">
                   Float: ₹{Number(activeShift.openingCash || 0).toFixed(2)} | Cash: ₹{Number(activeShift.cashCollected || 0).toFixed(2)}
                 </div>
               </div>
@@ -515,10 +517,10 @@ export const BarPosPage = () => {
             <Button
               type="button"
               variant="primary"
-              size="sm"
+              size="md"
               icon={Clock}
               onClick={() => setOpenShiftModal(true)}
-              className="bg-amber-500 hover:bg-amber-400 text-surface-950 font-black shadow-lg shadow-amber-500/25"
+              className="min-h-[48px] bg-optic-500 hover:bg-optic-400 text-court-950 font-heading font-black uppercase tracking-wider shadow-court-sm"
             >
               Clock In / Open Shift
             </Button>
@@ -527,12 +529,13 @@ export const BarPosPage = () => {
           <Button
             type="button"
             variant="outline"
-            size="sm"
+            size="md"
             icon={RefreshCw}
             onClick={() => {
               loadTables();
               if (currentTab) loadTabDetails(currentTab.id);
             }}
+            className="min-h-[48px] font-heading font-bold uppercase text-xs border-court-200 dark:border-court-700"
           >
             Refresh
           </Button>
@@ -541,12 +544,12 @@ export const BarPosPage = () => {
 
       {/* Offline Banner */}
       {isOffline && (
-        <div className="p-4 rounded-2xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-between text-rose-300">
+        <div className="p-4 rounded-2xl bg-danger-500/15 border border-danger-500/30 flex items-center justify-between text-danger-700 dark:text-danger-300 font-heading font-bold">
           <div className="flex items-center gap-3">
             <WifiOff className="w-5 h-5 animate-pulse" />
             <div>
-              <div className="text-xs font-black uppercase tracking-wider">Network Disconnected</div>
-              <div className="text-xs text-slate-300">Working in offline mode. Orders will queue and resend idempotently.</div>
+              <div className="text-xs uppercase tracking-wider">Network Disconnected</div>
+              <div className="text-xs font-sans font-normal opacity-90">Working in offline mode. Orders will queue and resend idempotently.</div>
             </div>
           </div>
         </div>
@@ -554,17 +557,17 @@ export const BarPosPage = () => {
 
       {/* Optimistic Conflict Alert Banner */}
       {conflictWarning && (
-        <div className="p-4 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-between text-amber-200">
+        <div className="p-4 rounded-2xl bg-optic-500/20 border border-optic-500/40 flex items-center justify-between text-court-950 dark:text-optic-200">
           <div className="flex items-center gap-3">
-            <AlertTriangle className="w-5 h-5 text-amber-400" />
-            <div className="text-xs font-semibold">{conflictWarning}</div>
+            <AlertTriangle className="w-5 h-5 text-optic-600 dark:text-optic-400" />
+            <div className="text-xs font-heading font-bold">{conflictWarning}</div>
           </div>
           <Button
             type="button"
             variant="outline"
             size="xs"
             onClick={() => currentTab && loadTabDetails(currentTab.id)}
-            className="border-amber-500/40 text-amber-300 hover:bg-amber-500/20"
+            className="border-optic-500/40 text-optic-700 dark:text-optic-300 hover:bg-optic-500/20 font-heading font-bold uppercase"
           >
             Load Latest State
           </Button>
@@ -575,30 +578,32 @@ export const BarPosPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column (8 cols): Table Map & Menu Touch Catalog */}
         <div className="lg:col-span-7 xl:col-span-8 space-y-6">
-          {/* Table Map Grid */}
-          <div className="glass-card rounded-3xl p-5 bg-surface-950/80 border-slate-700/60 shadow-xl space-y-4">
+          {/* Table Map Grid (Tablet-First min 48px touch targets) */}
+          <div className="court-card rounded-3xl p-5 border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-sm space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-amber-400" />
-                <h3 className="text-sm font-black text-white uppercase tracking-wider">Floor Plan & Tables</h3>
+                <Users className="w-5 h-5 text-optic-600 dark:text-optic-400 stroke-[2.2]" />
+                <h3 className="text-sm font-heading font-black text-court-950 dark:text-white uppercase tracking-wider">
+                  Floor Plan & Tables
+                </h3>
               </div>
               <Button
                 type="button"
                 variant="ghost"
-                size="xs"
+                size="sm"
                 icon={Plus}
                 onClick={() => {
                   setSelectedTable(null);
                   setCurrentTab(null);
                   setNewTabModal(true);
                 }}
-                className="text-amber-400 hover:text-amber-300"
+                className="text-optic-600 dark:text-optic-400 hover:text-optic-700 font-heading font-bold uppercase min-h-[44px]"
               >
                 + Direct Walk-in Tab
               </Button>
             </div>
 
-            {/* Table Cards */}
+            {/* Table Cards (Min 96px High Touch Targets) */}
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
               {tables.map((t) => {
                 const isSelected = selectedTable?.id === t.id;
@@ -609,27 +614,29 @@ export const BarPosPage = () => {
                     key={t.id}
                     type="button"
                     onClick={() => handleTableClick(t)}
-                    className={`p-3.5 rounded-2xl text-left transition relative flex flex-col justify-between h-24 border ${
+                    className={`p-3.5 rounded-2xl text-left transition relative flex flex-col justify-between min-h-[104px] border ${
                       isSelected
-                        ? 'border-amber-400 bg-amber-500/15 ring-2 ring-amber-400/30'
+                        ? 'border-optic-500 bg-optic-500/15 ring-2 ring-optic-500/40 shadow-court-sm'
                         : isOccupied
-                        ? 'border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10'
-                        : 'border-slate-800 bg-surface-900/60 hover:bg-surface-800/80'
+                        ? 'border-optic-500/40 bg-optic-500/5 hover:bg-optic-500/10 dark:bg-optic-950/20'
+                        : 'border-court-200 dark:border-court-800 bg-court-50 dark:bg-court-950/80 hover:bg-court-100 dark:hover:bg-court-800/80'
                     }`}
                   >
                     <div className="flex items-center justify-between w-full">
-                      <span className="text-base font-black text-white">{t.label}</span>
+                      <span className="text-xl font-heading font-black text-court-950 dark:text-white uppercase">
+                        {t.label || t.tableNumber || `T${t.id}`}
+                      </span>
                       <span
-                        className={`w-2 h-2 rounded-full ${
-                          isOccupied ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'
+                        className={`w-2.5 h-2.5 rounded-full ${
+                          isOccupied ? 'bg-optic-500 animate-pulse' : 'bg-grass-500'
                         }`}
                       />
                     </div>
 
-                    <div className="text-[10px] space-y-0.5">
-                      <div className="text-slate-400">{t.seats} seats</div>
+                    <div className="text-[11px] space-y-0.5">
+                      <div className="text-court-500 font-sans">{t.seats || t.capacity || 2} seats</div>
                       {isOccupied && (
-                        <div className="font-bold text-amber-300 truncate">
+                        <div className="font-mono font-black text-optic-700 dark:text-optic-400 truncate tabular-nums text-xs">
                           ₹{Number(t.currentTabTotal || 0).toFixed(0)}
                         </div>
                       )}
@@ -641,17 +648,17 @@ export const BarPosPage = () => {
           </div>
 
           {/* Menu Catalog Filters & Search */}
-          <div className="glass-card rounded-3xl p-5 bg-surface-950/80 border-slate-700/60 shadow-xl space-y-4">
+          <div className="court-card rounded-3xl p-5 border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-sm space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              {/* Category Pills */}
+              {/* Category Pills (Min 48px Touch Targets) */}
               <div className="flex items-center gap-2 overflow-x-auto pb-1 max-w-full no-scrollbar">
                 <button
                   type="button"
                   onClick={() => setSelectedCategory('ALL')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-black transition shrink-0 ${
+                  className={`min-h-[48px] px-4 py-2 rounded-xl text-xs font-heading font-black uppercase tracking-wider transition shrink-0 ${
                     selectedCategory === 'ALL'
-                      ? 'bg-amber-500 text-surface-950'
-                      : 'bg-surface-900 text-slate-300 hover:bg-surface-800 border border-slate-800'
+                      ? 'bg-optic-500 text-court-950 shadow-court-sm'
+                      : 'bg-court-50 dark:bg-court-950 text-court-600 dark:text-court-300 hover:bg-court-100 border border-court-200 dark:border-court-800'
                   }`}
                 >
                   All Items
@@ -661,10 +668,10 @@ export const BarPosPage = () => {
                     key={c.id}
                     type="button"
                     onClick={() => setSelectedCategory(c.id)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-black transition shrink-0 ${
+                    className={`min-h-[48px] px-4 py-2 rounded-xl text-xs font-heading font-black uppercase tracking-wider transition shrink-0 ${
                       selectedCategory === c.id
-                        ? 'bg-amber-500 text-surface-950'
-                        : 'bg-surface-900 text-slate-300 hover:bg-surface-800 border border-slate-800'
+                        ? 'bg-optic-500 text-court-950 shadow-court-sm'
+                        : 'bg-court-50 dark:bg-court-950 text-court-600 dark:text-court-300 hover:bg-court-100 border border-court-200 dark:border-court-800'
                     }`}
                   >
                     {c.name}
@@ -673,16 +680,16 @@ export const BarPosPage = () => {
               </div>
 
               {/* Station Toggle (Kitchen / Bar) */}
-              <div className="flex items-center gap-1 bg-surface-900 p-1 rounded-xl border border-slate-800 shrink-0">
+              <div className="flex items-center gap-1 bg-court-100 dark:bg-court-950 p-1.5 rounded-xl border border-court-200 dark:border-court-800 shrink-0">
                 {['ALL', 'BAR', 'KITCHEN'].map((st) => (
                   <button
                     key={st}
                     type="button"
                     onClick={() => setStationFilter(st)}
-                    className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase transition ${
+                    className={`min-h-[44px] px-3.5 py-1.5 rounded-lg text-xs font-heading font-black uppercase transition ${
                       stationFilter === st
-                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                        : 'text-slate-400 hover:text-white'
+                        ? 'bg-optic-500/20 text-optic-700 dark:text-optic-300 border border-optic-500/30'
+                        : 'text-court-500 hover:text-court-950 dark:hover:text-white'
                     }`}
                   >
                     {st}
@@ -693,17 +700,17 @@ export const BarPosPage = () => {
 
             {/* Search Input */}
             <div className="relative">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-court-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Search menu items (beer, sandwich, mocktail, pasta)..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-surface-900 border border-slate-800 rounded-xl text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-400"
+                className="w-full min-h-[48px] pl-10 pr-4 py-2.5 bg-court-50 dark:bg-court-950 border border-court-200 dark:border-court-700 rounded-xl text-xs text-court-950 dark:text-white placeholder:text-court-400 focus:outline-none focus:border-optic-500 font-sans"
               />
             </div>
 
-            {/* Menu Items Touch Cards */}
+            {/* Menu Items Touch Cards (Min 116px Height) */}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-[500px] overflow-y-auto pr-1">
               {filteredMenuItems.map((item) => {
                 const isAlcoholBlocked = item.isAlcoholic && isCustomerUnderage;
@@ -714,47 +721,47 @@ export const BarPosPage = () => {
                     type="button"
                     disabled={!item.isAvailable || isAlcoholBlocked}
                     onClick={() => handleAddItemToPending(item)}
-                    className={`p-3.5 rounded-2xl text-left border transition relative flex flex-col justify-between min-h-[110px] group ${
+                    className={`p-4 rounded-2xl text-left border transition relative flex flex-col justify-between min-h-[116px] group ${
                       !item.isAvailable
-                        ? 'opacity-40 border-slate-800 bg-surface-900 cursor-not-allowed'
+                        ? 'opacity-40 border-court-200 dark:border-court-800 bg-court-100 dark:bg-court-950 cursor-not-allowed'
                         : isAlcoholBlocked
-                        ? 'opacity-50 border-rose-500/30 bg-rose-500/5 cursor-not-allowed'
-                        : 'border-slate-800 bg-surface-900/60 hover:bg-surface-800/90 hover:border-amber-500/40 active:scale-[0.98]'
+                        ? 'opacity-50 border-danger-500/30 bg-danger-500/5 cursor-not-allowed'
+                        : 'border-court-200 dark:border-court-800 bg-court-50 dark:bg-court-950/80 hover:bg-court-100 dark:hover:bg-court-800/90 hover:border-optic-500/40 active:scale-[0.98]'
                     }`}
                   >
                     <div>
-                      <div className="flex items-start justify-between gap-1">
-                        <span className="text-xs font-black text-white group-hover:text-amber-300 transition line-clamp-1">
+                      <div className="flex items-start justify-between gap-1.5">
+                        <span className="text-xs sm:text-sm font-heading font-black text-court-950 dark:text-white group-hover:text-optic-600 dark:group-hover:text-optic-300 transition line-clamp-2 leading-tight uppercase">
                           {item.name}
                         </span>
                         <span
-                          className={`text-[9px] font-black px-1.5 py-0.5 rounded uppercase ${
-                            item.prepStation === 'BAR'
-                              ? 'bg-cyan-500/20 text-cyan-300'
-                              : 'bg-orange-500/20 text-orange-300'
+                          className={`text-[9px] font-heading font-black px-1.5 py-0.5 rounded uppercase shrink-0 ${
+                            (item.prepStation || item.preparationStation) === 'BAR'
+                              ? 'bg-clay-500/20 text-clay-700 dark:text-clay-300'
+                              : 'bg-optic-500/20 text-optic-700 dark:text-optic-400'
                           }`}
                         >
-                          {item.prepStation}
+                          {item.prepStation || item.preparationStation || 'BAR'}
                         </span>
                       </div>
-                      <div className="text-[10px] text-slate-400 mt-0.5">{item.taxCategory}</div>
+                      <div className="text-[10px] text-court-500 font-sans mt-0.5">{item.taxCategory}</div>
                     </div>
 
                     <div className="mt-2 flex items-center justify-between">
-                      <span className="text-sm font-black text-amber-400">
+                      <span className="text-base font-mono font-black text-optic-700 dark:text-optic-400 tabular-nums">
                         ₹{Number(item.price).toFixed(2)}
                       </span>
 
                       {item.isAlcoholic && (
-                        <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300">
+                        <span className="text-[9px] font-heading font-black px-1.5 py-0.5 rounded bg-danger-500/20 text-danger-600 dark:text-danger-300">
                           18+ Alc
                         </span>
                       )}
                     </div>
 
                     {isAlcoholBlocked && (
-                      <div className="absolute inset-0 bg-surface-950/80 backdrop-blur-[1px] rounded-2xl flex items-center justify-center p-2 text-center">
-                        <span className="text-[10px] font-black text-rose-400 flex items-center gap-1">
+                      <div className="absolute inset-0 bg-court-950/80 backdrop-blur-[1px] rounded-2xl flex items-center justify-center p-2 text-center">
+                        <span className="text-[10px] font-heading font-black text-danger-400 flex items-center gap-1 uppercase">
                           <ShieldAlert className="w-3.5 h-3.5" /> Under 18 Blocked
                         </span>
                       </div>
@@ -863,8 +870,8 @@ export const BarPosPage = () => {
                 >
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-1.5">
-                      <span className="font-bold text-white">{item.itemName}</span>
-                      <span className="text-[10px] text-slate-400">×{item.qty}</span>
+                      <span className="font-bold text-white">{item.itemName || item.name}</span>
+                      <span className="text-[10px] text-slate-400">×{item.qty || item.quantity || 1}</span>
                       <span
                         className={`text-[8px] font-black px-1.5 py-0.2 rounded uppercase ${
                           item.status === 'READY'
@@ -889,8 +896,8 @@ export const BarPosPage = () => {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-slate-200">
-                      ₹{Number(item.lineTotal).toFixed(2)}
+                    <span className="font-bold text-slate-200 font-mono tabular-nums">
+                      ₹{Number(item.lineTotal || item.totalPrice || ((item.unitPrice || 0) * (item.qty || item.quantity || 1))).toFixed(2)}
                     </span>
                     {item.status !== 'VOID' && currentTab.status === 'OPEN' && (
                       <button
@@ -978,33 +985,29 @@ export const BarPosPage = () => {
               </div>
             )}
 
-            {/* Action Buttons */}
-            <div className="space-y-2 pt-2">
+            {/* Action Buttons (Min 52px Touch Targets) */}
+            <div className="space-y-2.5 pt-2">
               {pendingItems.length > 0 && (
-                <Button
+                <button
                   type="button"
-                  variant="primary"
-                  size="md"
-                  icon={Send}
                   onClick={handleSendOrder}
-                  className="w-full bg-amber-500 hover:bg-amber-400 text-surface-950 font-black shadow-lg shadow-amber-500/25"
+                  className="w-full min-h-[52px] py-3.5 px-4 bg-optic-500 hover:bg-optic-400 text-court-950 font-heading font-black uppercase tracking-wider text-sm rounded-2xl shadow-court-sm transition flex items-center justify-center gap-2 active:scale-98"
                 >
-                  Send to Kitchen/Bar ({pendingItems.length} lines)
-                </Button>
+                  <Send className="w-5 h-5 stroke-[2.2]" />
+                  <span>Send to Kitchen/Bar ({pendingItems.length} lines)</span>
+                </button>
               )}
 
               {currentTab && currentTab.status === 'OPEN' && (
-                <Button
+                <button
                   type="button"
-                  variant="primary"
-                  size="md"
-                  icon={Receipt}
                   onClick={() => setSettleModal(true)}
                   disabled={!currentTab.items || currentTab.items.filter((i) => i.status !== 'VOID').length === 0}
-                  className="w-full bg-emerald-500 hover:bg-emerald-400 text-surface-950 font-black shadow-lg shadow-emerald-500/25"
+                  className="w-full min-h-[52px] py-3.5 px-4 bg-grass-500 hover:bg-grass-400 disabled:opacity-40 text-court-950 font-heading font-black uppercase tracking-wider text-sm rounded-2xl shadow-court-sm transition flex items-center justify-center gap-2 active:scale-98"
                 >
-                  Settle Tab (₹{Number(currentTab.totalAmount || 0).toFixed(2)})
-                </Button>
+                  <Receipt className="w-5 h-5 stroke-[2.2]" />
+                  <span>Settle Tab (₹{Number(currentTab.totalAmount || 0).toFixed(2)})</span>
+                </button>
               )}
             </div>
           </div>
