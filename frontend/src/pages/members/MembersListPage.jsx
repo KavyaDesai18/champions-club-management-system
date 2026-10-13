@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { 
   Users, 
@@ -12,7 +12,10 @@ import {
   Calendar, 
   Phone, 
   Eye, 
-  RefreshCw 
+  RefreshCw,
+  X,
+  Keyboard,
+  Sparkles
 } from 'lucide-react';
 import { membersApi, plansApi } from '../../api/membersApi';
 import { useToast } from '../../context/ToastContext';
@@ -30,6 +33,7 @@ export default function MembersListPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { addToast } = useToast();
+  const searchInputRef = useRef(null);
 
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -48,6 +52,26 @@ export default function MembersListPage() {
   const [bulkImportOpen, setBulkImportOpen] = useState(false);
   const [qrLookupOpen, setQrLookupOpen] = useState(false);
   const [selectedBadgeMember, setSelectedBadgeMember] = useState(null);
+
+  // Keyboard shortcut handler
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return;
+
+      if (e.key === '/') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      } else if (e.key.toLowerCase() === 'n') {
+        e.preventDefault();
+        setRegisterModalOpen(true);
+      } else if (e.key.toLowerCase() === 'v') {
+        e.preventDefault();
+        setQrLookupOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Debounced search
   useEffect(() => {
@@ -109,19 +133,23 @@ export default function MembersListPage() {
   };
 
   return (
-    <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6">
+    <div className="space-y-6">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-100 tracking-tight flex items-center gap-2.5">
-            <Users className="w-7 h-7 text-emerald-400" /> Members Directory
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-optic-500/10 text-court-900 dark:text-optic-300 text-xs font-heading font-black uppercase tracking-wider border border-optic-500/30 mb-2">
+            <Users className="w-3.5 h-3.5 text-optic-600 dark:text-optic-400" />
+            <span>Staff Directory</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-heading font-black text-court-950 dark:text-white uppercase tracking-tight flex items-center gap-2.5">
+            Members Directory
           </h1>
-          <p className="text-xs sm:text-sm text-zinc-400 mt-1">
-            Manage memberships, Junior guardian consents, access passes, and bulk Excel records.
+          <p className="text-xs sm:text-sm text-court-500 dark:text-court-400 mt-1 font-sans">
+            Manage memberships, Junior guardian consents, access passes, and bulk records.
           </p>
         </div>
 
-        {/* Action Buttons */}
+        {/* Action Buttons & Keyboard Hints */}
         <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
           <Button
             type="button"
@@ -129,8 +157,9 @@ export default function MembersListPage() {
             size="sm"
             icon={QrCode}
             onClick={() => setQrLookupOpen(true)}
+            className="border-court-200 dark:border-court-700 font-heading font-bold uppercase tracking-wider"
           >
-            Verify Pass
+            Verify Pass <kbd className="hidden md:inline ml-1.5 text-[9px] font-mono px-1 py-0.5 rounded bg-court-100 dark:bg-court-800 text-court-500">V</kbd>
           </Button>
 
           <Button
@@ -139,6 +168,7 @@ export default function MembersListPage() {
             size="sm"
             icon={Upload}
             onClick={() => setBulkImportOpen(true)}
+            className="border-court-200 dark:border-court-700 font-heading font-bold uppercase tracking-wider"
           >
             Bulk Import
           </Button>
@@ -149,17 +179,19 @@ export default function MembersListPage() {
             size="sm"
             icon={UserPlus}
             onClick={() => setRegisterModalOpen(true)}
+            className="font-heading font-black uppercase tracking-wider"
           >
-            Register Member
+            Register Member <kbd className="hidden md:inline ml-1.5 text-[9px] font-mono px-1 py-0.5 rounded bg-court-950/20 text-court-950">N</kbd>
           </Button>
         </div>
       </div>
 
       {/* Filter and Search Bar */}
-      <Card className="p-4">
-        <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+      <div className="court-card p-4 rounded-xl border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
           <div className="sm:col-span-6 relative">
             <Input
+              ref={searchInputRef}
               placeholder="Search by name, phone, email, or member no (fuzzy search)..."
               value={query}
               onChange={(e) => {
@@ -167,7 +199,20 @@ export default function MembersListPage() {
                 setPage(0);
               }}
               icon={Search}
+              className="bg-court-50 dark:bg-court-950 border-court-200 dark:border-court-700"
             />
+            {query && (
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery('');
+                  setPage(0);
+                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-court-400 hover:text-court-700 dark:hover:text-court-200"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
 
           <div className="sm:col-span-3">
@@ -184,6 +229,7 @@ export default function MembersListPage() {
                 { value: 'SUSPENDED', label: 'Suspended' },
                 { value: 'CANCELLED', label: 'Cancelled' },
               ]}
+              className="bg-court-50 dark:bg-court-950 border-court-200 dark:border-court-700"
             />
           </div>
 
@@ -198,53 +244,58 @@ export default function MembersListPage() {
                 { value: '', label: 'All Plans' },
                 ...plans.map((p) => ({ value: p.code, label: p.name })),
               ]}
+              className="bg-court-50 dark:bg-court-950 border-court-200 dark:border-court-700"
             />
           </div>
         </div>
-      </Card>
+      </div>
 
-      {/* Members Table */}
-      <Card className="overflow-hidden p-0 border border-zinc-800">
+      {/* Dense, Scannable Members Data Grid */}
+      <div className="court-card overflow-hidden p-0 rounded-2xl border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-zinc-800 bg-zinc-900/80 text-zinc-400 font-semibold uppercase tracking-wider text-[11px]">
-                <th className="py-3 px-4">Member</th>
-                <th className="py-3 px-4">Member No</th>
-                <th className="py-3 px-4">Contact</th>
-                <th className="py-3 px-4">Plan Tier</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4 text-right">Actions</th>
+              <tr className="border-b border-court-200 dark:border-court-800 bg-court-50 dark:bg-court-950/80 text-court-500 font-heading font-black uppercase tracking-wider text-[11px] h-10">
+                <th className="py-2.5 px-4">Member</th>
+                <th className="py-2.5 px-4 font-mono">Member No</th>
+                <th className="py-2.5 px-4">Contact</th>
+                <th className="py-2.5 px-4">Plan Tier</th>
+                <th className="py-2.5 px-4">Status</th>
+                <th className="py-2.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-zinc-800/60">
+            <tbody className="divide-y divide-court-100 dark:divide-court-800/60">
               {loading ? (
                 Array.from({ length: 5 }).map((_, idx) => (
-                  <tr key={idx} className="animate-pulse">
-                    <td className="py-4 px-4">
+                  <tr key={idx} className="animate-pulse h-11">
+                    <td className="py-2 px-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-zinc-800" />
-                        <div className="space-y-1.5">
-                          <div className="w-28 h-3.5 bg-zinc-800 rounded" />
-                          <div className="w-16 h-2.5 bg-zinc-800 rounded" />
+                        <div className="w-8 h-8 rounded-lg bg-court-200 dark:bg-court-800" />
+                        <div className="space-y-1">
+                          <div className="w-28 h-3 bg-court-200 dark:bg-court-800 rounded" />
+                          <div className="w-16 h-2 bg-court-200 dark:bg-court-800 rounded" />
                         </div>
                       </div>
                     </td>
-                    <td className="py-4 px-4"><div className="w-20 h-3 bg-zinc-800 rounded" /></td>
-                    <td className="py-4 px-4"><div className="w-24 h-3 bg-zinc-800 rounded" /></td>
-                    <td className="py-4 px-4"><div className="w-16 h-5 bg-zinc-800 rounded-full" /></td>
-                    <td className="py-4 px-4"><div className="w-14 h-5 bg-zinc-800 rounded-full" /></td>
-                    <td className="py-4 px-4 text-right"><div className="w-16 h-6 bg-zinc-800 rounded ml-auto" /></td>
+                    <td className="py-2 px-4"><div className="w-20 h-3 bg-court-200 dark:bg-court-800 rounded" /></td>
+                    <td className="py-2 px-4"><div className="w-24 h-3 bg-court-200 dark:bg-court-800 rounded" /></td>
+                    <td className="py-2 px-4"><div className="w-16 h-5 bg-court-200 dark:bg-court-800 rounded-full" /></td>
+                    <td className="py-2 px-4"><div className="w-14 h-5 bg-court-200 dark:bg-court-800 rounded-full" /></td>
+                    <td className="py-2 px-4 text-right"><div className="w-16 h-6 bg-court-200 dark:bg-court-800 rounded ml-auto" /></td>
                   </tr>
                 ))
               ) : members.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-zinc-500">
+                  <td colSpan={6} className="py-12 text-center text-court-400">
                     <div className="flex flex-col items-center justify-center gap-2">
-                      <Users className="w-8 h-8 text-zinc-600" />
-                      <p className="text-sm font-medium">No members found</p>
-                      <p className="text-xs text-zinc-600">Try adjusting your search query or filters.</p>
+                      <Users className="w-8 h-8 text-court-300 dark:text-court-600" />
+                      <p className="text-sm font-heading font-bold uppercase text-court-700 dark:text-court-300">
+                        No members found
+                      </p>
+                      <p className="text-xs text-court-400">
+                        Try adjusting your search query or filters.
+                      </p>
                     </div>
                   </td>
                 </tr>
@@ -258,12 +309,12 @@ export default function MembersListPage() {
                   return (
                     <tr
                       key={m.id}
-                      className="hover:bg-zinc-800/30 transition-colors cursor-pointer group"
+                      className="hover:bg-court-50 dark:hover:bg-court-800/40 transition-colors cursor-pointer group h-11"
                       onClick={() => navigate(`/console/members/${m.id}`)}
                     >
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-zinc-800 border border-zinc-700/80 overflow-hidden flex items-center justify-center font-bold text-zinc-300 flex-shrink-0">
+                      <td className="py-2 px-4">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-7 h-7 rounded-lg bg-court-100 dark:bg-court-800 border border-court-200 dark:border-court-700 overflow-hidden flex items-center justify-center font-heading font-black text-xs text-court-700 dark:text-court-300 shrink-0">
                             {m.photoUrl ? (
                               <img src={m.photoUrl} alt={m.fullName} className="w-full h-full object-cover" />
                             ) : (
@@ -271,32 +322,42 @@ export default function MembersListPage() {
                             )}
                           </div>
                           <div className="min-w-0">
-                            <div className="font-semibold text-zinc-100 group-hover:text-emerald-400 transition-colors truncate">
+                            <div className="font-heading font-bold text-court-950 dark:text-white group-hover:text-optic-600 dark:group-hover:text-optic-400 transition-colors truncate uppercase text-xs">
                               {m.fullName}
                             </div>
-                            <div className="text-[11px] text-zinc-500 truncate">
+                            <div className="text-[10px] text-court-500 truncate font-sans">
                               Age {m.age || 0} {m.guardianName && `• Guardian: ${m.guardianName}`}
                             </div>
                           </div>
                         </div>
                       </td>
 
-                      <td className="py-3.5 px-4 font-mono font-bold text-emerald-400">
+                      <td className="py-2 px-4 font-mono font-bold text-optic-700 dark:text-optic-400 tabular-nums">
                         {m.memberNo}
                       </td>
 
-                      <td className="py-3.5 px-4">
-                        <div className="text-zinc-300 font-mono text-[11px]">{m.phone || '—'}</div>
-                        <div className="text-zinc-500 text-[11px] truncate max-w-xs">{m.email || '—'}</div>
+                      <td className="py-2 px-4">
+                        <div className="text-court-800 dark:text-court-200 font-mono text-[11px] tabular-nums">
+                          {m.phone || '—'}
+                        </div>
+                        <div className="text-court-500 text-[10px] truncate max-w-xs font-sans">
+                          {m.email || '—'}
+                        </div>
                       </td>
 
-                      <td className="py-3.5 px-4">
-                        <Badge variant={badgeVariant} size="sm">
+                      <td className="py-2 px-4">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-heading font-bold uppercase tracking-wider ${
+                          planCode === 'GOLD'
+                            ? 'bg-optic-500/15 text-optic-700 dark:text-optic-400 border border-optic-500/30'
+                            : planCode === 'SILVER'
+                            ? 'bg-clay-500/15 text-clay-700 dark:text-clay-400 border border-clay-500/30'
+                            : 'bg-grass-500/15 text-grass-700 dark:text-grass-400 border border-grass-500/30'
+                        }`}>
                           {planCode}
-                        </Badge>
+                        </span>
                       </td>
 
-                      <td className="py-3.5 px-4">
+                      <td className="py-2 px-4">
                         <Badge
                           variant={
                             m.status === 'ACTIVE' ? 'success' :
@@ -308,8 +369,8 @@ export default function MembersListPage() {
                         </Badge>
                       </td>
 
-                      <td className="py-3.5 px-4 text-right">
-                        <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
+                      <td className="py-2 px-4 text-right">
+                        <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                           <Button
                             type="button"
                             variant="ghost"
@@ -317,6 +378,7 @@ export default function MembersListPage() {
                             icon={QrCode}
                             onClick={() => setSelectedBadgeMember(m)}
                             title="Access Pass & QR"
+                            className="p-1.5 h-7 w-7 text-court-500 hover:text-court-950 dark:hover:text-white"
                           />
                           <Button
                             type="button"
@@ -325,6 +387,7 @@ export default function MembersListPage() {
                             icon={Eye}
                             onClick={() => navigate(`/console/members/${m.id}`)}
                             title="Member 360"
+                            className="p-1.5 h-7 w-7 text-court-500 hover:text-court-950 dark:hover:text-white"
                           />
                         </div>
                       </td>
@@ -336,10 +399,10 @@ export default function MembersListPage() {
           </table>
         </div>
 
-        {/* Pagination Bar */}
+        {/* Dense Pagination Bar */}
         {!loading && members.length > 0 && (
-          <div className="p-3.5 border-t border-zinc-800 flex items-center justify-between text-xs text-zinc-400 bg-zinc-900/40">
-            <div>
+          <div className="p-3 border-t border-court-200 dark:border-court-800 flex items-center justify-between text-xs text-court-500 bg-court-50 dark:bg-court-950/60 font-sans">
+            <div className="font-mono tabular-nums">
               Showing {members.length} of {totalElements} members
             </div>
             <div className="flex items-center gap-2">
@@ -349,10 +412,11 @@ export default function MembersListPage() {
                 size="xs"
                 disabled={page <= 0}
                 onClick={() => setPage((p) => p - 1)}
+                className="h-7 text-xs border-court-200 dark:border-court-700"
               >
                 Previous
               </Button>
-              <span className="font-mono text-zinc-300">
+              <span className="font-mono text-court-700 dark:text-court-300 tabular-nums">
                 Page {page + 1} of {totalPages}
               </span>
               <Button
@@ -361,13 +425,14 @@ export default function MembersListPage() {
                 size="xs"
                 disabled={page + 1 >= totalPages}
                 onClick={() => setPage((p) => p + 1)}
+                className="h-7 text-xs border-court-200 dark:border-court-700"
               >
                 Next
               </Button>
             </div>
           </div>
         )}
-      </Card>
+      </div>
 
       {/* Modals */}
       <RegisterMemberModal

@@ -29,6 +29,7 @@ import {
   Users,
   UtensilsCrossed,
   X,
+  Zap,
 } from 'lucide-react';
 import ThemeToggle from '../../components/common/ThemeToggle';
 import CommandPalette from '../../components/common/CommandPalette';
@@ -91,12 +92,15 @@ export const StaffLayout = () => {
     item.roles.includes(currentRole)
   );
 
-  // Keyboard shortcut Ctrl+K
+  // Global keyboard shortcuts (Ctrl+K or /)
   useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
         setPaletteOpen((prev) => !prev);
+      } else if (e.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) {
+        e.preventDefault();
+        setPaletteOpen(true);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -104,24 +108,28 @@ export const StaffLayout = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex bg-surface-950 text-slate-100">
+    <div className="min-h-screen flex bg-court-50 dark:bg-court-950 text-court-900 dark:text-court-100 transition-colors">
       {/* Collapsible Sidebar */}
       <motion.aside
-        animate={{ width: isCollapsed ? 80 : 260 }}
+        animate={{ width: isCollapsed ? 76 : 260 }}
         transition={{ duration: 0.2 }}
-        className="border-r border-slate-800/80 glass-card hidden md:flex flex-col justify-between p-4 shrink-0 sticky top-0 h-screen z-30"
+        className="border-r border-court-200 dark:border-court-800 bg-white dark:bg-court-900 hidden md:flex flex-col justify-between p-4 shrink-0 sticky top-0 h-screen z-30 shadow-court-sm"
       >
-        <div className="space-y-6">
+        <div className="space-y-5 overflow-hidden flex flex-col flex-1">
           {/* Header Brand */}
-          <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-3 overflow-hidden">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-600 to-blue-500 flex items-center justify-center shadow-lg shadow-cyan-600/20 shrink-0">
-                <Shield className="w-5 h-5 text-white" />
+          <div className="flex items-center justify-between shrink-0">
+            <Link to="/" className="flex items-center gap-3 overflow-hidden group">
+              <div className="w-10 h-10 rounded-xl bg-optic-500 flex items-center justify-center shadow-court-sm group-hover:scale-105 transition-transform shrink-0">
+                <Shield className="w-5 h-5 text-court-950 stroke-[2.2]" />
               </div>
               {!isCollapsed && (
                 <div className="overflow-hidden">
-                  <span className="text-base font-black tracking-tight text-white block truncate">CHAMPIONS</span>
-                  <span className="text-[10px] tracking-widest uppercase text-cyan-400 block -mt-1 font-bold">CONSOLE</span>
+                  <span className="text-base font-heading font-black tracking-tight text-court-950 dark:text-white block uppercase truncate">
+                    CHAMPIONS
+                  </span>
+                  <span className="text-[10px] tracking-widest uppercase text-optic-600 dark:text-optic-400 block -mt-1 font-heading font-black">
+                    STAFF CONSOLE
+                  </span>
                 </div>
               )}
             </Link>
@@ -129,7 +137,7 @@ export const StaffLayout = () => {
             <button
               type="button"
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="p-1.5 rounded-lg border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800/80 transition"
+              className="p-1.5 rounded-lg border border-court-200 dark:border-court-800 text-court-500 hover:text-court-900 dark:hover:text-white hover:bg-court-100 dark:hover:bg-court-800 transition"
               aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             >
               {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -138,17 +146,24 @@ export const StaffLayout = () => {
 
           {/* Active Role Pill */}
           {!isCollapsed && (
-            <div className="p-3 rounded-2xl bg-surface-900/90 border border-slate-800 space-y-1">
-              <div className="text-[10px] uppercase font-bold text-slate-400">Current Role</div>
-              <div className="text-xs font-black text-cyan-400 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-cyan-400" />
-                <span>{currentRole}</span>
+            <div className="p-3 rounded-xl bg-court-50 dark:bg-court-950 border border-court-200 dark:border-court-800 space-y-1 shrink-0">
+              <div className="text-[10px] uppercase font-heading font-bold tracking-wider text-court-500">
+                Operational Role
+              </div>
+              <div className="text-xs font-heading font-black text-court-950 dark:text-white uppercase flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-optic-500 shadow-glow" />
+                  <span>{currentRole}</span>
+                </span>
+                <span className="text-[9px] font-mono font-bold bg-optic-500/15 text-optic-700 dark:text-optic-400 px-1.5 py-0.5 rounded border border-optic-500/30">
+                  ONLINE
+                </span>
               </div>
             </div>
           )}
 
-          {/* Role Filtered Menu Items */}
-          <nav className="space-y-1" aria-label="Console Navigation">
+          {/* Role Filtered Menu Items (Scrollable dense list) */}
+          <nav className="space-y-1 overflow-y-auto flex-1 pr-1" aria-label="Console Navigation">
             {visibleMenuItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -157,13 +172,13 @@ export const StaffLayout = () => {
                 <Link
                   key={item.id}
                   to={item.path}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition ${
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition ${
                     isActive
-                      ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                      ? 'bg-optic-500/15 text-court-950 dark:text-optic-300 border border-optic-500/40 font-bold shadow-court-xs'
+                      : 'text-court-600 dark:text-court-400 hover:text-court-950 dark:hover:text-white hover:bg-court-100 dark:hover:bg-court-800/60 border border-transparent'
                   }`}
                 >
-                  <Icon className="w-4 h-4 shrink-0" />
+                  <Icon className={`w-4 h-4 shrink-0 stroke-[1.8] ${isActive ? 'text-optic-600 dark:text-optic-400' : 'text-court-400'}`} />
                   {!isCollapsed && <span className="truncate">{item.label}</span>}
                 </Link>
               );
@@ -180,19 +195,19 @@ export const StaffLayout = () => {
         </div>
 
         {/* Bottom links */}
-        <div className="pt-4 border-t border-slate-800/80 space-y-1">
+        <div className="pt-3 border-t border-court-200 dark:border-court-800 space-y-1 shrink-0">
           <Link
             to="/styleguide"
-            className="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-emerald-400 transition"
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium text-court-600 dark:text-court-400 hover:text-court-950 dark:hover:text-white hover:bg-court-100 dark:hover:bg-court-800 transition"
           >
-            <Palette className="w-4 h-4 shrink-0" />
+            <Palette className="w-4 h-4 shrink-0 stroke-[1.8]" />
             {!isCollapsed && <span>Styleguide</span>}
           </Link>
           <Link
             to="/app"
-            className="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-emerald-400 transition"
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium text-court-600 dark:text-court-400 hover:text-court-950 dark:hover:text-white hover:bg-court-100 dark:hover:bg-court-800 transition"
           >
-            <Award className="w-4 h-4 shrink-0" />
+            <Award className="w-4 h-4 shrink-0 stroke-[1.8]" />
             {!isCollapsed && <span>Member App</span>}
           </Link>
           <button
@@ -200,9 +215,9 @@ export const StaffLayout = () => {
             id="staff-sign-out-btn"
             aria-label="Sign Out"
             onClick={logout}
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 transition"
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold text-danger-600 dark:text-danger-400 hover:bg-danger-500/10 transition"
           >
-            <LogOut className="w-4 h-4 shrink-0" />
+            <LogOut className="w-4 h-4 shrink-0 stroke-[1.8]" />
             {!isCollapsed && <span>Sign Out</span>}
           </button>
         </div>
@@ -210,42 +225,58 @@ export const StaffLayout = () => {
 
       {/* Main Container */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Top Bar with Breadcrumbs & Global Search */}
-        <header className="h-20 border-b border-slate-800/80 glass-card px-4 sm:px-8 flex items-center justify-between sticky top-0 z-20">
+        {/* Top Bar with Breadcrumbs & Global Command Search */}
+        <header className="h-16 border-b border-court-200 dark:border-court-800 bg-white/95 dark:bg-court-900/95 backdrop-blur-md px-4 sm:px-8 flex items-center justify-between sticky top-0 z-20 shadow-court-xs">
           {/* Breadcrumbs */}
-          <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-semibold text-slate-400">
-            <Link to="/console" className="hover:text-white transition">Console</Link>
-            <span>/</span>
-            <span className="text-white">Operations Command</span>
+          <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-medium text-court-500">
+            <Link to="/console" className="hover:text-court-950 dark:hover:text-white transition font-heading font-bold uppercase">
+              Console
+            </Link>
+            <span className="text-court-400">/</span>
+            <span className="text-court-950 dark:text-white font-heading font-bold uppercase">
+              Operations Command
+            </span>
           </nav>
 
           {/* Search Placeholder & Role Switcher */}
           <div className="flex items-center gap-3 sm:gap-4">
+            {/* Fast Member Lookup Quick Button */}
+            <Link
+              to="/console/members"
+              className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-court-200 dark:border-court-700 bg-court-50 dark:bg-court-800/80 text-court-700 dark:text-court-200 hover:border-optic-500 text-xs font-heading font-bold uppercase transition"
+              title="Fast Member Lookup & Pass Verification"
+            >
+              <Users className="w-3.5 h-3.5 text-optic-600 dark:text-optic-400" />
+              <span>Lookup [M]</span>
+            </Link>
+
             {/* Global Search Placeholder (Triggers Command Palette) */}
             <button
               type="button"
               onClick={() => setPaletteOpen(true)}
-              className="hidden sm:flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-slate-800 bg-surface-900/60 text-slate-400 hover:text-white hover:border-slate-700 text-xs transition shrink-0"
+              className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-court-200 dark:border-court-700 bg-court-50 dark:bg-court-800/80 text-court-500 hover:text-court-950 dark:hover:text-white hover:border-court-400 text-xs transition shrink-0"
               title="Global Command Search (Ctrl+K)"
             >
-              <Search className="w-3.5 h-3.5 text-slate-400" />
-              <span className="hidden md:inline">Search anything...</span>
-              <kbd className="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-slate-700">
+              <Search className="w-3.5 h-3.5 text-court-400" />
+              <span className="hidden md:inline font-sans">Command palette...</span>
+              <kbd className="text-[10px] font-mono bg-court-200 dark:bg-court-700 text-court-700 dark:text-court-300 px-1.5 py-0.5 rounded border border-court-300 dark:border-court-600 font-semibold">
                 Ctrl+K
               </kbd>
             </button>
 
             {/* Role Switcher Select */}
             <div className="hidden sm:flex items-center gap-2 shrink-0">
-              <span className="text-[11px] text-slate-400 hidden lg:inline">Role:</span>
+              <span className="text-[11px] font-heading font-bold uppercase text-court-500 hidden lg:inline">
+                Role:
+              </span>
               <select
                 value={currentRole}
                 onChange={(e) => setCurrentRole(e.target.value)}
-                className="bg-surface-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs font-bold text-cyan-300 outline-none focus:border-cyan-500"
+                className="bg-court-50 dark:bg-court-800 border border-court-200 dark:border-court-700 rounded-lg px-2.5 py-1.5 text-xs font-heading font-bold text-court-950 dark:text-white outline-none focus:border-optic-500 cursor-pointer uppercase"
                 aria-label="Select staff role"
               >
                 {roles.map((r) => (
-                  <option key={r} value={r}>
+                  <option key={r} value={r} className="bg-white dark:bg-court-900 text-court-900 dark:text-white">
                     {r}
                   </option>
                 ))}
@@ -264,17 +295,17 @@ export const StaffLayout = () => {
               type="button"
               id="staff-header-logout-btn"
               onClick={logout}
-              className="p-1.5 rounded-xl border border-slate-800 text-rose-400 hover:text-white hover:bg-rose-950/40 transition shrink-0"
+              className="p-1.5 rounded-lg border border-court-200 dark:border-court-800 text-court-500 hover:text-danger-600 dark:hover:text-danger-400 hover:bg-danger-500/10 transition shrink-0"
               title="Sign Out"
               aria-label="Sign Out"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-4 h-4 stroke-[1.8]" />
             </button>
           </div>
         </header>
 
         {/* Content View */}
-        <main className="flex-1 p-4 sm:p-8 max-w-7xl w-full mx-auto">
+        <main className="flex-1 p-4 sm:p-7 max-w-7xl w-full mx-auto">
           <Outlet context={{ currentRole }} />
         </main>
       </div>
