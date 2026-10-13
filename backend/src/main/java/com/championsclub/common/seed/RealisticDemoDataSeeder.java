@@ -56,6 +56,7 @@ public class RealisticDemoDataSeeder implements CommandLineRunner {
     private final BarTableRepository barTableRepository;
     private final TabRepository tabRepository;
     private final TabItemRepository tabItemRepository;
+    private final ShiftRepository shiftRepository;
     private final KitchenTicketRepository kitchenTicketRepository;
     private final LeadRepository leadRepository;
     private final EmployeeRepository employeeRepository;
@@ -89,6 +90,7 @@ public class RealisticDemoDataSeeder implements CommandLineRunner {
             BarTableRepository barTableRepository,
             TabRepository tabRepository,
             TabItemRepository tabItemRepository,
+            ShiftRepository shiftRepository,
             KitchenTicketRepository kitchenTicketRepository,
             LeadRepository leadRepository,
             EmployeeRepository employeeRepository,
@@ -118,6 +120,7 @@ public class RealisticDemoDataSeeder implements CommandLineRunner {
         this.barTableRepository = barTableRepository;
         this.tabRepository = tabRepository;
         this.tabItemRepository = tabItemRepository;
+        this.shiftRepository = shiftRepository;
         this.kitchenTicketRepository = kitchenTicketRepository;
         this.leadRepository = leadRepository;
         this.employeeRepository = employeeRepository;
@@ -454,7 +457,7 @@ public class RealisticDemoDataSeeder implements CommandLineRunner {
             ClubService stringingService = clubServiceRepository.findByCode("SRV-STR-01").orElseGet(() ->
                     clubServiceRepository.save(ClubService.builder()
                             .code("SRV-STR-01").name("Racket Stringing & Tensioning")
-                            .serviceType(ServiceType.STRINGING).basePrice(new BigDecimal("450.00"))
+                            .serviceType(ServiceType.RESTRINGING).basePrice(new BigDecimal("450.00"))
                             .description("Professional tournament restringing").active(true).build()));
 
             serviceJobTicketRepository.save(ServiceJobTicket.builder()
@@ -496,9 +499,18 @@ public class RealisticDemoDataSeeder implements CommandLineRunner {
 
         if (tabRepository.count() == 0 || force) {
             User staffUser = userRepository.findByEmailAndIsDeletedFalse("owner@championsclub.com").orElse(seededMembers.get(0).getUser());
+            Shift currentShift = shiftRepository.findFirstByStaffUserIdAndStatusOrderByStartTimeDesc(staffUser.getId(), ShiftStatus.OPEN)
+                    .orElseGet(() -> shiftRepository.save(Shift.builder()
+                            .staffUser(staffUser)
+                            .role("OWNER")
+                            .station("BAR")
+                            .status(ShiftStatus.OPEN)
+                            .openingCash(new BigDecimal("1000.00"))
+                            .build()));
             Tab openTab = tabRepository.save(Tab.builder()
                     .tabNumber("TAB-1001")
                     .table(table1)
+                    .shift(currentShift)
                     .member(seededMembers.get(0))
                     .openedBy(staffUser)
                     .status(TabStatus.OPEN)
@@ -545,10 +557,11 @@ public class RealisticDemoDataSeeder implements CommandLineRunner {
                 String ePhone = "+9199000" + String.format("%05d", (e + 1));
                 String empNo = String.format("EMP-%04d", (e + 1001));
 
+                Role empRole = roles[e];
                 User empUser = userRepository.findByEmailAndIsDeletedFalse(eEmail).orElseGet(() ->
                         userRepository.save(User.builder()
                                 .email(eEmail).fullName(eName).phone(ePhone)
-                                .passwordHash(defaultHashedPassword).role(roles[e]).status("ACTIVE")
+                                .passwordHash(defaultHashedPassword).role(empRole).status("ACTIVE")
                                 .failedAttempts(0).tokenVersion(1).createdAt(Instant.now()).updatedAt(Instant.now())
                                 .isDeleted(false).build()));
 
