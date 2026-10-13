@@ -27,6 +27,8 @@ import {
   Check,
   ChevronDown,
   Info,
+  ShieldCheck,
+  Percent,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -53,15 +55,15 @@ const formatCurrency = (amt) => {
   }).format(num);
 };
 
-// Stream Palette Colors
+// Athletic Theme Stream Palette (Zero generic SaaS blues)
 const STREAM_COLORS = {
-  COURTS: '#3b82f6', // Blue
-  SHOP: '#10b981',   // Emerald
-  BAR: '#f59e0b',    // Amber
-  MEMBERSHIPS: '#8b5cf6', // Violet
+  COURTS: '#22c55e', // Athletic Grass Green
+  SHOP: '#e05a47',   // Clay Court Orange
+  BAR: '#ccff00',    // Ball Optic Yellow
+  MEMBERSHIPS: '#38bdf8', // Chalk Sky Blue
 };
 
-const PIE_PALETTE = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'];
+const PIE_PALETTE = ['#ccff00', '#22c55e', '#e05a47', '#38bdf8', '#f59e0b', '#a855f7'];
 
 export default function OwnerDashboardPage() {
   const queryClient = useQueryClient();
@@ -77,12 +79,20 @@ export default function OwnerDashboardPage() {
   const [copySuccess, setCopySuccess] = useState(false);
 
   // Queries
-  const { data: summary, isLoading: summaryLoading, isFetching: summaryFetching, refetch: refetchSummary } = useQuery({
+  const {
+    data: summary,
+    isLoading: summaryLoading,
+    isFetching: summaryFetching,
+    refetch: refetchSummary,
+  } = useQuery({
     queryKey: ['financialSummary', preset, startDate, endDate],
     queryFn: () => reportsApi.getFinancialSummary({ preset, startDate, endDate }),
   });
 
-  const { data: kpis, isLoading: kpisLoading } = useQuery({
+  const {
+    data: kpis,
+    isLoading: kpisLoading,
+  } = useQuery({
     queryKey: ['operationsKpis', preset, startDate, endDate],
     queryFn: () => reportsApi.getOperationsKpis({ preset, startDate, endDate }),
   });
@@ -125,32 +135,40 @@ export default function OwnerDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 space-y-8 font-sans">
-      {/* 1. Header Toolbar */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+    <div className="space-y-8 max-w-[1700px] mx-auto pb-16 font-sans">
+      {/* 1. Executive Header Toolbar */}
+      <div className="court-card p-6 md:p-8 rounded-3xl border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-md flex flex-col lg:flex-row lg:items-center justify-between gap-5">
         <div>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-slate-950 font-bold shadow-lg shadow-emerald-500/20">
-              <TrendingUp className="w-6 h-6" />
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-optic-500 text-court-950 flex items-center justify-center font-heading font-black shadow-court-sm shrink-0">
+              <TrendingUp className="w-7 h-7 stroke-[2.2]" />
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white">
-                Owner Dashboard & Financial Reports
-              </h1>
-              <p className="text-sm text-slate-400">
-                100% Ledger-reconciled financial statements, payables, tax (GST) and club operations KPIs
+              <div className="flex items-center gap-2.5">
+                <h1 className="text-2xl md:text-3xl font-heading font-black tracking-tight uppercase text-court-950 dark:text-white">
+                  Owner Dashboard & Financial Reports
+                </h1>
+                <span className="px-3 py-1 rounded-full text-xs font-heading font-black uppercase tracking-wider bg-grass-500/15 text-grass-700 dark:text-grass-400 border border-grass-500/30 hidden sm:inline-block">
+                  Ledger Reconciled
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm text-court-600 dark:text-court-400 mt-1 font-sans">
+                100% audited financial statements, payables, statutory GST tax, and club operations KPIs
               </p>
             </div>
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2 print:hidden">
+        {/* Action Controls */}
+        <div className="flex flex-wrap items-center gap-2.5 print:hidden">
           {/* Refresh */}
           <button
-            onClick={() => { refetchSummary(); refetchExpenses(); }}
+            onClick={() => {
+              refetchSummary();
+              refetchExpenses();
+            }}
             disabled={summaryFetching}
-            className="p-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 transition-colors"
+            className="p-3 rounded-xl bg-court-100 hover:bg-court-200 dark:bg-court-800 dark:hover:bg-court-700 border border-court-200 dark:border-court-700 text-court-700 dark:text-court-200 transition min-h-[44px]"
             title="Refresh Ledger"
           >
             <RefreshCw className={`w-4 h-4 ${summaryFetching ? 'animate-spin' : ''}`} />
@@ -161,18 +179,18 @@ export default function OwnerDashboardPage() {
             id="share-report-btn"
             data-testid="btn-share-report"
             onClick={() => setShowShareModal(true)}
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 text-sm font-medium transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-court-100 hover:bg-court-200 dark:bg-court-800 dark:hover:bg-court-700 border border-court-200 dark:border-court-700 text-court-800 dark:text-court-200 text-xs font-heading font-black uppercase tracking-wider transition min-h-[44px]"
           >
-            <Share2 className="w-4 h-4 text-emerald-400" />
+            <Share2 className="w-4 h-4 text-optic-600 dark:text-optic-400 stroke-[2.2]" />
             Share Link
           </button>
 
           {/* Print View */}
           <button
             onClick={handlePrint}
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 text-sm font-medium transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-court-100 hover:bg-court-200 dark:bg-court-800 dark:hover:bg-court-700 border border-court-200 dark:border-court-700 text-court-800 dark:text-court-200 text-xs font-heading font-black uppercase tracking-wider transition min-h-[44px]"
           >
-            <Printer className="w-4 h-4 text-sky-400" />
+            <Printer className="w-4 h-4 text-clay-600 dark:text-clay-400 stroke-[2.2]" />
             Print
           </button>
 
@@ -182,54 +200,54 @@ export default function OwnerDashboardPage() {
               id="export-dropdown-btn"
               data-testid="btn-export-dropdown"
               onClick={() => setExportDropdownOpen(!exportDropdownOpen)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-semibold text-sm shadow-lg shadow-emerald-600/20 transition-all"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-optic-500 hover:bg-optic-400 text-court-950 font-heading font-black uppercase tracking-wider text-xs shadow-court-sm transition min-h-[44px]"
             >
-              <Download className="w-4 h-4" />
+              <Download className="w-4 h-4 stroke-[2.5]" />
               Export
-              <ChevronDown className="w-3.5 h-3.5 ml-1" />
+              <ChevronDown className="w-3.5 h-3.5 ml-1 stroke-[2.5]" />
             </button>
 
             {exportDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 rounded-xl bg-slate-900 border border-slate-800 shadow-2xl py-2 z-50">
-                <div className="px-3 py-1.5 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <div className="absolute right-0 mt-2 w-52 rounded-2xl bg-white dark:bg-court-900 border border-court-200 dark:border-court-800 shadow-court-xl py-2 z-50">
+                <div className="px-3.5 py-1.5 text-[11px] font-heading font-black text-court-400 uppercase tracking-wider">
                   Revenue Report
                 </div>
                 <button
                   id="export-csv-btn"
                   data-testid="btn-export-csv"
                   onClick={() => handleExport('CSV', 'REVENUE')}
-                  className="w-full text-left px-4 py-2 text-sm text-slate-200 hover:bg-slate-800 flex items-center justify-between"
+                  className="w-full text-left px-4 py-2 text-xs font-heading font-bold text-court-800 dark:text-court-200 hover:bg-court-100 dark:hover:bg-court-800 flex items-center justify-between"
                 >
-                  Export CSV <span className="text-xs text-slate-500">.csv</span>
+                  Export CSV <span className="text-[10px] text-court-400 font-mono">.csv</span>
                 </button>
                 <button
                   id="export-xlsx-btn"
                   onClick={() => handleExport('XLSX', 'REVENUE')}
-                  className="w-full text-left px-4 py-2 text-sm text-slate-200 hover:bg-slate-800 flex items-center justify-between"
+                  className="w-full text-left px-4 py-2 text-xs font-heading font-bold text-court-800 dark:text-court-200 hover:bg-court-100 dark:hover:bg-court-800 flex items-center justify-between"
                 >
-                  Export Excel <span className="text-xs text-slate-500">.xlsx</span>
+                  Export Excel <span className="text-[10px] text-court-400 font-mono">.xlsx</span>
                 </button>
                 <button
                   id="export-pdf-btn"
                   onClick={() => handleExport('PDF', 'REVENUE')}
-                  className="w-full text-left px-4 py-2 text-sm text-slate-200 hover:bg-slate-800 flex items-center justify-between"
+                  className="w-full text-left px-4 py-2 text-xs font-heading font-bold text-court-800 dark:text-court-200 hover:bg-court-100 dark:hover:bg-court-800 flex items-center justify-between"
                 >
-                  Export PDF <span className="text-xs text-slate-500">.pdf</span>
+                  Export PDF <span className="text-[10px] text-court-400 font-mono">.pdf</span>
                 </button>
 
-                <div className="my-1 border-t border-slate-800" />
-                <div className="px-3 py-1.5 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                <div className="my-1 border-t border-court-200 dark:border-court-800" />
+                <div className="px-3.5 py-1.5 text-[11px] font-heading font-black text-court-400 uppercase tracking-wider">
                   Tax (GST) Report
                 </div>
                 <button
                   onClick={() => handleExport('CSV', 'TAX_GST')}
-                  className="w-full text-left px-4 py-2 text-sm text-slate-200 hover:bg-slate-800"
+                  className="w-full text-left px-4 py-2 text-xs font-heading font-bold text-court-800 dark:text-court-200 hover:bg-court-100 dark:hover:bg-court-800"
                 >
                   GST Summary CSV
                 </button>
                 <button
                   onClick={() => handleExport('PDF', 'TAX_GST')}
-                  className="w-full text-left px-4 py-2 text-sm text-slate-200 hover:bg-slate-800"
+                  className="w-full text-left px-4 py-2 text-xs font-heading font-bold text-court-800 dark:text-court-200 hover:bg-court-100 dark:hover:bg-court-800"
                 >
                   GST Statement PDF
                 </button>
@@ -240,7 +258,7 @@ export default function OwnerDashboardPage() {
       </div>
 
       {/* 2. Date Range Filter Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-md">
+      <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-3xl court-card border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-sm">
         {/* Presets */}
         <div className="flex flex-wrap items-center gap-1.5">
           {['TODAY', 'THIS_WEEK', 'THIS_MONTH', 'LAST_MONTH', 'CUSTOM'].map((p) => {
@@ -257,10 +275,10 @@ export default function OwnerDashboardPage() {
                 key={p}
                 id={`preset-${p.toLowerCase()}`}
                 onClick={() => setPreset(p)}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all ${
+                className={`px-4 py-2 rounded-xl text-xs font-heading font-black uppercase tracking-wider transition ${
                   active
-                    ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-                    : 'bg-slate-800/80 text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                    ? 'bg-optic-500 text-court-950 shadow-court-sm'
+                    : 'bg-court-100 dark:bg-court-800 text-court-600 dark:text-court-300 hover:bg-court-200 dark:hover:bg-court-700'
                 }`}
               >
                 {labels[p]}
@@ -277,23 +295,23 @@ export default function OwnerDashboardPage() {
               id="start-date-input"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="bg-slate-800 border border-slate-700 text-xs text-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="bg-court-50 dark:bg-court-950 border border-court-200 dark:border-court-700 text-xs font-mono text-court-900 dark:text-court-100 rounded-xl px-3 py-2 focus:outline-none focus:border-optic-500"
             />
-            <span className="text-slate-500 text-xs">to</span>
+            <span className="text-court-400 text-xs font-bold uppercase">to</span>
             <input
               type="date"
               id="end-date-input"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="bg-slate-800 border border-slate-700 text-xs text-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="bg-court-50 dark:bg-court-950 border border-court-200 dark:border-court-700 text-xs font-mono text-court-900 dark:text-court-100 rounded-xl px-3 py-2 focus:outline-none focus:border-optic-500"
             />
           </div>
         )}
 
         {/* Period Indicators */}
         {summary && (
-          <div className="text-xs text-slate-400 flex items-center gap-2">
-            <Calendar className="w-3.5 h-3.5 text-slate-500" />
+          <div className="text-xs text-court-500 dark:text-court-400 flex items-center gap-2 font-mono tabular-nums">
+            <Calendar className="w-4 h-4 text-optic-500" />
             <span>
               {summary.startDate} to {summary.endDate}
             </span>
@@ -301,139 +319,208 @@ export default function OwnerDashboardPage() {
         )}
       </div>
 
-      {/* 3. Primary Financial Metrics: Animated Count-Up Cards */}
+      {/* 3. Primary Executive Metrics: ONE Primary Insight Per Card */}
       {summaryLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-32 rounded-2xl bg-slate-900 animate-pulse border border-slate-800/80" />
+            <div
+              key={i}
+              className="h-36 rounded-3xl bg-court-100 dark:bg-court-800 animate-pulse border border-court-200 dark:border-court-700"
+            />
           ))}
         </div>
       ) : summary ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-          {/* Card 1: NET POSITION (Core Invariant: Receivables + Cash - Payables) */}
+          {/* Card 1: NET POSITION (Primary Insight: Reconciled Liquidity) */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="rounded-2xl p-5 bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950/40 border border-emerald-500/30 relative overflow-hidden shadow-xl shadow-emerald-950/30"
+            className="rounded-3xl p-5 border border-grass-500/40 bg-white dark:bg-court-900 shadow-court-md relative overflow-hidden flex flex-col justify-between"
           >
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
-                <DollarSign className="w-4 h-4" />
-                Net Position
-              </span>
-              <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
-                Formula Reconciled
-              </span>
-            </div>
-            <div className="mt-3">
-              <div id="stat-net-position" data-testid="stat-net-position" className="text-2xl md:text-3xl font-black tracking-tight text-white">
-                {formatCurrency(summary.netPosition)}
+            <div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-heading font-black uppercase tracking-wider text-grass-700 dark:text-grass-400 flex items-center gap-1.5">
+                  <DollarSign className="w-4 h-4 stroke-[2.5]" />
+                  Net Position
+                </span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-heading font-black uppercase bg-grass-500/15 text-grass-700 dark:text-grass-300 border border-grass-500/30">
+                  Audited
+                </span>
               </div>
-              <p className="text-[11px] text-slate-400 mt-1">
-                Receivables ({formatCurrency(summary.totalReceivables)}) + Cash ({formatCurrency(summary.cashAndBank)}) - Payables ({formatCurrency(summary.totalPayables)})
-              </p>
+              <div className="mt-3">
+                <div
+                  id="stat-net-position"
+                  data-testid="stat-net-position"
+                  className="text-2xl md:text-3xl font-mono font-black tracking-tight text-court-950 dark:text-white tabular-nums"
+                >
+                  {formatCurrency(summary.netPosition)}
+                </div>
+              </div>
+            </div>
+
+            {/* ONE Primary Insight */}
+            <div className="mt-4 pt-3 border-t border-court-200 dark:border-court-800">
+              <div className="text-[11px] font-heading font-bold text-court-500 dark:text-court-400 flex items-center gap-1">
+                <ShieldCheck className="w-3.5 h-3.5 text-grass-500 shrink-0" />
+                <span>Cash ({formatCurrency(summary.cashAndBank)}) minus Liabilities ({formatCurrency(summary.totalPayables)})</span>
+              </div>
             </div>
           </motion.div>
 
-          {/* Card 2: Total Revenue */}
+          {/* Card 2: Total Revenue (Primary Insight: Total Inflow & Growth) */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.05 }}
-            className="rounded-2xl p-5 bg-slate-900/80 border border-slate-800 relative overflow-hidden"
+            className="rounded-3xl p-5 border border-optic-500/40 bg-white dark:bg-court-900 shadow-court-sm relative overflow-hidden flex flex-col justify-between"
           >
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Total Revenue</span>
-              {summary.comparison?.revenueChangePercentage !== undefined && (
-                <span
-                  className={`flex items-center text-xs font-semibold px-1.5 py-0.5 rounded ${
-                    summary.comparison.revenueChangePercentage >= 0
-                      ? 'bg-emerald-500/10 text-emerald-400'
-                      : 'bg-rose-500/10 text-rose-400'
-                  }`}
-                >
-                  {summary.comparison.revenueChangePercentage >= 0 ? '+' : ''}
-                  {summary.comparison.revenueChangePercentage}%
+            <div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-heading font-black uppercase tracking-wider text-court-700 dark:text-court-300">
+                  Total Revenue
                 </span>
-              )}
-            </div>
-            <div className="mt-3">
-              <div id="stat-total-revenue" data-testid="stat-total-revenue" className="text-2xl md:text-3xl font-black tracking-tight text-white">
-                {formatCurrency(summary.totalRevenue)}
+                {summary.comparison?.revenueChangePercentage !== undefined && (
+                  <span
+                    className={`flex items-center text-xs font-heading font-black px-2 py-0.5 rounded-full uppercase tabular-nums ${
+                      summary.comparison.revenueChangePercentage >= 0
+                        ? 'bg-grass-500/15 text-grass-700 dark:text-grass-400 border border-grass-500/30'
+                        : 'bg-danger-500/15 text-danger-700 dark:text-danger-400 border border-danger-500/30'
+                    }`}
+                  >
+                    {summary.comparison.revenueChangePercentage >= 0 ? '+' : ''}
+                    {summary.comparison.revenueChangePercentage}%
+                  </span>
+                )}
               </div>
-              <p className="text-[11px] text-slate-400 mt-1">
-                Net: {formatCurrency(summary.netRevenue)} (Refunds: {formatCurrency(summary.totalRefunds)})
-              </p>
+              <div className="mt-3">
+                <div
+                  id="stat-total-revenue"
+                  data-testid="stat-total-revenue"
+                  className="text-2xl md:text-3xl font-mono font-black tracking-tight text-court-950 dark:text-white tabular-nums"
+                >
+                  {formatCurrency(summary.totalRevenue)}
+                </div>
+              </div>
+            </div>
+
+            {/* ONE Primary Insight */}
+            <div className="mt-4 pt-3 border-t border-court-200 dark:border-court-800">
+              <div className="text-[11px] font-heading font-bold text-court-500 dark:text-court-400 flex items-center gap-1">
+                <TrendingUp className="w-3.5 h-3.5 text-optic-500 shrink-0" />
+                <span>Net Inflow: {formatCurrency(summary.netRevenue)} (after {formatCurrency(summary.totalRefunds)} refunds)</span>
+              </div>
             </div>
           </motion.div>
 
-          {/* Card 3: Receivables (What is owed to us) */}
+          {/* Card 3: Receivables (Primary Insight: Outstanding Member & Corporate Dues) */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="rounded-2xl p-5 bg-slate-900/80 border border-slate-800 relative overflow-hidden"
+            className="rounded-3xl p-5 border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-sm relative overflow-hidden flex flex-col justify-between"
           >
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-sky-400">Receivables</span>
-              <span className="text-[10px] text-slate-500">What's Owed</span>
-            </div>
-            <div className="mt-3">
-              <div id="stat-total-receivables" data-testid="stat-total-receivables" className="text-2xl md:text-3xl font-black tracking-tight text-sky-200">
-                {formatCurrency(summary.totalReceivables)}
+            <div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-heading font-black uppercase tracking-wider text-court-700 dark:text-court-300">
+                  Receivables
+                </span>
+                <span className="text-[10px] font-heading font-bold uppercase text-court-400">
+                  What's Owed
+                </span>
               </div>
-              <p className="text-[11px] text-slate-400 mt-1">
-                Due Soon: {formatCurrency(summary.receivablesAging?.currentOrDueSoon)} | Overdue: {formatCurrency(summary.receivablesAging?.overdueDays1To30)}
-              </p>
+              <div className="mt-3">
+                <div
+                  id="stat-total-receivables"
+                  data-testid="stat-total-receivables"
+                  className="text-2xl md:text-3xl font-mono font-black tracking-tight text-court-950 dark:text-white tabular-nums"
+                >
+                  {formatCurrency(summary.totalReceivables)}
+                </div>
+              </div>
+            </div>
+
+            {/* ONE Primary Insight */}
+            <div className="mt-4 pt-3 border-t border-court-200 dark:border-court-800">
+              <div className="text-[11px] font-heading font-bold text-court-500 dark:text-court-400 flex items-center gap-1">
+                <Clock className="w-3.5 h-3.5 text-court-400 shrink-0" />
+                <span>Due Soon: {formatCurrency(summary.receivablesAging?.currentOrDueSoon)} | Overdue: {formatCurrency(summary.receivablesAging?.overdueDays1To30)}</span>
+              </div>
             </div>
           </motion.div>
 
-          {/* Card 4: Payables (What we owe) */}
+          {/* Card 4: Total Payables (Primary Insight: Outstanding Liabilities Owed) */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="rounded-2xl p-5 bg-slate-900/80 border border-slate-800 relative overflow-hidden"
+            className="rounded-3xl p-5 border border-clay-500/30 bg-white dark:bg-court-900 shadow-court-sm relative overflow-hidden flex flex-col justify-between"
           >
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-amber-400">Total Payables</span>
-              <span className="text-[10px] text-slate-500">What We Owe</span>
-            </div>
-            <div className="mt-3">
-              <div id="stat-total-payables" data-testid="stat-total-payables" className="text-2xl md:text-3xl font-black tracking-tight text-amber-200">
-                {formatCurrency(summary.totalPayables)}
+            <div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-heading font-black uppercase tracking-wider text-clay-700 dark:text-clay-400">
+                  Total Payables
+                </span>
+                <span className="text-[10px] font-heading font-bold uppercase text-clay-500">
+                  What We Owe
+                </span>
               </div>
-              <p className="text-[11px] text-slate-400 mt-1">
-                Bills: {formatCurrency(summary.payablesBreakdown?.supplierBills)} | Expenses: {formatCurrency(summary.payablesBreakdown?.expensesPending)}
-              </p>
+              <div className="mt-3">
+                <div
+                  id="stat-total-payables"
+                  data-testid="stat-total-payables"
+                  className="text-2xl md:text-3xl font-mono font-black tracking-tight text-court-950 dark:text-white tabular-nums"
+                >
+                  {formatCurrency(summary.totalPayables)}
+                </div>
+              </div>
+            </div>
+
+            {/* ONE Primary Insight */}
+            <div className="mt-4 pt-3 border-t border-court-200 dark:border-court-800">
+              <div className="text-[11px] font-heading font-bold text-court-500 dark:text-court-400 flex items-center gap-1">
+                <Building2 className="w-3.5 h-3.5 text-clay-500 shrink-0" />
+                <span>Suppliers: {formatCurrency(summary.payablesBreakdown?.supplierBills)} | GST: {formatCurrency(summary.payablesBreakdown?.gstPayable)}</span>
+              </div>
             </div>
           </motion.div>
 
-          {/* Card 5: Court Utilization % */}
+          {/* Card 5: Court Utilization % (Primary Insight: Arena Capacity Efficiency) */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="rounded-2xl p-5 bg-slate-900/80 border border-slate-800 relative overflow-hidden"
+            className="rounded-3xl p-5 border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-sm relative overflow-hidden flex flex-col justify-between"
           >
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-violet-400">Court Utilization</span>
-              <Layers className="w-4 h-4 text-violet-400" />
-            </div>
-            <div className="mt-3">
-              <div id="stat-court-utilization" className="text-2xl md:text-3xl font-black tracking-tight text-violet-200">
-                {kpis?.courtUtilization?.utilizationPercentage || 0}%
+            <div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-heading font-black uppercase tracking-wider text-court-700 dark:text-court-300">
+                  Court Utilization
+                </span>
+                <Layers className="w-4 h-4 text-optic-500 stroke-[2.2]" />
               </div>
-              <p className="text-[11px] text-slate-400 mt-1">
-                {kpis?.courtUtilization?.totalBookedHours || 0} hrs booked of {kpis?.courtUtilization?.totalAvailableHours || 0} hrs capacity
-              </p>
+              <div className="mt-3">
+                <div
+                  id="stat-court-utilization"
+                  className="text-2xl md:text-3xl font-mono font-black tracking-tight text-court-950 dark:text-white tabular-nums"
+                >
+                  {kpis?.courtUtilization?.utilizationPercentage || 0}%
+                </div>
+              </div>
+            </div>
+
+            {/* ONE Primary Insight */}
+            <div className="mt-4 pt-3 border-t border-court-200 dark:border-court-800">
+              <div className="text-[11px] font-heading font-bold text-court-500 dark:text-court-400 flex items-center gap-1">
+                <Percent className="w-3.5 h-3.5 text-optic-500 shrink-0" />
+                <span>{kpis?.courtUtilization?.totalBookedHours || 0} hrs booked of {kpis?.courtUtilization?.totalAvailableHours || 0} hrs capacity</span>
+              </div>
             </div>
           </motion.div>
         </div>
       ) : null}
 
-      {/* 4. Tab Navigation */}
-      <div className="flex items-center gap-2 border-b border-slate-800">
+      {/* 4. Tab Navigation with Touch Targets */}
+      <div className="flex items-center gap-2 border-b border-court-200 dark:border-court-800 overflow-x-auto pb-1 no-scrollbar">
         {[
           { id: 'overview', label: 'Financial Overview', icon: TrendingUp },
           { id: 'payables', label: 'What We Owe (Payables & Expenses)', icon: Building2 },
@@ -448,34 +535,53 @@ export default function OwnerDashboardPage() {
               key={tab.id}
               id={`tab-${tab.id}`}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold border-b-2 transition-all ${
+              className={`flex items-center gap-2.5 px-5 py-3 text-xs font-heading font-black uppercase tracking-wider border-b-2 transition whitespace-nowrap min-h-[48px] ${
                 active
-                  ? 'border-emerald-500 text-emerald-400'
-                  : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                  ? 'border-optic-500 text-court-950 dark:text-optic-300'
+                  : 'border-transparent text-court-500 dark:text-court-400 hover:text-court-900 dark:hover:text-white hover:border-court-300 dark:hover:border-court-700'
               }`}
             >
-              <Icon className="w-4 h-4" />
+              <Icon className="w-4 h-4 stroke-[2.2]" />
               {tab.label}
             </button>
           );
         })}
       </div>
 
-      {/* 5. TAB 1: Financial Overview */}
+      {/* 5. TAB 1: Financial Overview (Honest Charts with Zero Baseline & Labelled Units) */}
       {activeTab === 'overview' && summary && (
         <div className="space-y-6">
-          {/* Revenue Trend Area Chart */}
-          <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
-            <div className="flex items-center justify-between mb-6">
+          {/* Revenue Trend Area Chart - Honest Zero Baseline */}
+          <div className="court-card p-6 md:p-7 rounded-3xl border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <div>
-                <h3 className="text-lg font-bold text-white">Daily Revenue Trend</h3>
-                <p className="text-xs text-slate-400">Day-by-day revenue breakdown in club timezone (Asia/Kolkata)</p>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-base font-heading font-black text-court-950 dark:text-white uppercase tracking-wider">
+                    Daily Revenue Trend
+                  </h3>
+                  <span className="text-[10px] font-heading font-black px-2 py-0.5 rounded uppercase bg-court-100 dark:bg-court-800 text-court-600 dark:text-court-300">
+                    Zero Baseline Verified
+                  </span>
+                </div>
+                <p className="text-xs text-court-500 dark:text-court-400 mt-0.5 font-sans">
+                  Revenue in INR (₹) across club operations in Asia/Kolkata timezone
+                </p>
               </div>
-              <div className="flex items-center gap-4 text-xs">
-                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-blue-500" /> Courts</span>
-                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Shop</span>
-                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-amber-500" /> Bar</span>
-                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-violet-500" /> Memberships</span>
+
+              {/* Stream Legend Indicators */}
+              <div className="flex flex-wrap items-center gap-4 text-xs font-heading font-bold uppercase">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: STREAM_COLORS.COURTS }} /> Courts
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: STREAM_COLORS.SHOP }} /> Shop
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: STREAM_COLORS.BAR }} /> Bar
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: STREAM_COLORS.MEMBERSHIPS }} /> Memberships
+                </span>
               </div>
             </div>
 
@@ -484,33 +590,77 @@ export default function OwnerDashboardPage() {
                 <AreaChart data={summary.dailyTrend}>
                   <defs>
                     <linearGradient id="colorCourts" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4} />
-                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                      <stop offset="5%" stopColor={STREAM_COLORS.COURTS} stopOpacity={0.4} />
+                      <stop offset="95%" stopColor={STREAM_COLORS.COURTS} stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="colorShop" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
-                      <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                      <stop offset="5%" stopColor={STREAM_COLORS.SHOP} stopOpacity={0.4} />
+                      <stop offset="95%" stopColor={STREAM_COLORS.SHOP} stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="colorBar" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.4} />
-                      <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
+                      <stop offset="5%" stopColor={STREAM_COLORS.BAR} stopOpacity={0.4} />
+                      <stop offset="95%" stopColor={STREAM_COLORS.BAR} stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="colorMemberships" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.4} />
-                      <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                      <stop offset="5%" stopColor={STREAM_COLORS.MEMBERSHIPS} stopOpacity={0.4} />
+                      <stop offset="95%" stopColor={STREAM_COLORS.MEMBERSHIPS} stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                  <XAxis dataKey="label" stroke="#64748b" tick={{ fontSize: 11 }} />
-                  <YAxis stroke="#64748b" tick={{ fontSize: 11 }} tickFormatter={(val) => `₹${val}`} />
-                  <RechartsTooltip
-                    contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '12px' }}
-                    formatter={(val) => [formatCurrency(val)]}
+                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
+                  <XAxis dataKey="label" stroke="#64748b" tick={{ fontSize: 11, fontFamily: 'monospace' }} />
+                  {/* Honest zero baseline */}
+                  <YAxis
+                    domain={[0, 'auto']}
+                    stroke="#64748b"
+                    tick={{ fontSize: 11, fontFamily: 'monospace' }}
+                    tickFormatter={(val) => (val >= 1000 ? `₹${(val / 1000).toFixed(0)}k` : `₹${val}`)}
                   />
-                  <Area type="monotone" dataKey="courts" stroke="#3b82f6" fillOpacity={1} fill="url(#colorCourts)" stackId="1" name="Courts" />
-                  <Area type="monotone" dataKey="shop" stroke="#10b981" fillOpacity={1} fill="url(#colorShop)" stackId="1" name="Shop" />
-                  <Area type="monotone" dataKey="bar" stroke="#f59e0b" fillOpacity={1} fill="url(#colorBar)" stackId="1" name="Bar" />
-                  <Area type="monotone" dataKey="memberships" stroke="#8b5cf6" fillOpacity={1} fill="url(#colorMemberships)" stackId="1" name="Memberships" />
+                  <RechartsTooltip
+                    contentStyle={{
+                      backgroundColor: '#090d16',
+                      borderColor: '#1e293b',
+                      borderRadius: '16px',
+                      color: '#ffffff',
+                      fontFamily: 'monospace',
+                    }}
+                    formatter={(val, name) => [`₹${Number(val).toLocaleString('en-IN')}`, name]}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="courts"
+                    stroke={STREAM_COLORS.COURTS}
+                    fillOpacity={1}
+                    fill="url(#colorCourts)"
+                    stackId="1"
+                    name="Courts"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="shop"
+                    stroke={STREAM_COLORS.SHOP}
+                    fillOpacity={1}
+                    fill="url(#colorShop)"
+                    stackId="1"
+                    name="Shop"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="bar"
+                    stroke={STREAM_COLORS.BAR}
+                    fillOpacity={1}
+                    fill="url(#colorBar)"
+                    stackId="1"
+                    name="Bar"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="memberships"
+                    stroke={STREAM_COLORS.MEMBERSHIPS}
+                    fillOpacity={1}
+                    fill="url(#colorMemberships)"
+                    stackId="1"
+                    name="Memberships"
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -519,8 +669,10 @@ export default function OwnerDashboardPage() {
           {/* Revenue Breakdown Donut Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* By Stream */}
-            <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
-              <h3 className="text-base font-bold text-white mb-4">Revenue by Stream (Reconciled)</h3>
+            <div className="court-card p-6 rounded-3xl border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-sm">
+              <h3 className="text-sm font-heading font-black text-court-950 dark:text-white uppercase tracking-wider mb-4">
+                Revenue by Stream (Reconciled INR)
+              </h3>
               <div className="h-64 flex items-center justify-center">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -539,7 +691,13 @@ export default function OwnerDashboardPage() {
                       ))}
                     </Pie>
                     <RechartsTooltip
-                      contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '12px' }}
+                      contentStyle={{
+                        backgroundColor: '#090d16',
+                        borderColor: '#1e293b',
+                        borderRadius: '16px',
+                        color: '#ffffff',
+                        fontFamily: 'monospace',
+                      }}
                       formatter={(val) => [formatCurrency(val)]}
                     />
                     <Legend />
@@ -548,16 +706,16 @@ export default function OwnerDashboardPage() {
               </div>
 
               {/* Stream Drilldown Table */}
-              <div className="mt-4 divide-y divide-slate-800">
+              <div className="mt-4 divide-y divide-court-200 dark:divide-court-800">
                 {(summary?.revenueByStream || []).map((s) => (
                   <div key={s.stream} className="py-2.5 flex items-center justify-between text-xs">
                     <span className="flex items-center gap-2">
                       <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: STREAM_COLORS[s.stream] }} />
-                      <span className="text-slate-300 font-medium">{s.label}</span>
+                      <span className="text-court-800 dark:text-court-200 font-medium font-sans">{s.label}</span>
                     </span>
-                    <div className="text-right">
-                      <span className="font-bold text-white">{formatCurrency(s.amount)}</span>
-                      <span className="text-slate-500 ml-2">({s.percentage}%)</span>
+                    <div className="text-right font-mono tabular-nums">
+                      <span className="font-black text-court-950 dark:text-white">{formatCurrency(s.amount)}</span>
+                      <span className="text-court-500 ml-2">({s.percentage}%)</span>
                     </div>
                   </div>
                 ))}
@@ -565,8 +723,10 @@ export default function OwnerDashboardPage() {
             </div>
 
             {/* By Payment Method */}
-            <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
-              <h3 className="text-base font-bold text-white mb-4">Revenue by Payment Method</h3>
+            <div className="court-card p-6 rounded-3xl border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-sm">
+              <h3 className="text-sm font-heading font-black text-court-950 dark:text-white uppercase tracking-wider mb-4">
+                Revenue by Payment Method
+              </h3>
               <div className="h-64 flex items-center justify-center">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -588,7 +748,13 @@ export default function OwnerDashboardPage() {
                       ))}
                     </Pie>
                     <RechartsTooltip
-                      contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '12px' }}
+                      contentStyle={{
+                        backgroundColor: '#090d16',
+                        borderColor: '#1e293b',
+                        borderRadius: '16px',
+                        color: '#ffffff',
+                        fontFamily: 'monospace',
+                      }}
                       formatter={(val) => [formatCurrency(val)]}
                     />
                     <Legend />
@@ -597,14 +763,16 @@ export default function OwnerDashboardPage() {
               </div>
 
               {/* Payment Methods List */}
-              <div className="mt-4 divide-y divide-slate-800">
+              <div className="mt-4 divide-y divide-court-200 dark:divide-court-800">
                 {Object.entries(summary.revenueByPaymentMethod || {}).map(([method, amount], idx) => (
                   <div key={method} className="py-2.5 flex items-center justify-between text-xs">
                     <span className="flex items-center gap-2">
                       <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: PIE_PALETTE[idx % PIE_PALETTE.length] }} />
-                      <span className="text-slate-300 font-medium">{method}</span>
+                      <span className="text-court-800 dark:text-court-200 font-medium font-sans">{method}</span>
                     </span>
-                    <span className="font-bold text-white">{formatCurrency(amount)}</span>
+                    <span className="font-mono font-black text-court-950 dark:text-white tabular-nums">
+                      {formatCurrency(amount)}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -616,10 +784,12 @@ export default function OwnerDashboardPage() {
       {/* 6. TAB 2: "What We Owe" (Payables & Expenses) */}
       {activeTab === 'payables' && summary && (
         <div className="space-y-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl bg-amber-950/20 border border-amber-500/30">
+          <div className="court-card p-6 rounded-3xl border border-clay-500/30 bg-clay-500/5 dark:bg-clay-950/20 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h3 className="text-lg font-bold text-amber-200">"What Do We Owe" (Club Liabilities)</h3>
-              <p className="text-xs text-slate-400">
+              <h3 className="text-base font-heading font-black text-clay-700 dark:text-clay-300 uppercase tracking-wide">
+                "What Do We Owe" (Club Liabilities)
+              </h3>
+              <p className="text-xs text-court-600 dark:text-court-400 mt-0.5 font-sans">
                 Full breakdown of supplier invoices, recurring operating expenses, payroll liabilities, net GST and unsettled credits
               </p>
             </div>
@@ -627,100 +797,90 @@ export default function OwnerDashboardPage() {
               id="add-expense-btn"
               data-testid="btn-add-expense"
               onClick={() => setShowExpenseModal(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs shadow-lg shadow-amber-500/20 transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-optic-500 hover:bg-optic-400 text-court-950 font-heading font-black text-xs uppercase tracking-wider shadow-court-sm transition min-h-[44px]"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-4 h-4 stroke-[2.5]" />
               Record New Expense
             </button>
           </div>
 
           {/* Payables Grid Breakdown */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            <div className="p-4 rounded-xl bg-slate-900 border border-slate-800">
-              <span className="text-[11px] font-semibold text-slate-400">Supplier Bills (P8)</span>
-              <div className="text-lg font-bold text-white mt-1">
-                {formatCurrency(summary.payablesBreakdown?.supplierBills)}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            {[
+              { label: 'Supplier Bills (P8)', amt: summary.payablesBreakdown?.supplierBills },
+              { label: 'Operating Expenses', amt: summary.payablesBreakdown?.expensesPending },
+              { label: 'Payroll Liability (P13)', amt: summary.payablesBreakdown?.payrollLiabilities || summary.payablesBreakdown?.payrollLiability },
+              { label: 'GST Payable (Net)', amt: summary.payablesBreakdown?.gstPayable },
+              { label: 'Pending Refunds', amt: summary.payablesBreakdown?.refundsPending },
+              { label: 'Member Wallet Balances', amt: summary.payablesBreakdown?.unsettledMemberCredits },
+            ].map((p, idx) => (
+              <div
+                key={idx}
+                className="court-card p-4 rounded-2xl border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-xs"
+              >
+                <span className="text-[11px] font-heading font-bold text-court-500 dark:text-court-400 uppercase">
+                  {p.label}
+                </span>
+                <div className="text-base font-mono font-black text-court-950 dark:text-white mt-1 tabular-nums">
+                  {formatCurrency(p.amt)}
+                </div>
               </div>
-            </div>
-            <div className="p-4 rounded-xl bg-slate-900 border border-slate-800">
-              <span className="text-[11px] font-semibold text-slate-400">Operating Expenses</span>
-              <div className="text-lg font-bold text-white mt-1">
-                {formatCurrency(summary.payablesBreakdown?.expensesPending)}
-              </div>
-            </div>
-            <div className="p-4 rounded-xl bg-slate-900 border border-slate-800">
-              <span className="text-[11px] font-semibold text-slate-400">Payroll Liability (P13)</span>
-              <div className="text-lg font-bold text-white mt-1">
-                {formatCurrency(summary.payablesBreakdown?.payrollLiability)}
-              </div>
-            </div>
-            <div className="p-4 rounded-xl bg-slate-900 border border-slate-800">
-              <span className="text-[11px] font-semibold text-slate-400">GST Payable (Net)</span>
-              <div className="text-lg font-bold text-white mt-1">
-                {formatCurrency(summary.payablesBreakdown?.gstPayable)}
-              </div>
-            </div>
-            <div className="p-4 rounded-xl bg-slate-900 border border-slate-800">
-              <span className="text-[11px] font-semibold text-slate-400">Pending Refunds</span>
-              <div className="text-lg font-bold text-white mt-1">
-                {formatCurrency(summary.payablesBreakdown?.refundsPending)}
-              </div>
-            </div>
-            <div className="p-4 rounded-xl bg-slate-900 border border-slate-800">
-              <span className="text-[11px] font-semibold text-slate-400">Member Wallet Balances</span>
-              <div className="text-lg font-bold text-white mt-1">
-                {formatCurrency(summary.payablesBreakdown?.unsettledMemberCredits)}
-              </div>
-            </div>
+            ))}
           </div>
 
           {/* Operating Expenses Drilldown Table */}
-          <div className="rounded-2xl bg-slate-900/60 border border-slate-800 overflow-hidden">
-            <div className="p-5 border-b border-slate-800 flex items-center justify-between">
-              <h4 className="font-bold text-white text-sm">Operating Expenses Ledger</h4>
-              <span className="text-xs text-slate-400">{expenses?.length || 0} entries</span>
+          <div className="court-card rounded-3xl border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-sm overflow-hidden">
+            <div className="p-5 border-b border-court-200 dark:border-court-800 flex items-center justify-between">
+              <h4 className="font-heading font-black text-sm uppercase text-court-950 dark:text-white">
+                Operating Expenses Ledger
+              </h4>
+              <span className="text-xs font-mono text-court-500">{expenses?.length || 0} entries</span>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-950/60 text-slate-400 border-b border-slate-800">
+                <thead className="bg-court-50 dark:bg-court-950 text-court-500 border-b border-court-200 dark:border-court-800 uppercase font-heading font-bold text-[10px]">
                   <tr>
-                    <th className="p-3 font-semibold">Expense #</th>
-                    <th className="p-3 font-semibold">Category</th>
-                    <th className="p-3 font-semibold">Description</th>
-                    <th className="p-3 font-semibold">Vendor</th>
-                    <th className="p-3 font-semibold">Date / Due</th>
-                    <th className="p-3 font-semibold">Net Amount</th>
-                    <th className="p-3 font-semibold">GST Credit</th>
-                    <th className="p-3 font-semibold">Total Payable</th>
-                    <th className="p-3 font-semibold">Status</th>
-                    <th className="p-3 font-semibold text-right">Actions</th>
+                    <th className="p-3">Expense #</th>
+                    <th className="p-3">Category</th>
+                    <th className="p-3">Description</th>
+                    <th className="p-3">Vendor</th>
+                    <th className="p-3">Date / Due</th>
+                    <th className="p-3">Net Amount</th>
+                    <th className="p-3">GST Credit</th>
+                    <th className="p-3">Total Payable</th>
+                    <th className="p-3">Status</th>
+                    <th className="p-3 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800 text-slate-300">
+                <tbody className="divide-y divide-court-200 dark:divide-court-800 text-court-800 dark:text-court-200">
                   {expenses && expenses.length > 0 ? (
                     expenses.map((e) => (
-                      <tr key={e.id} className="hover:bg-slate-800/40 transition-colors">
-                        <td className="p-3 font-mono font-bold text-white">{e.expenseNumber}</td>
+                      <tr key={e.id} className="hover:bg-court-50 dark:hover:bg-court-800/40 transition">
+                        <td className="p-3 font-mono font-bold text-court-950 dark:text-white">{e.expenseNumber || e.id}</td>
                         <td className="p-3">
-                          <span className="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-300 border border-slate-700">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-heading font-black uppercase bg-court-100 dark:bg-court-800 text-court-700 dark:text-court-300 border border-court-200 dark:border-court-700">
                             {e.category}
                           </span>
                         </td>
-                        <td className="p-3 font-medium text-white">{e.description}</td>
-                        <td className="p-3 text-slate-400">{e.vendor || '—'}</td>
-                        <td className="p-3">
-                          <div>{e.expenseDate}</div>
-                          {e.dueDate && <div className="text-[10px] text-amber-400">Due: {e.dueDate}</div>}
+                        <td className="p-3 font-medium text-court-950 dark:text-white">{e.description || e.title}</td>
+                        <td className="p-3 text-court-500">{e.vendor || '—'}</td>
+                        <td className="p-3 font-mono tabular-nums">
+                          <div>{e.expenseDate || e.dueDate}</div>
+                          {e.dueDate && <div className="text-[10px] text-clay-600 dark:text-clay-400">Due: {e.dueDate}</div>}
                         </td>
-                        <td className="p-3">{formatCurrency(e.amount)}</td>
-                        <td className="p-3 text-emerald-400">+{formatCurrency(e.taxAmount)}</td>
-                        <td className="p-3 font-bold text-white">{formatCurrency(e.totalAmount)}</td>
+                        <td className="p-3 font-mono tabular-nums">{formatCurrency(e.amount)}</td>
+                        <td className="p-3 font-mono tabular-nums text-grass-600 dark:text-grass-400">
+                          +{formatCurrency(e.taxAmount)}
+                        </td>
+                        <td className="p-3 font-mono font-black text-court-950 dark:text-white tabular-nums">
+                          {formatCurrency(e.totalAmount || e.amount)}
+                        </td>
                         <td className="p-3">
                           <span
-                            className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-heading font-black uppercase tracking-wider ${
                               e.status === 'PAID'
-                                ? 'bg-emerald-500/10 text-emerald-400'
-                                : 'bg-amber-500/10 text-amber-400'
+                                ? 'bg-grass-500/15 text-grass-700 dark:text-grass-400 border border-grass-500/30'
+                                : 'bg-optic-500/15 text-court-950 dark:text-optic-300 border border-optic-500/30'
                             }`}
                           >
                             {e.status}
@@ -734,7 +894,7 @@ export default function OwnerDashboardPage() {
                                 refetchExpenses();
                                 refetchSummary();
                               }}
-                              className="px-2.5 py-1 rounded bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 text-[11px] font-semibold border border-emerald-500/30 transition-colors"
+                              className="px-3 py-1 rounded-xl bg-grass-500/15 hover:bg-grass-500/25 text-grass-700 dark:text-grass-300 text-[11px] font-heading font-black uppercase border border-grass-500/30 transition"
                             >
                               Mark Paid
                             </button>
@@ -744,7 +904,7 @@ export default function OwnerDashboardPage() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="10" className="p-8 text-center text-slate-500">
+                      <td colSpan="10" className="p-8 text-center text-court-400 font-sans">
                         No expenses recorded for this period. Click "Record New Expense" to add facility rent, utility bills, or maintenance.
                       </td>
                     </tr>
@@ -759,45 +919,34 @@ export default function OwnerDashboardPage() {
       {/* 7. TAB 3: Receivables & Aging */}
       {activeTab === 'receivables' && summary && (
         <div className="space-y-6">
-          <div className="p-6 rounded-2xl bg-sky-950/20 border border-sky-500/30">
-            <h3 className="text-lg font-bold text-sky-200">Accounts Receivable Aging Report</h3>
-            <p className="text-xs text-slate-400">
+          <div className="court-card p-6 rounded-3xl border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-sm">
+            <h3 className="text-base font-heading font-black text-court-950 dark:text-white uppercase tracking-wider">
+              Accounts Receivable Aging Report
+            </h3>
+            <p className="text-xs text-court-500 dark:text-court-400 mt-0.5 font-sans">
               Total outstanding receivables from unpaid corporate and member bookings/invoices
             </p>
           </div>
 
           {/* Aging Buckets */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <div className="p-4 rounded-xl bg-slate-900 border border-slate-800">
-              <span className="text-xs font-semibold text-emerald-400">Current / Due Soon</span>
-              <div className="text-xl font-bold text-white mt-1">
-                {formatCurrency(summary.receivablesAging?.currentOrDueSoon)}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            {[
+              { label: 'Current / Due Soon', amt: summary.receivablesAging?.currentOrDueSoon, color: 'text-grass-600 dark:text-grass-400' },
+              { label: '1 - 30 Days Overdue', amt: summary.receivablesAging?.overdueDays1To30, color: 'text-optic-600 dark:text-optic-400' },
+              { label: '31 - 60 Days Overdue', amt: summary.receivablesAging?.overdueDays31To60, color: 'text-clay-600 dark:text-clay-400' },
+              { label: '61 - 90 Days Overdue', amt: summary.receivablesAging?.overdueDays61To90, color: 'text-danger-600 dark:text-danger-400' },
+              { label: '90+ Days Overdue', amt: summary.receivablesAging?.overdueDays90Plus, color: 'text-danger-700 dark:text-danger-300' },
+            ].map((bucket, idx) => (
+              <div
+                key={idx}
+                className="court-card p-4 rounded-2xl border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-xs"
+              >
+                <span className={`text-xs font-heading font-black uppercase ${bucket.color}`}>{bucket.label}</span>
+                <div className="text-lg font-mono font-black text-court-950 dark:text-white mt-1 tabular-nums">
+                  {formatCurrency(bucket.amt)}
+                </div>
               </div>
-            </div>
-            <div className="p-4 rounded-xl bg-slate-900 border border-slate-800">
-              <span className="text-xs font-semibold text-amber-400">1 - 30 Days Overdue</span>
-              <div className="text-xl font-bold text-white mt-1">
-                {formatCurrency(summary.receivablesAging?.overdueDays1To30)}
-              </div>
-            </div>
-            <div className="p-4 rounded-xl bg-slate-900 border border-slate-800">
-              <span className="text-xs font-semibold text-orange-400">31 - 60 Days Overdue</span>
-              <div className="text-xl font-bold text-white mt-1">
-                {formatCurrency(summary.receivablesAging?.overdueDays31To60)}
-              </div>
-            </div>
-            <div className="p-4 rounded-xl bg-slate-900 border border-slate-800">
-              <span className="text-xs font-semibold text-rose-400">61 - 90 Days Overdue</span>
-              <div className="text-xl font-bold text-white mt-1">
-                {formatCurrency(summary.receivablesAging?.overdueDays61To90)}
-              </div>
-            </div>
-            <div className="p-4 rounded-xl bg-slate-900 border border-slate-800">
-              <span className="text-xs font-semibold text-red-500">90+ Days Overdue</span>
-              <div className="text-xl font-bold text-white mt-1">
-                {formatCurrency(summary.receivablesAging?.overdueDays90Plus)}
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       )}
@@ -805,60 +954,74 @@ export default function OwnerDashboardPage() {
       {/* 8. TAB 4: Tax & GST Statement */}
       {activeTab === 'tax' && summary && (
         <div className="space-y-6">
-          <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
-            <h3 className="text-lg font-bold text-white">GST Tax Collected & Input Credit Reconciliation</h3>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Breakdown by statutory tax rates (18%, 12%, 5%, 0%) with net tax liability payable
-            </p>
+          <div className="court-card p-6 md:p-7 rounded-3xl border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-sm space-y-6">
+            <div>
+              <h3 className="text-base font-heading font-black text-court-950 dark:text-white uppercase tracking-wider">
+                GST Tax Collected & Input Credit Reconciliation
+              </h3>
+              <p className="text-xs text-court-500 dark:text-court-400 mt-0.5 font-sans">
+                Statutory tax rate slabs (18%, 12%, 5%, 0%) with Input Tax Credit (ITC) offset
+              </p>
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
-              <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">
-                <span className="text-xs font-semibold text-slate-400">Gross GST Output Collected</span>
-                <div className="text-2xl font-bold text-white mt-1">
-                  {formatCurrency(summary.taxSummary?.totalGstCollected)}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="court-card p-5 rounded-2xl border border-court-200 dark:border-court-800 bg-court-50 dark:bg-court-950">
+                <span className="text-xs font-heading font-black uppercase text-court-500">
+                  Gross GST Output Collected
+                </span>
+                <div className="text-2xl font-mono font-black text-court-950 dark:text-white mt-1 tabular-nums">
+                  {formatCurrency(summary.taxSummary?.totalGstCollected || summary.taxSummary?.totalTaxCollected)}
                 </div>
-                <p className="text-[11px] text-slate-500 mt-1">
+                <p className="text-[11px] text-court-500 font-mono mt-1 tabular-nums">
                   CGST: {formatCurrency(summary.taxSummary?.totalCgstCollected)} | SGST: {formatCurrency(summary.taxSummary?.totalSgstCollected)}
                 </p>
               </div>
-              <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">
-                <span className="text-xs font-semibold text-emerald-400">Input Tax Credit (ITC)</span>
-                <div className="text-2xl font-bold text-emerald-400 mt-1">
-                  -{formatCurrency(summary.taxSummary?.inputTaxCredit)}
+
+              <div className="court-card p-5 rounded-2xl border border-grass-500/30 bg-grass-500/5">
+                <span className="text-xs font-heading font-black uppercase text-grass-700 dark:text-grass-400">
+                  Input Tax Credit (ITC)
+                </span>
+                <div className="text-2xl font-mono font-black text-grass-700 dark:text-grass-400 mt-1 tabular-nums">
+                  -{formatCurrency(summary.taxSummary?.inputTaxCredit || summary.taxSummary?.totalInputCredit)}
                 </div>
-                <p className="text-[11px] text-slate-500 mt-1">From operating expenses & supplier bills</p>
+                <p className="text-[11px] text-court-500 font-sans mt-1">Offset from verified business expenses & bills</p>
               </div>
-              <div className="p-4 rounded-xl bg-slate-950 border border-slate-800">
-                <span className="text-xs font-semibold text-amber-400">Net GST Payable</span>
-                <div className="text-2xl font-bold text-amber-300 mt-1">
+
+              <div className="court-card p-5 rounded-2xl border border-optic-500/40 bg-optic-500/5">
+                <span className="text-xs font-heading font-black uppercase text-court-950 dark:text-optic-300">
+                  Net GST Payable
+                </span>
+                <div className="text-2xl font-mono font-black text-court-950 dark:text-white mt-1 tabular-nums">
                   {formatCurrency(summary.taxSummary?.netGstPayable)}
                 </div>
-                <p className="text-[11px] text-slate-500 mt-1">Remittable to tax authority</p>
+                <p className="text-[11px] text-court-500 font-sans mt-1">Statutory remittance due to tax authorities</p>
               </div>
             </div>
 
             {/* Rate Breakdown Table */}
-            <div className="rounded-xl border border-slate-800 overflow-hidden">
+            <div className="rounded-2xl border border-court-200 dark:border-court-800 overflow-hidden">
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-950 text-slate-400">
+                <thead className="bg-court-50 dark:bg-court-950 text-court-500 font-heading font-bold uppercase text-[10px]">
                   <tr>
                     <th className="p-3">GST Rate Slab</th>
                     <th className="p-3">Rate %</th>
                     <th className="p-3">Taxable Amount</th>
                     <th className="p-3">CGST Amount</th>
                     <th className="p-3">SGST Amount</th>
-                    <th className="p-3 font-bold text-white">Total Tax</th>
+                    <th className="p-3 font-heading font-black text-court-950 dark:text-white">Total Tax</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800 text-slate-300">
-                  {summary.taxSummary?.rateBreakdown?.map((r) => (
-                    <tr key={r.rateCode} className="hover:bg-slate-800/30">
-                      <td className="p-3 font-bold text-white">{r.rateCode}</td>
-                      <td className="p-3">{r.ratePercent}%</td>
+                <tbody className="divide-y divide-court-200 dark:divide-court-800 text-court-800 dark:text-court-200">
+                  {summary.taxSummary?.rateBreakdown?.map((r, idx) => (
+                    <tr key={idx} className="hover:bg-court-50 dark:hover:bg-court-800/30 font-mono tabular-nums">
+                      <td className="p-3 font-heading font-bold text-court-950 dark:text-white">{r.rateCode || `${r.ratePercentage || r.ratePercent}% Slab`}</td>
+                      <td className="p-3">{r.ratePercent || r.ratePercentage}%</td>
                       <td className="p-3">{formatCurrency(r.taxableAmount)}</td>
-                      <td className="p-3">{formatCurrency(r.cgstAmount)}</td>
-                      <td className="p-3">{formatCurrency(r.sgstAmount)}</td>
-                      <td className="p-3 font-bold text-emerald-400">{formatCurrency(r.totalGst)}</td>
+                      <td className="p-3">{formatCurrency(r.cgstAmount || r.cgst)}</td>
+                      <td className="p-3">{formatCurrency(r.sgstAmount || r.sgst)}</td>
+                      <td className="p-3 font-black text-grass-600 dark:text-grass-400">
+                        {formatCurrency(r.totalGst || r.totalTax)}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -872,15 +1035,19 @@ export default function OwnerDashboardPage() {
       {activeTab === 'kpis' && kpis && (
         <div className="space-y-6">
           {/* Heatmap & Utilization */}
-          <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
-            <h3 className="text-lg font-bold text-white mb-1">Peak Hours Heatmap (Facility Demand)</h3>
-            <p className="text-xs text-slate-400 mb-6">Court reservation density by day of week and operating hour (06:00 to 22:00)</p>
+          <div className="court-card p-6 md:p-7 rounded-3xl border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-sm">
+            <h3 className="text-base font-heading font-black text-court-950 dark:text-white uppercase tracking-wider mb-1">
+              Peak Hours Heatmap (Facility Demand)
+            </h3>
+            <p className="text-xs text-court-500 dark:text-court-400 mb-6 font-sans">
+              Court reservation density by day of week and operating hour (06:00 to 22:00)
+            </p>
 
             <div className="overflow-x-auto">
               <div className="min-w-[700px]">
                 {/* Heatmap Header */}
-                <div className="grid grid-cols-[80px_repeat(17,1fr)] gap-1 text-[10px] text-slate-400 mb-1 text-center font-mono">
-                  <div className="text-left">Day / Hr</div>
+                <div className="grid grid-cols-[80px_repeat(17,1fr)] gap-1 text-[10px] text-court-400 mb-1 text-center font-mono">
+                  <div className="text-left font-heading font-bold uppercase">Day / Hr</div>
                   {Array.from({ length: 17 }).map((_, i) => (
                     <div key={i}>{String(i + 6).padStart(2, '0')}:00</div>
                   ))}
@@ -889,7 +1056,7 @@ export default function OwnerDashboardPage() {
                 {/* Heatmap Rows */}
                 {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, dIdx) => (
                   <div key={day} className="grid grid-cols-[80px_repeat(17,1fr)] gap-1 my-1 items-center">
-                    <span className="text-xs font-semibold text-slate-400">{day}</span>
+                    <span className="text-xs font-heading font-bold text-court-600 dark:text-court-300 uppercase">{day}</span>
                     {Array.from({ length: 17 }).map((_, hIdx) => {
                       const hour = hIdx + 6;
                       const cell = kpis.peakHoursHeatmap?.find(
@@ -901,9 +1068,12 @@ export default function OwnerDashboardPage() {
                         <div
                           key={hour}
                           title={`${day} at ${hour}:00 — ${count} bookings`}
-                          className="h-8 rounded flex items-center justify-center text-[10px] font-bold transition-all cursor-pointer hover:ring-2 hover:ring-white"
+                          className="h-8 rounded-lg flex items-center justify-center text-[10px] font-mono font-bold transition cursor-pointer hover:ring-2 hover:ring-optic-500"
                           style={{
-                            backgroundColor: count === 0 ? '#1e293b' : `rgba(16, 185, 129, ${Math.max(0.2, intensity)})`,
+                            backgroundColor:
+                              count === 0
+                                ? 'rgba(100, 116, 139, 0.12)'
+                                : `rgba(34, 197, 94, ${Math.max(0.25, intensity || 0.6)})`,
                             color: count > 0 ? '#ffffff' : '#64748b',
                           }}
                         >
@@ -919,91 +1089,95 @@ export default function OwnerDashboardPage() {
 
           {/* Operations Metric Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800">
-              <span className="text-xs text-slate-400 font-semibold">Cancellations & No-Shows</span>
-              <div className="mt-2 text-2xl font-bold text-white">
-                {kpis.courtUtilization?.cancellationRatePercentage}%
+            <div className="court-card p-5 rounded-2xl border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-xs">
+              <span className="text-xs font-heading font-black uppercase text-court-500">Cancellations & No-Shows</span>
+              <div className="mt-2 text-2xl font-mono font-black text-court-950 dark:text-white tabular-nums">
+                {kpis.courtUtilization?.cancellationRatePercentage || kpis.courtUtilization?.cancellationRate || 0}%
               </div>
-              <p className="text-[11px] text-slate-400 mt-1">
-                {kpis.courtUtilization?.cancelledBookings} cancelled | {kpis.courtUtilization?.noShowBookings} no-shows ({kpis.courtUtilization?.noShowRatePercentage}%)
+              <p className="text-[11px] text-court-500 font-sans mt-1">
+                {kpis.courtUtilization?.cancelledBookings || kpis.courtUtilization?.cancellations || 0} cancelled | {kpis.courtUtilization?.noShowBookings || kpis.courtUtilization?.noShows || 0} no-shows
               </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800">
-              <span className="text-xs text-slate-400 font-semibold">Active Members & Churn</span>
-              <div className="mt-2 text-2xl font-bold text-emerald-400">
-                {kpis.membershipKpi?.activeMembers}
+            <div className="court-card p-5 rounded-2xl border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-xs">
+              <span className="text-xs font-heading font-black uppercase text-grass-600 dark:text-grass-400">Active Members & Churn</span>
+              <div className="mt-2 text-2xl font-mono font-black text-grass-600 dark:text-grass-400 tabular-nums">
+                {kpis.membershipKpi?.activeMembers || kpis.memberships?.activeMembers || 0}
               </div>
-              <p className="text-[11px] text-slate-400 mt-1">
-                {kpis.membershipKpi?.expiringSoon30Days} expiring soon | Churn: {kpis.membershipKpi?.churnRatePercentage}%
+              <p className="text-[11px] text-court-500 font-sans mt-1">
+                {kpis.membershipKpi?.expiringSoon30Days || kpis.memberships?.expiringWithin30Days || 0} expiring soon | Churn: {kpis.membershipKpi?.churnRatePercentage || kpis.memberships?.churnRate || 0}%
               </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800">
-              <span className="text-xs text-slate-400 font-semibold">Bar Covers & Avg Tab</span>
-              <div className="mt-2 text-2xl font-bold text-amber-300">
-                {formatCurrency(kpis.barKpi?.averageTabAmount)}
+            <div className="court-card p-5 rounded-2xl border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-xs">
+              <span className="text-xs font-heading font-black uppercase text-court-950 dark:text-optic-300">Bar Covers & Avg Tab</span>
+              <div className="mt-2 text-2xl font-mono font-black text-court-950 dark:text-white tabular-nums">
+                {formatCurrency(kpis.barKpi?.averageTabAmount || kpis.barKpis?.averageTabAmount || 0)}
               </div>
-              <p className="text-[11px] text-slate-400 mt-1">
-                {kpis.barKpi?.totalTabs} tabs settled | {kpis.barKpi?.totalCovers} guests served
+              <p className="text-[11px] text-court-500 font-sans mt-1">
+                {kpis.barKpi?.totalTabs || kpis.barKpis?.openTabsCount || 0} tabs | {kpis.barKpi?.totalCovers || kpis.barKpis?.totalCovers || 0} guests served
               </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800">
-              <span className="text-xs text-slate-400 font-semibold">Lead Funnel Conversion</span>
-              <div className="mt-2 text-2xl font-bold text-sky-400">
+            <div className="court-card p-5 rounded-2xl border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-xs">
+              <span className="text-xs font-heading font-black uppercase text-clay-600 dark:text-clay-400">Lead Funnel Conversion</span>
+              <div className="mt-2 text-2xl font-mono font-black text-court-950 dark:text-white tabular-nums">
                 {kpis.leadFunnel?.conversionRatePercentage}%
               </div>
-              <p className="text-[11px] text-slate-400 mt-1">
-                {kpis.leadFunnel?.won} won out of {kpis.leadFunnel?.totalLeads} inquiries
+              <p className="text-[11px] text-court-500 font-sans mt-1">
+                {kpis.leadFunnel?.won || kpis.leadFunnel?.wonLeads || 0} won out of {kpis.leadFunnel?.totalLeads} inquiries
               </p>
             </div>
           </div>
 
           {/* Top Products & Low Stock Alerts */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
-              <h4 className="font-bold text-white text-sm mb-4">Top Selling Pro Shop Products</h4>
-              <div className="divide-y divide-slate-800 text-xs">
+            <div className="court-card p-6 rounded-3xl border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-sm">
+              <h4 className="font-heading font-black text-court-950 dark:text-white uppercase tracking-wider text-xs mb-4">
+                Top Selling Pro Shop Products
+              </h4>
+              <div className="divide-y divide-court-200 dark:divide-court-800 text-xs">
                 {kpis.topProducts && kpis.topProducts.length > 0 ? (
                   kpis.topProducts.map((p, idx) => (
                     <div key={idx} className="py-2.5 flex items-center justify-between">
-                      <span className="font-medium text-slate-200">{p.productName}</span>
-                      <div className="text-right">
-                        <span className="text-slate-400 mr-2">{p.unitsSold} units</span>
-                        <span className="font-bold text-emerald-400">{formatCurrency(p.revenue)}</span>
+                      <span className="font-medium text-court-900 dark:text-court-100">{p.productName}</span>
+                      <div className="text-right font-mono tabular-nums">
+                        <span className="text-court-500 mr-2">{p.unitsSold || p.quantitySold} units</span>
+                        <span className="font-black text-grass-600 dark:text-grass-400">{formatCurrency(p.revenue)}</span>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="py-4 text-center text-slate-500">No product sales in selected period.</div>
+                  <div className="py-4 text-center text-court-400 font-sans">No product sales in selected period.</div>
                 )}
               </div>
             </div>
 
-            <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
-              <h4 className="font-bold text-white text-sm mb-4 flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-amber-400" />
+            <div className="court-card p-6 rounded-3xl border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-sm">
+              <h4 className="font-heading font-black text-court-950 dark:text-white uppercase tracking-wider text-xs mb-4 flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-clay-500 stroke-[2.2]" />
                 Low Stock Inventory Alerts
               </h4>
-              <div className="divide-y divide-slate-800 text-xs">
-                {kpis.lowStockList && kpis.lowStockList.length > 0 ? (
-                  kpis.lowStockList.map((item, idx) => (
+              <div className="divide-y divide-court-200 dark:divide-court-800 text-xs">
+                {(kpis.lowStockList || kpis.lowStockItems) && (kpis.lowStockList || kpis.lowStockItems).length > 0 ? (
+                  (kpis.lowStockList || kpis.lowStockItems).map((item, idx) => (
                     <div key={idx} className="py-2.5 flex items-center justify-between">
                       <div>
-                        <span className="font-medium text-slate-200">{item.productName}</span>
-                        <span className="text-slate-500 ml-1">({item.sku})</span>
+                        <span className="font-medium text-court-900 dark:text-court-100">{item.productName}</span>
+                        <span className="text-court-400 ml-1 font-mono text-[11px]">({item.sku})</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-amber-300 font-bold">{item.currentStock} in stock</span>
-                        <span className="px-1.5 py-0.5 rounded text-[10px] bg-rose-500/10 text-rose-400 border border-rose-500/20 font-semibold">
-                          {item.status}
+                        <span className="text-clay-600 dark:text-clay-400 font-mono font-black tabular-nums">
+                          {item.currentStock} in stock
+                        </span>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] bg-danger-500/15 text-danger-700 dark:text-danger-400 border border-danger-500/30 font-heading font-black uppercase">
+                          {item.status || 'LOW STOCK'}
                         </span>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="py-4 text-center text-slate-500">All variants meet safe reorder thresholds.</div>
+                  <div className="py-4 text-center text-court-400 font-sans">All variants meet safe reorder thresholds.</div>
                 )}
               </div>
             </div>
@@ -1014,27 +1188,29 @@ export default function OwnerDashboardPage() {
       {/* 10. MODAL: Share Report Dialog */}
       <AnimatePresence>
         {showShareModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-court-950/75 dark:bg-black/80 backdrop-blur-xs">
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-lg shadow-2xl space-y-5"
+              className="court-card bg-white dark:bg-court-900 border border-court-200 dark:border-court-800 rounded-3xl p-6 md:p-7 w-full max-w-lg shadow-court-xl space-y-5"
             >
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Share2 className="w-5 h-5 text-emerald-400" />
-                  <h3 className="text-lg font-bold text-white">Create Shareable Report Link</h3>
+                <div className="flex items-center gap-2.5">
+                  <Share2 className="w-5 h-5 text-optic-600 dark:text-optic-400 stroke-[2.2]" />
+                  <h3 className="text-lg font-heading font-black text-court-950 dark:text-white uppercase tracking-tight">
+                    Create Shareable Report Link
+                  </h3>
                 </div>
                 <button
                   onClick={() => setShowShareModal(false)}
-                  className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+                  className="p-1.5 rounded-xl text-court-400 hover:text-court-900 dark:hover:text-white hover:bg-court-100 dark:hover:bg-court-800 transition"
                 >
                   <XCircle className="w-5 h-5" />
                 </button>
               </div>
 
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-court-600 dark:text-court-400 font-sans">
                 Generate a secure, signed public URL with expiry. Anyone with the link can view the read-only dashboard without logging in.
               </p>
 
@@ -1061,21 +1237,25 @@ export default function OwnerDashboardPage() {
                 className="space-y-4"
               >
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Report Title / Purpose</label>
+                  <label className="block text-xs font-heading font-bold uppercase text-court-700 dark:text-court-300 mb-1">
+                    Report Title / Purpose
+                  </label>
                   <input
                     name="title"
                     defaultValue={`Champions Club Financial Summary — ${summary?.startDate} to ${summary?.endDate}`}
                     required
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="w-full bg-court-50 dark:bg-court-950 border border-court-200 dark:border-court-700 rounded-xl px-3.5 py-2.5 text-xs text-court-950 dark:text-white focus:outline-none focus:border-optic-500 font-sans"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Link Expiry Duration</label>
+                  <label className="block text-xs font-heading font-bold uppercase text-court-700 dark:text-court-300 mb-1">
+                    Link Expiry Duration
+                  </label>
                   <select
                     name="hours"
                     defaultValue="168"
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="w-full bg-court-50 dark:bg-court-950 border border-court-200 dark:border-court-700 rounded-xl px-3.5 py-2.5 text-xs text-court-950 dark:text-white focus:outline-none focus:border-optic-500 font-sans"
                   >
                     <option value="24">24 Hours (1 Day)</option>
                     <option value="72">72 Hours (3 Days)</option>
@@ -1084,32 +1264,34 @@ export default function OwnerDashboardPage() {
                   </select>
                 </div>
 
-                <div className="pt-2 flex items-center justify-between">
+                <div className="pt-2">
                   <button
                     type="submit"
                     id="generate-share-link-btn"
                     data-testid="btn-generate-share-link"
-                    className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2"
+                    className="w-full min-h-[48px] py-3 rounded-xl bg-optic-500 hover:bg-optic-400 text-court-950 font-heading font-black text-xs uppercase tracking-wider shadow-court-sm transition flex items-center justify-center gap-2"
                   >
-                    {copySuccess ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                    {copySuccess ? <Check className="w-4 h-4 stroke-[2.5]" /> : <Copy className="w-4 h-4 stroke-[2.5]" />}
                     {copySuccess ? 'Copied to Clipboard!' : 'Generate & Copy Share Link'}
                   </button>
                 </div>
               </form>
 
               {/* Active Shares List */}
-              <div className="pt-4 border-t border-slate-800">
-                <h4 className="text-xs font-bold text-slate-400 mb-2">Active Share Links</h4>
+              <div className="pt-4 border-t border-court-200 dark:border-court-800">
+                <h4 className="text-xs font-heading font-black uppercase text-court-400 mb-2">
+                  Active Share Links
+                </h4>
                 <div className="max-h-40 overflow-y-auto space-y-2">
                   {shares && shares.length > 0 ? (
                     shares.map((s) => (
                       <div
                         key={s.id}
-                        className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between text-xs"
+                        className="p-3 rounded-xl bg-court-50 dark:bg-court-950 border border-court-200 dark:border-court-800 flex items-center justify-between text-xs"
                       >
                         <div className="truncate max-w-[260px]">
-                          <div className="font-semibold text-white truncate">{s.title}</div>
-                          <div className="text-[10px] text-slate-500">
+                          <div className="font-heading font-bold text-court-950 dark:text-white truncate">{s.title}</div>
+                          <div className="text-[10px] text-court-500 font-mono">
                             Expires: {new Date(s.expiresAt).toLocaleDateString()} {s.revoked ? '(REVOKED)' : ''}
                           </div>
                         </div>
@@ -1120,7 +1302,7 @@ export default function OwnerDashboardPage() {
                                 await reportsApi.revokeShare(s.id);
                                 refetchShares();
                               }}
-                              className="px-2 py-1 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-[10px] font-semibold border border-rose-500/20"
+                              className="px-2.5 py-1 rounded-lg bg-danger-500/10 hover:bg-danger-500/20 text-danger-600 dark:text-danger-400 text-[10px] font-heading font-bold uppercase border border-danger-500/20"
                             >
                               Revoke
                             </button>
@@ -1129,7 +1311,7 @@ export default function OwnerDashboardPage() {
                       </div>
                     ))
                   ) : (
-                    <div className="text-center text-xs text-slate-500 py-2">No active share links.</div>
+                    <div className="text-center text-xs text-court-400 py-2 font-sans">No active share links.</div>
                   )}
                 </div>
               </div>
@@ -1141,21 +1323,23 @@ export default function OwnerDashboardPage() {
       {/* 11. MODAL: Record Expense Dialog */}
       <AnimatePresence>
         {showExpenseModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-court-950/75 dark:bg-black/80 backdrop-blur-xs">
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-lg shadow-2xl space-y-4"
+              className="court-card bg-white dark:bg-court-900 border border-court-200 dark:border-court-800 rounded-3xl p-6 md:p-7 w-full max-w-lg shadow-court-xl space-y-4"
             >
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Building2 className="w-5 h-5 text-amber-400" />
-                  <h3 className="text-lg font-bold text-white">Record Operating Expense</h3>
+                <div className="flex items-center gap-2.5">
+                  <Building2 className="w-5 h-5 text-clay-500 stroke-[2.2]" />
+                  <h3 className="text-lg font-heading font-black text-court-950 dark:text-white uppercase tracking-tight">
+                    Record Operating Expense
+                  </h3>
                 </div>
                 <button
                   onClick={() => setShowExpenseModal(false)}
-                  className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+                  className="p-1.5 rounded-xl text-court-400 hover:text-court-900 dark:hover:text-white hover:bg-court-100 dark:hover:bg-court-800 transition"
                 >
                   <XCircle className="w-5 h-5" />
                 </button>
@@ -1182,10 +1366,12 @@ export default function OwnerDashboardPage() {
                 className="space-y-3.5 text-xs"
               >
                 <div>
-                  <label className="block font-semibold text-slate-300 mb-1">Expense Category</label>
+                  <label className="block font-heading font-bold uppercase text-court-700 dark:text-court-300 mb-1">
+                    Expense Category
+                  </label>
                   <select
                     name="category"
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                    className="w-full bg-court-50 dark:bg-court-950 border border-court-200 dark:border-court-700 rounded-xl px-3.5 py-2.5 text-court-950 dark:text-white font-sans"
                   >
                     <option value="RENT">RENT (Facility & Arena Lease)</option>
                     <option value="UTILITIES">UTILITIES (Power, Water, Internet)</option>
@@ -1198,19 +1384,23 @@ export default function OwnerDashboardPage() {
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-slate-300 mb-1">Description</label>
+                  <label className="block font-heading font-bold uppercase text-court-700 dark:text-court-300 mb-1">
+                    Description
+                  </label>
                   <input
                     name="description"
                     data-testid="input-expense-description"
                     placeholder="e.g. October Electricity Bill — Floodlights"
                     required
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                    className="w-full bg-court-50 dark:bg-court-950 border border-court-200 dark:border-court-700 rounded-xl px-3.5 py-2.5 text-court-950 dark:text-white font-sans"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block font-semibold text-slate-300 mb-1">Net Amount (INR)</label>
+                    <label className="block font-heading font-bold uppercase text-court-700 dark:text-court-300 mb-1">
+                      Net Amount (INR)
+                    </label>
                     <input
                       name="amount"
                       data-testid="input-expense-amount"
@@ -1218,43 +1408,54 @@ export default function OwnerDashboardPage() {
                       step="0.01"
                       required
                       placeholder="50000.00"
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                      className="w-full bg-court-50 dark:bg-court-950 border border-court-200 dark:border-court-700 rounded-xl px-3.5 py-2.5 text-court-950 dark:text-white font-mono"
                     />
                   </div>
                   <div>
-                    <label className="block font-semibold text-slate-300 mb-1">GST Credit (INR)</label>
+                    <label className="block font-heading font-bold uppercase text-court-700 dark:text-court-300 mb-1">
+                      GST Credit (INR)
+                    </label>
                     <input
                       name="taxAmount"
                       type="number"
                       step="0.01"
                       defaultValue="0.00"
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                      className="w-full bg-court-50 dark:bg-court-950 border border-court-200 dark:border-court-700 rounded-xl px-3.5 py-2.5 text-court-950 dark:text-white font-mono"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block font-semibold text-slate-300 mb-1">Vendor / Service Provider</label>
+                    <label className="block font-heading font-bold uppercase text-court-700 dark:text-court-300 mb-1">
+                      Vendor / Service Provider
+                    </label>
                     <input
                       name="vendor"
                       placeholder="e.g. State Power Corp"
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                      className="w-full bg-court-50 dark:bg-court-950 border border-court-200 dark:border-court-700 rounded-xl px-3.5 py-2.5 text-court-950 dark:text-white font-sans"
                     />
                   </div>
                   <div>
-                    <label className="block font-semibold text-slate-300 mb-1">Due Date</label>
+                    <label className="block font-heading font-bold uppercase text-court-700 dark:text-court-300 mb-1">
+                      Due Date
+                    </label>
                     <input
                       name="dueDate"
                       type="date"
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                      className="w-full bg-court-50 dark:bg-court-950 border border-court-200 dark:border-court-700 rounded-xl px-3.5 py-2.5 text-court-950 dark:text-white font-mono"
                     />
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2 pt-2">
-                  <input type="checkbox" name="isRecurring" id="isRecurring" className="rounded bg-slate-800" />
-                  <label htmlFor="isRecurring" className="text-slate-300 font-medium">
+                  <input
+                    type="checkbox"
+                    name="isRecurring"
+                    id="isRecurring"
+                    className="rounded text-optic-500 focus:ring-optic-500"
+                  />
+                  <label htmlFor="isRecurring" className="text-court-700 dark:text-court-300 font-medium font-sans">
                     Recurring monthly expense entry
                   </label>
                 </div>
@@ -1263,7 +1464,7 @@ export default function OwnerDashboardPage() {
                   <button
                     type="submit"
                     data-testid="btn-submit-expense"
-                    className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-lg shadow-amber-500/20 transition-all"
+                    className="w-full min-h-[48px] py-3 rounded-xl bg-optic-500 hover:bg-optic-400 text-court-950 font-heading font-black text-xs uppercase tracking-wider shadow-court-sm transition"
                   >
                     Save Operating Expense
                   </button>
