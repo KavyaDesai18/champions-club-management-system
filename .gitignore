@@ -14,6 +14,8 @@ Thumbs.db
 .classpath
 .project
 .settings/
+.agents/
+
 
 # Environment and Secrets
 .env

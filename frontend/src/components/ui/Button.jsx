@@ -3,19 +3,23 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 
 const variantClasses = {
-  primary: 'bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold shadow-lg shadow-emerald-500/20 border-emerald-400/30',
-  secondary: 'bg-slate-800 hover:bg-slate-700 text-slate-100 border-slate-700',
-  outline: 'bg-transparent hover:bg-slate-800/60 text-slate-200 border-slate-700 hover:border-slate-500',
-  ghost: 'bg-transparent hover:bg-slate-800/40 text-slate-300 hover:text-white border-transparent',
-  danger: 'bg-rose-600 hover:bg-rose-500 text-white font-semibold shadow-lg shadow-rose-600/20 border-rose-500',
-  gold: 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold shadow-lg shadow-amber-500/25 border-amber-400',
-  indigo: 'bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow-lg shadow-indigo-600/25 border-indigo-400/30',
+  primary: 'bg-optic-500 hover:bg-optic-400 text-court-950 font-bold shadow-court-sm border-optic-400 focus-visible:ring-optic-500',
+  optic: 'bg-optic-500 hover:bg-optic-400 text-court-950 font-bold shadow-court-sm border-optic-400 focus-visible:ring-optic-500',
+  secondary: 'bg-court-800 hover:bg-court-700 text-court-100 border-court-700',
+  outline: 'bg-transparent hover:bg-court-800/60 text-court-200 border-court-700 hover:border-court-500',
+  ghost: 'bg-transparent hover:bg-court-800/40 text-court-300 hover:text-white border-transparent',
+  danger: 'bg-clay-600 hover:bg-clay-500 text-white font-semibold shadow-court-sm border-clay-500',
+  clay: 'bg-clay-600 hover:bg-clay-500 text-white font-semibold shadow-court-sm border-clay-500',
+  grass: 'bg-grass-600 hover:bg-grass-500 text-white font-semibold shadow-court-sm border-grass-500',
+  gold: 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold shadow-court-sm border-amber-400',
+  indigo: 'bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow-court-sm border-indigo-400/30',
 };
 
 const sizeClasses = {
-  sm: 'px-3 py-1.5 text-xs rounded-xl gap-1.5 min-h-[34px]',
-  md: 'px-4 py-2.5 text-sm rounded-2xl gap-2 min-h-[42px]',
-  lg: 'px-6 py-3.5 text-base rounded-2xl gap-2.5 min-h-[50px]',
+  sm: 'px-3 py-1.5 text-xs rounded-sm gap-1.5 min-h-[34px]',
+  md: 'px-4 py-2 text-sm rounded-md gap-2 min-h-[42px]',
+  lg: 'px-6 py-2.5 text-base rounded-md gap-2.5 min-h-[48px]',
+  touch: 'px-6 py-3.5 text-base rounded-lg gap-3 min-h-[52px]', // Tablet & Bar POS large touch target
 };
 
 export const Button = React.forwardRef(({

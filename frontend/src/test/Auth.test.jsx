@@ -16,6 +16,13 @@ describe('Auth & RBAC Frontend Suite', () => {
   beforeEach(() => {
     localStorage.clear();
     vi.clearAllMocks();
+    vi.spyOn(apiClient, 'get').mockImplementation(async (url) => {
+      if (url === '/auth/me') {
+        const stored = localStorage.getItem('champions_user');
+        return { data: stored ? JSON.parse(stored) : null };
+      }
+      return { data: {} };
+    });
   });
 
   describe('Route Guards & RBAC Protection', () => {

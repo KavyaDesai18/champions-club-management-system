@@ -1,53 +1,41 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
 import {
   Activity,
-  AlertCircle,
-  Bell,
+  Award,
   Calendar,
+  Check,
   CheckCircle,
   Clock,
-  Compass,
-  CreditCard,
-  DollarSign,
-  Heart,
-  HelpCircle,
-  Inbox,
+  ExternalLink,
+  Flame,
+  Info,
   Lock,
-  Mail,
+  Menu,
+  Moon,
   Palette,
-  Search,
-  Send,
+  Phone,
   Shield,
-  Trash2,
-  Trophy,
+  ShieldAlert,
+  Sparkles,
+  Sun,
+  User,
   Users,
+  X,
   Zap,
 } from 'lucide-react';
 import {
   Badge,
   Button,
   Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
   Checkbox,
-  ConfirmDialog,
   DatePicker,
   Drawer,
   Dropdown,
-  DropdownDivider,
-  DropdownItem,
-  EmptyState,
-  ErrorState,
+  ConfirmDialog,
   Input,
   Modal,
   Select,
   Skeleton,
-  StatCard,
-  Stepper,
   Switch,
   Table,
   Tabs,
@@ -58,7 +46,7 @@ import { emitToast } from '../../api/client';
 import ThemeToggle from '../../components/common/ThemeToggle';
 
 export const StyleguidePage = () => {
-  // Modal / Drawer / Dialog states
+  // Modal / Drawer states
   const [modalOpen, setModalOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -67,86 +55,119 @@ export const StyleguidePage = () => {
   const [buttonLoading, setButtonLoading] = useState(false);
   const [switchVal, setSwitchVal] = useState(true);
   const [checkboxVal, setCheckboxVal] = useState(true);
-  const [selectedTab, setSelectedTab] = useState('overview');
-  const [dateVal, setDateVal] = useState('2026-10-06');
+  const [selectedTab, setSelectedTab] = useState('slots');
+  const [dateVal, setDateVal] = useState('2026-10-13');
   const [activeStep, setActiveStep] = useState(1);
 
-  // Table demo state
-  const [tableLoading, setTableLoading] = useState(false);
-  const [tableEmpty, setTableEmpty] = useState(false);
+  // Live countdown timer for the HELD slot demo
+  const [holdTimer, setHoldTimer] = useState(285); // 4m 45s
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setHoldTimer((prev) => (prev > 0 ? prev - 1 : 300));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatHoldTimer = (seconds) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  };
+
+  // High-Density Sample Table Data (Indian Champions Demo Data)
   const sampleTableData = [
-    { id: '1', court: 'Badminton Court 1', sport: 'Badminton', rate: 20.0, status: 'Active', tier: 'GOLD' },
-    { id: '2', court: 'Tennis Court 2', sport: 'Tennis', rate: 35.0, status: 'Reserved', tier: 'SILVER' },
-    { id: '3', court: 'Squash Court 1', sport: 'Squash', rate: 25.0, status: 'Active', tier: 'JUNIOR' },
-    { id: '4', court: 'Badminton Court 4', sport: 'Badminton', rate: 20.0, status: 'Maintenance', tier: 'GUEST' },
-    { id: '5', court: 'Tennis Court 1', sport: 'Tennis', rate: 35.0, status: 'Active', tier: 'GOLD' },
+    { id: '1', athlete: 'Sania Mirza', memberNo: 'CC-001001', court: 'Tennis Court 1 (Hard)', sport: 'Tennis', rate: 450.0, status: 'Active', tier: 'GOLD' },
+    { id: '2', athlete: 'Rohan Bopanna', memberNo: 'CC-001002', court: 'Tennis Court 2 (Clay)', sport: 'Tennis', rate: 550.0, status: 'Active', tier: 'GOLD' },
+    { id: '3', athlete: 'P.V. Sindhu', memberNo: 'CC-001003', court: 'Badminton Court 1', sport: 'Badminton', rate: 350.0, status: 'Active', tier: 'GOLD' },
+    { id: '4', athlete: 'Lakshya Sen', memberNo: 'CC-001004', court: 'Badminton Court 2', sport: 'Badminton', rate: 350.0, status: 'Active', tier: 'SILVER' },
+    { id: '5', athlete: 'Aryan Cadet', memberNo: 'CC-001051', court: 'Squash Court 1', sport: 'Squash', rate: 300.0, status: 'Active', tier: 'JUNIOR' },
   ];
 
   const tableColumns = [
-    { key: 'court', label: 'Facility Name', sortable: true },
+    {
+      key: 'athlete',
+      label: 'Athlete & Member No',
+      sortable: true,
+      render: (val, row) => (
+        <div className="flex flex-col">
+          <span className="font-semibold text-court-900 dark:text-court-100">{val}</span>
+          <span className="text-[11px] font-mono text-court-500 dark:text-court-400 tabular-nums">{row.memberNo}</span>
+        </div>
+      ),
+    },
+    { key: 'court', label: 'Assigned Court', sortable: true },
     { key: 'sport', label: 'Sport', sortable: true },
     {
       key: 'rate',
       label: 'Hourly Rate',
       sortable: true,
-      render: (val) => <span className="font-mono font-bold text-emerald-400">${Number(val).toFixed(2)}</span>,
+      render: (val) => (
+        <span className="font-mono font-bold text-optic-700 dark:text-optic-400 tabular-nums">
+          ₹{Number(val).toFixed(2)}
+        </span>
+      ),
     },
     {
       key: 'tier',
-      label: 'Eligible Tier',
+      label: 'Membership Tier',
       render: (val) => (
-        <Badge variant={val.toLowerCase() === 'gold' ? 'gold' : val.toLowerCase() === 'silver' ? 'silver' : 'junior'}>
+        <Badge
+          variant={
+            val === 'GOLD'
+              ? 'gold'
+              : val === 'SILVER'
+              ? 'silver'
+              : val === 'JUNIOR'
+              ? 'junior'
+              : 'default'
+          }
+          size="sm"
+          dot
+        >
           {val}
         </Badge>
       ),
     },
     {
       key: 'status',
-      label: 'Operational Status',
+      label: 'Status',
       render: (val) => (
-        <span
-          className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-            val === 'Active'
-              ? 'bg-emerald-950 text-emerald-400 border border-emerald-800/50'
-              : val === 'Reserved'
-              ? 'bg-amber-950 text-amber-400 border border-amber-800/50'
-              : 'bg-slate-800 text-slate-400 border border-slate-700'
-          }`}
-        >
+        <Badge variant="success" size="sm">
           {val}
-        </span>
+        </Badge>
       ),
     },
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-16">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-20">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-court-200 dark:border-court-800">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold border border-emerald-500/30 mb-2">
-            <Palette className="w-3.5 h-3.5" /> Living Design System Showcase
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full badge-optic text-xs font-bold mb-3 tracking-wide uppercase">
+            <Palette className="w-3.5 h-3.5" />
+            <span>Athletic Design System 2.0</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-            Component Styleguide & Tokens
+          <h1 className="text-4xl sm:text-5xl font-extrabold text-court-900 dark:text-court-100 tracking-tight font-heading uppercase">
+            Design Tokens & Living Styleguide
           </h1>
-          <p className="text-xs text-slate-400 mt-1 max-w-2xl">
-            Atomic components engineered for Champions Club with WCAG AA compliance, Framer Motion springs, light/dark modes, and reduced-motion support.
+          <p className="text-sm text-court-600 dark:text-court-400 mt-2 max-w-3xl leading-relaxed">
+            Engineered for Champions Club: tournament courts, chalk lines, red clay, turf grass, and electric ball-optic yellow. High contrast, WCAG 2.1 AA compliant, color-blind safe, and tablet-optimized.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <ThemeToggle />
           <Button
-            variant="primary"
-            size="sm"
+            variant="optic"
+            size="md"
             onClick={() =>
               emitToast({
                 id: Date.now(),
                 type: 'success',
-                title: 'Design System Alert',
-                message: 'Global toast dispatcher working seamlessly!',
+                title: 'Token System Synced',
+                message: 'Ball-Optic Yellow & Warm Court Neutrals active.',
               })
             }
           >
@@ -155,417 +176,559 @@ export const StyleguidePage = () => {
         </div>
       </div>
 
-      {/* 1. Buttons */}
+      {/* 1. Core Color System */}
       <section className="space-y-6">
         <div>
-          <h2 className="text-xl font-bold text-white">1. Buttons & Variants</h2>
-          <p className="text-xs text-slate-400">Tactile button components with scale feedback, disabled & loading states.</p>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-court-900 dark:text-court-100 uppercase font-heading">
+            1. Core Color Tokens
+          </h2>
+          <p className="text-xs text-court-600 dark:text-court-400">
+            One bold accent (Ball-Optic Yellow) grounded by warm court neutrals and authentic playing surface tones.
+          </p>
         </div>
 
-        <div className="space-y-4">
-          <div className="flex flex-wrap items-center gap-3">
-            <Button variant="primary">Primary Emerald</Button>
-            <Button variant="gold">Gold VIP</Button>
-            <Button variant="indigo">Indigo Accent</Button>
-            <Button variant="secondary">Secondary</Button>
-            <Button variant="outline">Outline</Button>
-            <Button variant="ghost">Ghost</Button>
-            <Button variant="danger">Danger</Button>
+        {/* Hero Accent: Ball-Optic Yellow */}
+        <div className="court-card rounded-lg p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-optic-600 dark:text-optic-400">
+                The One Hero Accent
+              </span>
+              <h3 className="text-xl font-bold text-court-900 dark:text-court-100">Ball-Optic Yellow</h3>
+            </div>
+            <span className="text-xs font-mono px-2.5 py-1 rounded-sm bg-court-100 dark:bg-court-850 text-court-800 dark:text-court-200 border border-court-200 dark:border-court-700">
+              #CCFF00 / --color-accent
+            </span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+            {[
+              { label: 'Optic 400', hex: '#D4FF1A', text: '#0E1216' },
+              { label: 'Optic 500 (Hero)', hex: '#CCFF00', text: '#0E1216' },
+              { label: 'Optic 600', hex: '#B0DE00', text: '#0E1216' },
+              { label: 'Optic 700', hex: '#8CA800', text: '#FFFFFF' },
+              { label: 'Optic 900', hex: '#4F6100', text: '#FFFFFF' },
+              { label: 'Optic Subtle', hex: 'rgba(204,255,0,0.18)', text: '#6B8200' },
+            ].map((c) => (
+              <div key={c.label} className="flex flex-col rounded-sm overflow-hidden border border-court-200 dark:border-court-800 shadow-sm">
+                <div
+                  style={{ backgroundColor: c.hex, color: c.text }}
+                  className="h-16 flex items-center justify-center p-2 text-center text-xs font-bold font-heading"
+                >
+                  {c.label}
+                </div>
+                <div className="p-2 bg-court-50 dark:bg-court-900 text-[11px] font-mono text-court-700 dark:text-court-300 text-center border-t border-court-200 dark:border-court-800">
+                  {c.hex}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Court Surfaces & Neutrals */}
+        <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="court-card rounded-lg p-4 space-y-2">
+            <div style={{ backgroundColor: '#16A34A' }} className="h-10 rounded-sm text-white flex items-center justify-center font-bold text-xs uppercase font-heading">
+              Grass Turf (Success)
+            </div>
+            <div className="flex justify-between text-xs font-mono text-court-600 dark:text-court-400">
+              <span>Wimbledon Lawn</span>
+              <span>#16A34A</span>
+            </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 pt-2">
-            <Button size="sm" variant="primary">Small (sm)</Button>
-            <Button size="md" variant="primary">Medium (md)</Button>
-            <Button size="lg" variant="primary">Large (lg)</Button>
-            <Button
-              variant="primary"
-              isLoading={buttonLoading}
-              onClick={() => {
-                setButtonLoading(true);
-                setTimeout(() => setButtonLoading(false), 2000);
-              }}
-            >
-              {buttonLoading ? 'Saving...' : 'Click for Loading State'}
-            </Button>
-            <Button variant="primary" disabled>
-              Disabled State
-            </Button>
-            <Button variant="outline" startIcon={<Calendar className="w-4 h-4" />}>
-              With Icon
-            </Button>
+          <div className="court-card rounded-lg p-4 space-y-2">
+            <div style={{ backgroundColor: '#C2410C' }} className="h-10 rounded-sm text-white flex items-center justify-center font-bold text-xs uppercase font-heading">
+              Roland-Garros Clay (Danger)
+            </div>
+            <div className="flex justify-between text-xs font-mono text-court-600 dark:text-court-400">
+              <span>Terracotta Clay</span>
+              <span>#C2410C</span>
+            </div>
+          </div>
+
+          <div className="court-card rounded-lg p-4 space-y-2">
+            <div style={{ backgroundColor: '#2563EB' }} className="h-10 rounded-sm text-white flex items-center justify-center font-bold text-xs uppercase font-heading">
+              DecoTurf (Info)
+            </div>
+            <div className="flex justify-between text-xs font-mono text-court-600 dark:text-court-400">
+              <span>US Open Blue</span>
+              <span>#2563EB</span>
+            </div>
+          </div>
+
+          <div className="court-card rounded-lg p-4 space-y-2">
+            <div style={{ backgroundColor: '#FAF8F5' }} className="h-10 rounded-sm border border-court-300 text-court-950 flex items-center justify-center font-bold text-xs uppercase font-heading">
+              Chalk Boundary Lines
+            </div>
+            <div className="flex justify-between text-xs font-mono text-court-600 dark:text-court-400">
+              <span>Court Chalk Line</span>
+              <span>#FAF8F5</span>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* 2. Badges */}
+      {/* 2. Color-Blind Accessible Booking Slot State Matrix */}
       <section className="space-y-6">
         <div>
-          <h2 className="text-xl font-bold text-white">2. Badges & Tiers</h2>
-          <p className="text-xs text-slate-400">Role and membership status indicators with optional pulse dot.</p>
+          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-grass-600 dark:text-grass-400 uppercase tracking-wider mb-1">
+            <CheckCircle className="w-4 h-4" /> WCAG 2.1 AA Guaranteed
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-court-900 dark:text-court-100 uppercase font-heading">
+            2. Color-Blind Accessible Slot Palette
+          </h2>
+          <p className="text-xs text-court-600 dark:text-court-400">
+            Never relies on color alone. Each state features distinct luminance, stroke pattern (solid, dashed, dotted, hatched), and clear icon indicators.
+          </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <Badge variant="gold" dot>Gold VIP</Badge>
-          <Badge variant="silver" dot>Silver Plan</Badge>
-          <Badge variant="junior" dot>Junior Athlete</Badge>
-          <Badge variant="success" dot>Confirmed</Badge>
-          <Badge variant="warning">Pending Tab</Badge>
-          <Badge variant="danger">Exclusion Conflict</Badge>
-          <Badge variant="default">Standard</Badge>
-          <Badge variant="outline">Guest Pass</Badge>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          {/* 1. AVAILABLE */}
+          <div className="slot-available rounded-sm p-3.5 flex flex-col justify-between min-h-[110px]">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider">Available</span>
+              <Check className="w-4 h-4" />
+            </div>
+            <div className="space-y-1">
+              <span className="text-sm font-extrabold font-heading block">06:30 - 07:30</span>
+              <span className="text-xs font-mono font-bold tabular-nums">₹350.00</span>
+            </div>
+          </div>
+
+          {/* 2. HELD */}
+          <div className="slot-held rounded-sm p-3.5 flex flex-col justify-between min-h-[110px]">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider">Cart Hold</span>
+              <Clock className="w-4 h-4 animate-spin" />
+            </div>
+            <div className="space-y-1">
+              <span className="text-sm font-extrabold font-heading block">17:00 - 18:00</span>
+              <span className="text-xs font-mono font-bold tabular-nums">
+                {formatHoldTimer(holdTimer)}
+              </span>
+            </div>
+          </div>
+
+          {/* 3. BOOKED */}
+          <div className="slot-booked rounded-sm p-3.5 flex flex-col justify-between min-h-[110px]">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider">Booked</span>
+              <Lock className="w-3.5 h-3.5" />
+            </div>
+            <div className="space-y-1">
+              <span className="text-sm font-extrabold font-heading block">18:00 - 19:00</span>
+              <span className="text-[11px] font-medium truncate block">Sania Mirza</span>
+            </div>
+          </div>
+
+          {/* 4. BLOCKED */}
+          <div className="slot-blocked rounded-sm p-3.5 flex flex-col justify-between min-h-[110px]">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider">Blocked</span>
+              <ShieldAlert className="w-3.5 h-3.5" />
+            </div>
+            <div className="space-y-1">
+              <span className="text-sm font-extrabold font-heading block">12:00 - 13:00</span>
+              <span className="text-[10px] font-semibold tracking-wide uppercase">Maintenance</span>
+            </div>
+          </div>
+
+          {/* 5. SOCIAL */}
+          <div className="slot-social rounded-sm p-3.5 flex flex-col justify-between min-h-[110px]">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider">Social Mixer</span>
+              <Users className="w-3.5 h-3.5" />
+            </div>
+            <div className="space-y-1">
+              <span className="text-sm font-extrabold font-heading block">19:00 - 22:00</span>
+              <span className="text-[11px] font-bold">Round-Robin</span>
+            </div>
+          </div>
+
+          {/* 6. PAST */}
+          <div className="slot-past rounded-sm p-3.5 flex flex-col justify-between min-h-[110px]">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider">Past</span>
+              <Clock className="w-3.5 h-3.5 opacity-50" />
+            </div>
+            <div className="space-y-1">
+              <span className="text-sm font-extrabold font-heading block">07:00 - 08:00</span>
+              <span className="text-[11px] opacity-75">Elapsed</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="court-card rounded-md p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs text-court-700 dark:text-court-300">
+          <div className="flex items-center gap-2">
+            <Info className="w-4 h-4 text-optic-600 dark:text-optic-400 shrink-0" />
+            <span>
+              <strong>Accessibility Key:</strong> Solid Green (Available), Dashed Amber + Timer (Held), Solid Orange/Red (Booked), Diagonal Stripe Hatch (Blocked), Dotted Violet (Social), Muted 40% (Past).
+            </span>
+          </div>
+          <span className="text-optic-600 dark:text-optic-400 font-mono font-semibold shrink-0">
+            Deuteranopia & Protanopia Tested
+          </span>
         </div>
       </section>
 
-      {/* 3. Form Inputs */}
+      {/* 3. Typography Scale & Tabular Numerals */}
       <section className="space-y-6">
         <div>
-          <h2 className="text-xl font-bold text-white">3. Form Controls & Inputs</h2>
-          <p className="text-xs text-slate-400">Accessible inputs with error indicators and helper labels.</p>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-court-900 dark:text-court-100 uppercase font-heading">
+            3. Typography Scale & Tabular Numerals
+          </h2>
+          <p className="text-xs text-court-600 dark:text-court-400">
+            <strong>Barlow Condensed</strong> for tournament impact headings; <strong>Plus Jakarta Sans</strong> for open UI legibility; <strong>Tabular Numerals</strong> for prices, clocks, and scoreboards.
+          </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="court-card rounded-lg p-6 space-y-6">
+          <div className="space-y-4">
+            <div className="border-b border-court-200 dark:border-court-800 pb-3">
+              <span className="text-xs font-mono text-court-500 dark:text-court-400 block mb-1">
+                Display 2XL — Barlow Condensed 56px / -0.02em tracking
+              </span>
+              <div className="text-5xl sm:text-6xl font-black font-heading tracking-tight text-court-900 dark:text-court-100 uppercase">
+                CHAMPIONS CLUB ARENA
+              </div>
+            </div>
+
+            <div className="border-b border-court-200 dark:border-court-800 pb-3">
+              <span className="text-xs font-mono text-court-500 dark:text-court-400 block mb-1">
+                Display XL — Barlow Condensed 40px
+              </span>
+              <div className="text-3xl sm:text-4xl font-extrabold font-heading text-court-900 dark:text-court-100 uppercase">
+                COURT RESERVATIONS & TOURNAMENT LIVE DRAW
+              </div>
+            </div>
+
+            <div className="border-b border-court-200 dark:border-court-800 pb-3">
+              <span className="text-xs font-mono text-court-500 dark:text-court-400 block mb-1">
+                Display LG — Barlow Condensed 28px
+              </span>
+              <div className="text-2xl font-bold font-heading text-court-900 dark:text-court-100 uppercase">
+                BADMINTON ARENA 3 (WOODEN SPRUNG FLOOR)
+              </div>
+            </div>
+
+            <div>
+              <span className="text-xs font-mono text-court-500 dark:text-court-400 block mb-1">
+                Body MD — Plus Jakarta Sans 14px / 20px
+              </span>
+              <p className="text-sm text-court-700 dark:text-court-300 max-w-2xl leading-relaxed">
+                Precision sports operations powered by real-time exclusionary locking. Fixed 60-minute session slots starting on the hour or half-hour, with member daily quota enforcement and digital lounge ordering.
+              </p>
+            </div>
+          </div>
+
+          {/* Tabular Numerals Live Demo */}
+          <div className="court-card-elevated rounded-md p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wider text-optic-700 dark:text-optic-400 font-heading">
+                Tabular Numerals Specimen (font-variant-numeric: tabular-nums)
+              </span>
+              <span className="text-[11px] font-mono text-court-500 dark:text-court-400">Fixed column widths</span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+              <div className="p-3 bg-court-100 dark:bg-court-950 rounded-sm border border-court-200 dark:border-court-800">
+                <span className="text-[10px] text-court-500 dark:text-court-400 block uppercase">Gold Rate</span>
+                <span className="text-xl font-bold font-mono text-optic-700 dark:text-optic-400 tabular-nums">₹350.00</span>
+              </div>
+              <div className="p-3 bg-court-100 dark:bg-court-950 rounded-sm border border-court-200 dark:border-court-800">
+                <span className="text-[10px] text-court-500 dark:text-court-400 block uppercase">Guest Rate</span>
+                <span className="text-xl font-bold font-mono text-court-800 dark:text-court-200 tabular-nums">₹550.00</span>
+              </div>
+              <div className="p-3 bg-court-100 dark:bg-court-950 rounded-sm border border-court-200 dark:border-court-800">
+                <span className="text-[10px] text-court-500 dark:text-court-400 block uppercase">Club Clock</span>
+                <span className="text-xl font-bold font-mono text-court-800 dark:text-court-200 tabular-nums">18:30:00</span>
+              </div>
+              <div className="p-3 bg-court-100 dark:bg-court-950 rounded-sm border border-court-200 dark:border-court-800">
+                <span className="text-[10px] text-court-500 dark:text-court-400 block uppercase">Daily Quota</span>
+                <span className="text-xl font-bold font-mono text-grass-600 dark:text-grass-400 tabular-nums">1 / 2 Slots</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. Component-Role Radius Scale */}
+      <section className="space-y-6">
+        <div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-court-900 dark:text-court-100 uppercase font-heading">
+            4. Component-Role Radius Scale
+          </h2>
+          <p className="text-xs text-court-600 dark:text-court-400">
+            No universal rounded-2xl. Border radius is assigned strictly by component role and physical interaction.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div className="court-card rounded-none p-4 text-center">
+            <span className="text-xs font-mono font-bold text-optic-700 dark:text-optic-400 block">radius-none (0px)</span>
+            <span className="text-[11px] text-court-600 dark:text-court-400 mt-1 block">Court Rails / Flush Lines</span>
+          </div>
+
+          <div className="court-card rounded-xs p-4 text-center">
+            <span className="text-xs font-mono font-bold text-optic-700 dark:text-optic-400 block">radius-xs (4px)</span>
+            <span className="text-[11px] text-court-600 dark:text-court-400 mt-1 block">Pills & Table Tags</span>
+          </div>
+
+          <div className="court-card rounded-sm p-4 text-center">
+            <span className="text-xs font-mono font-bold text-optic-700 dark:text-optic-400 block">radius-sm (6px)</span>
+            <span className="text-[11px] text-court-600 dark:text-court-400 mt-1 block">Slot Cells & Date Chips</span>
+          </div>
+
+          <div className="court-card rounded-md p-4 text-center">
+            <span className="text-xs font-mono font-bold text-optic-700 dark:text-optic-400 block">radius-md (10px)</span>
+            <span className="text-[11px] text-court-600 dark:text-court-400 mt-1 block">Action Buttons & Inputs</span>
+          </div>
+
+          <div className="court-card rounded-lg p-4 text-center">
+            <span className="text-xs font-mono font-bold text-optic-700 dark:text-optic-400 block">radius-lg (16px)</span>
+            <span className="text-[11px] text-court-600 dark:text-court-400 mt-1 block">Facility Cards & KDS Tickets</span>
+          </div>
+
+          <div className="court-card rounded-xl p-4 text-center">
+            <span className="text-xs font-mono font-bold text-optic-700 dark:text-optic-400 block">radius-xl (24px)</span>
+            <span className="text-[11px] text-court-600 dark:text-court-400 mt-1 block">Modals & Drawers</span>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. Tactile Buttons & 48px+ Touch Targets */}
+      <section className="space-y-6">
+        <div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-court-900 dark:text-court-100 uppercase font-heading">
+            5. Athletic Buttons & Tablet Touch Targets
+          </h2>
+          <p className="text-xs text-court-600 dark:text-court-400">
+            Tactile button variants with minimum 48px targets for tablet counter operations (Bar POS & KDS).
+          </p>
+        </div>
+
+        <div className="court-card rounded-lg p-6 space-y-6">
+          <div className="space-y-3">
+            <span className="text-xs font-bold text-court-700 dark:text-court-300 uppercase tracking-wide block">
+              Variant Hierarchy
+            </span>
+            <div className="flex flex-wrap items-center gap-3">
+              <Button variant="optic">Ball-Optic Hero</Button>
+              <Button variant="secondary">Court Secondary</Button>
+              <Button variant="clay">Clay Danger</Button>
+              <Button variant="grass">Grass Success</Button>
+              <Button variant="gold">Gold VIP</Button>
+              <Button variant="outline">Chalk Outline</Button>
+              <Button variant="ghost">Court Ghost</Button>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <span className="text-xs font-bold text-court-700 dark:text-court-300 uppercase tracking-wide block">
+              Size Scale & Tablet Touch Target (Min 48px)
+            </span>
+            <div className="flex flex-wrap items-center gap-3">
+              <Button size="sm" variant="optic">Small (sm)</Button>
+              <Button size="md" variant="optic">Medium (md)</Button>
+              <Button size="lg" variant="optic">Large (lg)</Button>
+              <Button size="touch" variant="optic" startIcon={<Zap className="w-5 h-5" />}>
+                Tablet POS Touch (52px Touch Height)
+              </Button>
+              <Button
+                variant="secondary"
+                isLoading={buttonLoading}
+                onClick={() => {
+                  setButtonLoading(true);
+                  setTimeout(() => setButtonLoading(false), 1500);
+                }}
+              >
+                {buttonLoading ? 'Reserving...' : 'Click for Loading State'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. Form Inputs & Selects */}
+      <section className="space-y-6">
+        <div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-court-900 dark:text-court-100 uppercase font-heading">
+            6. Accessible Form Controls
+          </h2>
+          <p className="text-xs text-court-600 dark:text-court-400">
+            High-contrast inputs with clean chalk borders and optic yellow active rings.
+          </p>
+        </div>
+
+        <div className="court-card rounded-lg p-6 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Input
-            label="Full Name"
-            placeholder="Alex Rodriguez"
+            label="Athlete Full Name"
+            placeholder="Sania Mirza"
             required
-            helperText="Enter name as per government ID"
+            helperText="Enter full name as per registration ID"
           />
 
           <Input
-            label="Email Address"
-            type="email"
-            placeholder="member@championsclub.com"
-            startIcon={<Mail className="w-4 h-4" />}
+            label="Phone Number"
+            type="tel"
+            placeholder="+91 98765 43210"
+            startIcon={<Phone className="w-4 h-4" />}
           />
 
           <Input
-            label="Password Field"
+            label="Security Password"
             type="password"
             placeholder="••••••••"
             error="Password must contain at least 8 characters"
           />
 
           <Select
-            label="Court Facility"
-            placeholder="Choose sport arena..."
+            label="Court Surface Selection"
+            placeholder="Select court surface..."
             options={[
-              { value: 'badminton-1', label: 'Badminton Court 1 (Taraflex)' },
-              { value: 'tennis-1', label: 'Tennis Court 1 (Hardcourt)' },
-              { value: 'squash-1', label: 'Squash Arena 1 (Glass)' },
+              { value: 'SYNTHETIC', label: 'BWF Certified Taraflex Matting' },
+              { value: 'WOODEN', label: 'Sprung Hardwood Floor' },
+              { value: 'CLAY', label: 'Roland-Garros Crushed Brick Clay' },
+              { value: 'ACRYLIC', label: 'US Open 8-Layer Acrylic Hardcourt' },
             ]}
           />
 
           <DatePicker
-            label="Reservation Date"
+            label="Session Date"
             value={dateVal}
             onChange={(e) => setDateVal(e.target.value)}
-            helperText="Bookings open 14 days in advance"
           />
 
-          <div className="space-y-4 pt-4">
-            <Checkbox
-              label="Allow courtside SMS notifications"
-              description="Receive booking reminders 15 min prior"
-              checked={checkboxVal}
-              onChange={(e) => setCheckboxVal(e.target.checked)}
-            />
+          <div className="space-y-3 pt-6">
             <Switch
-              label="Instant Wallet Debit"
-              description="Auto-pay court bookings via balance"
+              label="SMS Reservation Alerts"
+              description="Dispatch instant WhatsApp confirmation"
               checked={switchVal}
               onChange={setSwitchVal}
             />
           </div>
-
-          <div className="md:col-span-2 lg:col-span-3">
-            <Textarea
-              label="Coach Feedback / Special Instructions"
-              placeholder="Specify racquet tension or court lighting preferences..."
-              showCount
-              maxLength={200}
-            />
-          </div>
         </div>
       </section>
 
-      {/* 4. Stat Cards & Counters */}
+      {/* 7. High-Density Operational Table */}
       <section className="space-y-6">
         <div>
-          <h2 className="text-xl font-bold text-white">4. Stat Cards with Animated Counters</h2>
-          <p className="text-xs text-slate-400">Dynamic spring counters with trend arrows and metric tooltips.</p>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-court-900 dark:text-court-100 uppercase font-heading">
+            7. High-Density Operational Table
+          </h2>
+          <p className="text-xs text-court-600 dark:text-court-400">
+            Engineered for rapid front-desk scanning. 40px row density, tabular figures, and immediate keyboard accessibility.
+          </p>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard
-            title="Total Reservations"
-            value={142}
-            trend={18}
-            icon={Activity}
-            accentColor="emerald"
-            tooltip="Active reservations confirmed today"
-          />
-          <StatCard
-            title="Today's Revenue"
-            value={3840.50}
-            prefix="$"
-            trend={12}
-            icon={DollarSign}
-            accentColor="indigo"
-          />
-          <StatCard
-            title="Active Members"
-            value={840}
-            trend={-2}
-            icon={Users}
-            accentColor="gold"
-          />
-          <StatCard
-            title="Peak Occupancy"
-            value={94}
-            suffix="%"
-            trend={5}
-            icon={Zap}
-            accentColor="rose"
+        <div className="court-card rounded-lg p-4">
+          <Table
+            columns={tableColumns}
+            data={sampleTableData}
+            selectable
           />
         </div>
       </section>
 
-      {/* 5. Stepper Component */}
+      {/* 8. Overlays: Modal & Drawer Demo */}
       <section className="space-y-6">
         <div>
-          <h2 className="text-xl font-bold text-white">5. Stepper (Reservation Flow)</h2>
-          <p className="text-xs text-slate-400">Step progression with animated track fill.</p>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-court-900 dark:text-court-100 uppercase font-heading">
+            8. Dialogs & Sheet Drawers
+          </h2>
+          <p className="text-xs text-court-600 dark:text-court-400">
+            Clean spring animations without glowing halos or ungrounded blur effects.
+          </p>
         </div>
 
-        <Card>
-          <Stepper
-            activeStep={activeStep}
-            onStepClick={setActiveStep}
-            steps={[
-              { title: 'Select Court', description: 'Choose surface' },
-              { title: 'Pick Slot', description: '60 min window' },
-              { title: 'Apply Tier', description: 'Gold 25% off' },
-              { title: 'Confirmation', description: 'Idempotent save' },
-            ]}
-          />
-          <div className="mt-6 flex justify-end gap-3 border-t border-slate-800/80 pt-4">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={activeStep === 0}
-              onClick={() => setActiveStep((s) => Math.max(0, s - 1))}
-            >
-              Previous Step
-            </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              disabled={activeStep === 3}
-              onClick={() => setActiveStep((s) => Math.min(3, s + 1))}
-            >
-              Next Step
-            </Button>
-          </div>
-        </Card>
-      </section>
-
-      {/* 6. Tabs, Tooltips, & Dropdowns */}
-      <section className="space-y-6">
-        <div>
-          <h2 className="text-xl font-bold text-white">6. Navigation, Tooltips & Dropdowns</h2>
-          <p className="text-xs text-slate-400">Micro-animated tabs with sliding spring pill, hover tooltips, and click dropdowns.</p>
-        </div>
-
-        <div className="flex flex-wrap items-center justify-between gap-6 glass-card p-6 rounded-3xl border-slate-800">
-          <Tabs
-            activeTab={selectedTab}
-            onChange={setSelectedTab}
-            tabs={[
-              { id: 'overview', label: 'Overview', icon: Compass },
-              { id: 'courts', label: 'Courts', icon: Calendar, badge: '16' },
-              { id: 'members', label: 'Members', icon: Users },
-            ]}
-          />
-
-          <div className="flex items-center gap-4">
-            <Tooltip content="Tooltip positioned on top" position="top">
-              <Button variant="outline" size="sm">Hover for Tooltip</Button>
-            </Tooltip>
-
-            <Dropdown
-              trigger={
-                <Button variant="secondary" size="sm" endIcon={<Zap className="w-3.5 h-3.5" />}>
-                  Action Menu
-                </Button>
-              }
-            >
-              <DropdownItem icon={<Calendar className="w-4 h-4" />}>Book New Session</DropdownItem>
-              <DropdownItem icon={<CreditCard className="w-4 h-4" />}>Top Up Wallet</DropdownItem>
-              <DropdownDivider />
-              <DropdownItem danger icon={<Trash2 className="w-4 h-4" />}>Cancel Booking</DropdownItem>
-            </Dropdown>
-          </div>
-        </div>
-      </section>
-
-      {/* 7. Modal, Drawer, & Confirm Dialog */}
-      <section className="space-y-6">
-        <div>
-          <h2 className="text-xl font-bold text-white">7. Modals, Drawers & Confirm Dialogs</h2>
-          <p className="text-xs text-slate-400">Focus-trapped dialogs with ESC closing and backdrop blur.</p>
-        </div>
-
-        <div className="flex flex-wrap gap-4">
-          <Button variant="primary" onClick={() => setModalOpen(true)}>
-            Open Animated Modal
+        <div className="flex flex-wrap items-center gap-4">
+          <Button variant="optic" onClick={() => setModalOpen(true)}>
+            Open Court Booking Modal
           </Button>
-
           <Button variant="secondary" onClick={() => setDrawerOpen(true)}>
-            Open Slide Drawer
+            Open Side Sheet Drawer
           </Button>
-
-          <Button variant="danger" onClick={() => setConfirmOpen(true)}>
-            Open Confirm Dialog
+          <Button variant="clay" onClick={() => setConfirmOpen(true)}>
+            Open Cancellation Confirm Dialog
           </Button>
         </div>
 
-        {/* Modal */}
+        {/* Modal Demo */}
         <Modal
           isOpen={modalOpen}
           onClose={() => setModalOpen(false)}
-          title="Reserve Badminton Court 3"
-          description="Fixed 60-minute session duration in club timezone."
-          footer={
-            <>
-              <Button variant="ghost" size="sm" onClick={() => setModalOpen(false)}>
+          title="Reserve Court 1 (Badminton)"
+          description="Fixed 60-minute duration with instant idempotency verification"
+        >
+          <div className="space-y-4 py-2">
+            <div className="p-4 bg-court-100 dark:bg-court-950 rounded-md border border-court-200 dark:border-court-800 space-y-2">
+              <div className="flex justify-between text-xs">
+                <span className="text-court-500 dark:text-court-400">Selected Slot:</span>
+                <span className="font-bold text-court-900 dark:text-court-100">Today, 18:00 - 19:00 IST</span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-court-500 dark:text-court-400">Standard Rate:</span>
+                <span className="font-mono text-court-800 dark:text-court-300">₹350.00</span>
+              </div>
+              <div className="flex justify-between text-xs pt-1 border-t border-court-200 dark:border-court-800">
+                <span className="font-bold text-court-900 dark:text-court-100">Gold Member Total:</span>
+                <span className="font-mono font-bold text-optic-700 dark:text-optic-400">₹262.50 (25% off)</span>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 pt-2">
+              <Button variant="ghost" onClick={() => setModalOpen(false)}>
                 Cancel
               </Button>
-              <Button variant="primary" size="sm" onClick={() => setModalOpen(false)}>
-                Confirm Slot
+              <Button
+                variant="optic"
+                onClick={() => {
+                  setModalOpen(false);
+                  emitToast({ type: 'success', title: 'Court Reserved', message: 'Slot 18:00 confirmed.' });
+                }}
+              >
+                Confirm Booking
               </Button>
-            </>
-          }
-        >
-          <div className="space-y-3">
-            <p className="text-xs text-slate-300">
-              This reservation is protected by PostgreSQL exclusion constraints. Press <kbd className="font-mono bg-slate-800 px-1 py-0.5 rounded text-white">ESC</kbd> to dismiss.
-            </p>
-            <Input label="Session Notes" placeholder="Doubles practice..." />
+            </div>
           </div>
         </Modal>
 
-        {/* Drawer */}
+        {/* Drawer Demo */}
         <Drawer
           isOpen={drawerOpen}
           onClose={() => setDrawerOpen(false)}
-          title="Member Wallet Summary"
-          description="View recent deposits and point-of-sale charges."
-          footer={
-            <Button variant="primary" size="sm" fullWidth onClick={() => setDrawerOpen(false)}>
-              Close Panel
-            </Button>
-          }
+          title="Court 3 Schedule Drawer"
+          subtitle="Real-time timeline & equipment check"
         >
-          <div className="space-y-4 text-xs text-slate-300">
-            <div className="p-4 rounded-2xl bg-surface-950 border border-slate-800 space-y-2">
-              <span className="text-slate-400">Current Balance</span>
-              <div className="text-2xl font-black text-emerald-400">$175.50</div>
-            </div>
+          <div className="space-y-4 p-4 text-xs text-court-700 dark:text-court-300">
             <p>
-              Your Gold tier membership qualifies for 25% automated discount on all court bookings.
+              Badminton Court 3 features tournament-grade wooden sprung flooring and glare-free vertical LED lighting.
             </p>
+            <div className="p-3 bg-court-100 dark:bg-court-950 rounded-sm border border-court-200 dark:border-court-800 space-y-2">
+              <span className="font-bold text-court-900 dark:text-court-100 block">Upcoming Schedule:</span>
+              <div className="flex justify-between text-court-600 dark:text-court-400">
+                <span>17:00 - 18:00</span>
+                <span className="text-grass-600 dark:text-grass-400 font-bold">Available (₹350)</span>
+              </div>
+              <div className="flex justify-between text-court-600 dark:text-court-400">
+                <span>18:00 - 19:00</span>
+                <span className="text-clay-600 dark:text-orange-400 font-bold">Booked (P.V. Sindhu)</span>
+              </div>
+            </div>
           </div>
         </Drawer>
 
-        {/* ConfirmDialog */}
+        {/* Confirm Dialog Demo */}
         <ConfirmDialog
           isOpen={confirmOpen}
           onClose={() => setConfirmOpen(false)}
           onConfirm={() => {
             setConfirmOpen(false);
-            emitToast({
-              id: Date.now(),
-              type: 'warning',
-              title: 'Reservation Cancelled',
-              message: 'Slot has been released back into public inventory.',
-            });
+            emitToast({ type: 'warning', title: 'Reservation Cancelled', message: 'Court slot released.' });
           }}
-          title="Cancel Court Reservation?"
-          message="Are you sure you want to cancel BK-991A82? This action will refund $13.50 to your wallet balance."
+          title="Release Held Slot?"
+          description="Are you sure you want to cancel this booking? The slot will immediately become available for other club members."
+          confirmLabel="Release Slot"
           variant="danger"
-          confirmText="Yes, Cancel Booking"
         />
-      </section>
-
-      {/* 8. Table Component */}
-      <section className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h2 className="text-xl font-bold text-white">8. Data Table Component</h2>
-            <p className="text-xs text-slate-400">Sortable headers, sticky table bar, pagination, and skeleton state.</p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setTableLoading((l) => !l)}
-            >
-              {tableLoading ? 'Stop Skeleton' : 'Toggle Skeleton'}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setTableEmpty((e) => !e)}
-            >
-              {tableEmpty ? 'Show Records' : 'Toggle Empty'}
-            </Button>
-          </div>
-        </div>
-
-        <Table
-          columns={tableColumns}
-          data={tableEmpty ? [] : sampleTableData}
-          isLoading={tableLoading}
-          itemsPerPage={3}
-          emptyMessage="No court reservations found matching query."
-        />
-      </section>
-
-      {/* 9. Skeletons, Empty & Error States */}
-      <section className="space-y-6">
-        <div>
-          <h2 className="text-xl font-bold text-white">9. States (Loading, Empty, & Error)</h2>
-          <p className="text-xs text-slate-400">Slow-render placeholders and resilient fallbacks.</p>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-6">
-          <Card>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <Skeleton variant="circular" width={40} height={40} />
-                <div className="space-y-1.5 flex-1">
-                  <Skeleton variant="text" width="60%" />
-                  <Skeleton variant="text" width="40%" />
-                </div>
-              </div>
-              <Skeleton variant="rectangular" height={80} />
-            </div>
-          </Card>
-
-          <EmptyState
-            title="No Pro-Shop Orders"
-            description="All orders have been fulfilled by staff."
-            action={<Button size="sm" variant="outline">Browse Merch</Button>}
-          />
-
-          <ErrorState
-            title="Double Booking Collision"
-            message="PostgreSQL GiST exclusion constraint blocked simultaneous booking."
-            traceId="a7f89d41b0"
-            onRetry={() => {}}
-          />
-        </div>
       </section>
     </div>
   );

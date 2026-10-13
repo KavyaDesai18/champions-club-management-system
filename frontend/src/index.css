@@ -1,108 +1,283 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  /* Light Theme CSS Variables */
-  --bg-app: #f8fafc;
+  /* Light Theme (Sunlit Court Arena) */
+  --bg-app: #f7f5f0;
   --bg-surface: #ffffff;
-  --bg-surface-elevated: #f1f5f9;
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
-  --border-color: #e2e8f0;
-  --border-subtle: #cbd5e1;
+  --bg-surface-elevated: #efece4;
+  --bg-surface-subtle: #e7e3d8;
 
-  /* Accent Tokens */
-  --accent-emerald: #10b981;
-  --accent-emerald-hover: #059669;
-  --accent-indigo: #6366f1;
-  --accent-indigo-hover: #4f46e5;
-  --accent-gold: #f59e0b;
-  --accent-danger: #ef4444;
+  --text-primary: #13171b;
+  --text-secondary: #4b545e;
+  --text-muted: #7b8590;
 
-  /* Shadows */
-  --shadow-soft: 0 4px 20px -2px rgba(15, 23, 42, 0.08);
-  --shadow-elevated: 0 12px 32px -4px rgba(15, 23, 42, 0.12);
-  --glass-bg: rgba(255, 255, 255, 0.75);
-  --glass-border: rgba(226, 232, 240, 0.8);
+  --border-color: #ddd8cd;
+  --border-chalk: #ddd8cd;
+  --border-subtle: #ebe8df;
+
+  /* The One Hero Accent: Ball-Optic Yellow (Adapted for light-mode contrast) */
+  --color-accent: #8c9b00;
+  --color-accent-hover: #758200;
+  --color-on-accent: #ffffff;
+  --color-accent-subtle: rgba(140, 155, 0, 0.12);
+
+  /* Surface Accents */
+  --accent-grass: #16a34a;
+  --accent-clay: #c2410c;
+  --accent-hardcourt: #2563eb;
+  --accent-emerald: #16a34a;
+  --accent-gold: #d97706;
+  --accent-danger: #dc2626;
+  --accent-indigo: #4f46e5;
+
+  /* Elevation */
+  --shadow-court-sm: 0 1px 3px rgba(19, 23, 27, 0.08);
+  --shadow-court-md: 0 4px 14px rgba(19, 23, 27, 0.12);
+  --shadow-court-lg: 0 12px 28px rgba(19, 23, 27, 0.16);
+
+  /* Minimal justified backdrop */
+  --glass-bg: rgba(247, 245, 240, 0.88);
+  --glass-border: rgba(221, 216, 205, 0.8);
 }
 
 .dark {
-  /* Dark Theme CSS Variables */
-  --bg-app: #030712;
-  --bg-surface: #0f172a;
-  --bg-surface-elevated: #1e293b;
-  --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --text-muted: #64748b;
-  --border-color: #1e293b;
-  --border-subtle: #334155;
+  /* Dark Theme (Floodlit Night Stadium) */
+  --bg-app: #0e1216;
+  --bg-surface: #151a20;
+  --bg-surface-elevated: #1c2229;
+  --bg-surface-subtle: #242e38;
 
-  /* Accent Tokens */
-  --accent-emerald: #10b981;
-  --accent-emerald-hover: #34d399;
-  --accent-indigo: #818cf8;
-  --accent-indigo-hover: #a5b4fc;
+  --text-primary: #f6f4ee;
+  --text-secondary: #a2adb9;
+  --text-muted: #677380;
+
+  --border-color: rgba(244, 241, 235, 0.12);
+  --border-chalk: rgba(244, 241, 235, 0.12);
+  --border-subtle: rgba(244, 241, 235, 0.06);
+
+  /* The One Hero Accent: Electric Tournament Optic Yellow */
+  --color-accent: #ccff00;
+  --color-accent-hover: #dfff33;
+  --color-on-accent: #0e1216;
+  --color-accent-subtle: rgba(204, 255, 0, 0.14);
+
+  /* Surface Accents */
+  --accent-grass: #22c55e;
+  --accent-clay: #ea580c;
+  --accent-hardcourt: #3b82f6;
+  --accent-emerald: #22c55e;
   --accent-gold: #fbbf24;
-  --accent-danger: #f87171;
+  --accent-danger: #ef4444;
+  --accent-indigo: #818cf8;
 
-  /* Shadows */
-  --shadow-soft: 0 4px 24px -2px rgba(0, 0, 0, 0.5);
-  --shadow-elevated: 0 16px 40px -4px rgba(0, 0, 0, 0.7);
-  --glass-bg: rgba(15, 23, 42, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.08);
+  /* Elevation */
+  --shadow-court-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --shadow-court-md: 0 4px 14px rgba(0, 0, 0, 0.45);
+  --shadow-court-lg: 0 12px 32px rgba(0, 0, 0, 0.6);
+
+  /* Minimal justified backdrop */
+  --glass-bg: rgba(21, 26, 32, 0.85);
+  --glass-border: rgba(244, 241, 235, 0.1);
 }
 
 @layer base {
   * {
-    border-color: var(--border-color);
+    border-color: var(--border-chalk);
   }
   body {
     background-color: var(--bg-app);
     color: var(--text-primary);
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
     transition: background-color 0.2s ease, color 0.2s ease;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Barlow Condensed', sans-serif;
+    letter-spacing: -0.01em;
   }
 }
 
 @layer utilities {
-  .glass-card {
+  /* Tabular Numerals for Prices, Clocks, Timers, and Ledger Tables */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1;
+  }
+
+  /* Grounded Court Surfaces */
+  .court-card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-chalk);
+    box-shadow: var(--shadow-court-sm);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+  }
+  .court-card:hover {
+    border-color: rgba(204, 255, 0, 0.4);
+  }
+
+  .court-card-elevated {
+    background-color: var(--bg-surface-elevated);
+    border: 1px solid var(--border-chalk);
+    box-shadow: var(--shadow-court-md);
+  }
+
+  /* Justified Sticky Header Overlay (Single allowed glassmorphism use) */
+  .court-header-overlay {
     background: var(--glass-bg);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-chalk);
   }
 
-  .glass-card-hover {
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  /* Crisp Chalk Boundary Lines */
+  .chalk-border {
+    border: 1px solid var(--border-chalk);
   }
-  .glass-card-hover:hover {
-    border-color: rgba(16, 185, 129, 0.35);
-    transform: translateY(-2px);
-    box-shadow: 0 12px 30px -10px rgba(16, 185, 129, 0.2);
+  .chalk-border-t {
+    border-top: 1px solid var(--border-chalk);
   }
-
-  .text-gradient-emerald {
-    background: linear-gradient(135deg, #34d399 0%, #10b981 50%, #059669 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+  .chalk-border-b {
+    border-bottom: 1px solid var(--border-chalk);
   }
 
-  .text-gradient-indigo {
-    background: linear-gradient(135deg, #a5b4fc 0%, #6366f1 50%, #4338ca 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+  /* Ball-Optic Accent Button & Badge */
+  .btn-optic {
+    background-color: var(--color-accent);
+    color: var(--color-on-accent);
+    font-weight: 700;
+    transition: background-color 0.15s ease, transform 0.1s ease;
+  }
+  .btn-optic:hover {
+    background-color: var(--color-accent-hover);
   }
 
-  .text-gradient-gold {
-    background: linear-gradient(135deg, #fef08a 0%, #f59e0b 50%, #b45309 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+  .badge-optic {
+    background-color: var(--color-accent-subtle);
+    color: var(--color-accent);
+    border: 1px solid rgba(204, 255, 0, 0.3);
+  }
+
+  /* ==============================================================
+     COLOR-BLIND ACCESSIBLE BOOKING SLOT STATES
+     Each state combines distinct luminance, borders, pattern, & glyph
+     ============================================================== */
+
+  /* 1. AVAILABLE: Solid border, turf green tint, check glyph */
+  .slot-available {
+    background-color: rgba(22, 163, 74, 0.1);
+    border: 1.5px solid #16a34a;
+    color: #15803d;
+    cursor: pointer;
+    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .dark .slot-available {
+    background-color: rgba(34, 197, 94, 0.14);
+    border-color: #22c55e;
+    color: #4ade80;
+  }
+  .slot-available:hover {
+    background-color: rgba(22, 163, 74, 0.18);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px -2px rgba(22, 163, 74, 0.2);
+  }
+  .dark .slot-available:hover {
+    background-color: rgba(34, 197, 94, 0.24);
+    box-shadow: 0 4px 10px -2px rgba(34, 197, 94, 0.25);
+  }
+
+  /* 2. HELD: Dashed border, live countdown timer */
+  .slot-held {
+    background-color: rgba(217, 119, 6, 0.1);
+    border: 1.5px dashed #d97706;
+    color: #b45309;
+  }
+  .dark .slot-held {
+    background-color: rgba(245, 158, 11, 0.16);
+    border-color: #f59e0b;
+    color: #fde047;
+  }
+
+  /* 3. BOOKED: Solid clay orange/red, locked icon, athlete pill */
+  .slot-booked {
+    background-color: rgba(194, 65, 12, 0.1);
+    border: 1.5px solid #c2410c;
+    color: #9a3412;
+    cursor: not-allowed;
+  }
+  .dark .slot-booked {
+    background-color: rgba(234, 88, 12, 0.15);
+    border-color: #ea580c;
+    color: #fdba74;
+  }
+
+  /* 4. BLOCKED: Diagonal hatch pattern, charcoal border, alert icon */
+  .slot-blocked {
+    background-color: #e7e3d8;
+    background-image: repeating-linear-gradient(
+      -45deg,
+      rgba(0, 0, 0, 0.04),
+      rgba(0, 0, 0, 0.04) 6px,
+      transparent 6px,
+      transparent 12px
+    );
+    border: 1.5px solid #c5beaf;
+    color: #555e69;
+    cursor: not-allowed;
+  }
+  .dark .slot-blocked {
+    background-color: rgba(50, 58, 67, 0.55);
+    background-image: repeating-linear-gradient(
+      -45deg,
+      rgba(244, 241, 235, 0.05),
+      rgba(244, 241, 235, 0.05) 6px,
+      transparent 6px,
+      transparent 12px
+    );
+    border-color: #4a5460;
+    color: #8e98a4;
+  }
+
+  /* 5. SOCIAL: Dotted border, community group glyph */
+  .slot-social {
+    background-color: rgba(124, 58, 237, 0.1);
+    border: 1.5px dotted #7c3aed;
+    color: #6d28d9;
+    cursor: pointer;
+    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .dark .slot-social {
+    background-color: rgba(139, 92, 246, 0.16);
+    border-color: #c084fc;
+    color: #e9d5ff;
+  }
+  .slot-social:hover {
+    background-color: rgba(124, 58, 237, 0.18);
+    transform: translateY(-1px);
+  }
+  .dark .slot-social:hover {
+    background-color: rgba(139, 92, 246, 0.24);
+  }
+
+  /* 6. PAST: Faint dimmed border, 40% opacity */
+  .slot-past {
+    background-color: rgba(21, 26, 32, 0.4);
+    border: 1px solid rgba(244, 241, 235, 0.06);
+    color: #687482;
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  :not(.dark) .slot-past {
+    background-color: rgba(231, 227, 216, 0.5);
+    border-color: #ddd8cd;
+    color: #8e98a4;
   }
 }
 
-/* Reduced Motion Support */
+/* Reduced Motion Compliance */
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,
@@ -114,17 +289,17 @@
   }
 }
 
-/* Custom Scrollbar */
+/* Tactile Athletic Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: var(--bg-app);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--border-subtle);
-  border-radius: 9999px;
+  background: var(--border-chalk);
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);

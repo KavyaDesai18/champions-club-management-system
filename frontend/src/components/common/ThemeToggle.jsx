@@ -8,6 +8,8 @@ export const ThemeToggle = ({ className = '' }) => {
 
   return (
     <button
+      id="theme-toggle-btn"
+      data-testid="theme-toggle"
       type="button"
       onClick={toggleTheme}
       aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
