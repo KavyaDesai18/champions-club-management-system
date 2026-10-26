@@ -34,20 +34,41 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.championsclub.court.domain.Sport;
+import com.championsclub.court.service.CourtManagementService;
+
 @RestController
 @Tag(name = "Booking Engine", description = "Endpoints for court reservations, slot holds, waitlist, and cancellations")
 public class CourtController {
 
     private final CourtBookingService courtBookingService;
+    private final CourtManagementService courtManagementService;
 
-    public CourtController(CourtBookingService courtBookingService) {
+    public CourtController(CourtBookingService courtBookingService, CourtManagementService courtManagementService) {
         this.courtBookingService = courtBookingService;
+        this.courtManagementService = courtManagementService;
+    }
+
+    @GetMapping({"/sports", "/api/v1/sports"})
+    @Operation(summary = "List all active sports", description = "Returns active sports across badminton, tennis, and squash")
+    public ResponseEntity<List<Sport>> getAllSports() {
+        return ResponseEntity.ok(courtManagementService.getAllSports());
     }
 
     @GetMapping({"/courts", "/api/v1/courts"})
     @Operation(summary = "List all active courts", description = "Returns active courts across badminton, tennis, and squash")
     public ResponseEntity<List<CourtDto>> getAllCourts() {
         return ResponseEntity.ok(courtBookingService.getAllActiveCourts());
+    }
+
+    @GetMapping({"/bookings/my", "/api/v1/bookings/my"})
+    @Operation(summary = "Get current member's bookings", description = "Retrieves reservation history for authenticated member")
+    public ResponseEntity<List<BookingResponse>> getMyBookings(Authentication authentication) {
+        User caller = extractUser(authentication);
+        if (caller == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(courtBookingService.getUserBookings(caller.getId()));
     }
 
     @PostMapping({"/bookings", "/api/v1/bookings"})

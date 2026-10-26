@@ -157,15 +157,42 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleNoResourceFound(org.springframework.web.servlet.resource.NoResourceFoundException ex, HttpServletRequest request) {
+        ApiErrorResponse body = ApiErrorResponse.builder()
+                .timestamp(clock.instant())
+                .status(HttpStatus.NOT_FOUND.value())
+                .code("NOT_FOUND")
+                .message("The requested endpoint was not found: " + request.getRequestURI())
+                .path(request.getRequestURI())
+                .traceId(getTraceId())
+                .build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
+    @ExceptionHandler(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiErrorResponse> handleTypeMismatch(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
+        ApiErrorResponse body = ApiErrorResponse.builder()
+                .timestamp(clock.instant())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .code("INVALID_PARAMETER")
+                .message(String.format("Invalid parameter '%s': '%s'", ex.getName(), ex.getValue()))
+                .path(request.getRequestURI())
+                .traceId(getTraceId())
+                .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleGenericException(Exception ex, HttpServletRequest request) {
         String traceId = getTraceId();
         log.error("Unhandled internal server error [traceId={}]", traceId, ex);
+        String details = ex.getMessage() != null && !ex.getMessage().isBlank() ? ": " + ex.getMessage() : "";
         ApiErrorResponse body = ApiErrorResponse.builder()
                 .timestamp(clock.instant())
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .code("INTERNAL_SERVER_ERROR")
-                .message("An unexpected error occurred. Please contact support referencing traceId: " + traceId)
+                .message("An unexpected error occurred" + details + ". Please contact support referencing traceId: " + traceId)
                 .path(request.getRequestURI())
                 .traceId(traceId)
                 .build();

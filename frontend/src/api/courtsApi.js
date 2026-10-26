@@ -7,6 +7,11 @@ export const courtsApi = {
     return res.data;
   },
 
+  getAllCourts: async () => {
+    const res = await apiClient.get('/courts');
+    return res.data;
+  },
+
   // Admin Courts
   getAllCourtsAdmin: async () => {
     const res = await apiClient.get('/admin/courts');
@@ -35,7 +40,7 @@ export const courtsApi = {
 
   // Sports
   getAllSports: async () => {
-    const res = await apiClient.get('/admin/sports');
+    const res = await apiClient.get('/sports');
     return res.data;
   },
 

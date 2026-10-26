@@ -49,6 +49,7 @@ public class Product {
     private String taxCategory = "STANDARD";
 
     @Column(name = "images", columnDefinition = "text[]")
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.ARRAY)
     @Builder.Default
     private String[] images = new String[0];
 

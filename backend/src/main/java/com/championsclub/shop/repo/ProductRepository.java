@@ -21,10 +21,12 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     @Query("SELECT p FROM Product p WHERE p.isDeleted = false AND p.active = true")
     List<Product> findAllActive();
 
+    Page<Product> findByIsDeletedFalse(Pageable pageable);
+
     @Query("SELECT p FROM Product p WHERE p.isDeleted = false " +
-           "AND (:categoryId IS NULL OR p.category.id = :categoryId) " +
-           "AND (:brand IS NULL OR LOWER(p.brand) = LOWER(:brand)) " +
-           "AND (:search IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(p.sku) LIKE LOWER(CONCAT('%', :search, '%')))")
+           "AND (cast(:categoryId as string) IS NULL OR p.category.id = :categoryId) " +
+           "AND (cast(:brand as string) IS NULL OR LOWER(p.brand) = LOWER(cast(:brand as string))) " +
+           "AND (cast(:search as string) IS NULL OR (LOWER(p.name) LIKE LOWER(CONCAT('%', cast(:search as string), '%')) OR LOWER(p.sku) LIKE LOWER(CONCAT('%', cast(:search as string), '%'))))")
     Page<Product> searchCatalog(@Param("categoryId") UUID categoryId,
                                 @Param("brand") String brand,
                                 @Param("search") String search,

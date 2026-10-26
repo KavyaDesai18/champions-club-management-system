@@ -145,7 +145,6 @@ public class AvailabilityService {
         }
 
         Instant now = timeUtils.now();
-        holdRepository.purgeExpiredHolds(now);
 
         // Resolve User and Plan
         User user = null;

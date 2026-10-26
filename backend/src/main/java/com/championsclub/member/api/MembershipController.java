@@ -34,6 +34,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.championsclub.member.domain.User;
+import com.championsclub.member.repo.UserRepository;
+import org.springframework.http.HttpStatus;
+
 @RestController
 @RequestMapping("/api/v1/memberships")
 @Tag(name = "Membership Lifecycle & Renewals", description = "Endpoints for membership renewals, expiring roster, history, and cancellations")
@@ -43,17 +47,63 @@ public class MembershipController {
     private final MemberRepository memberRepository;
     private final MembershipRepository membershipRepository;
     private final NotificationDispatcher notificationDispatcher;
+    private final UserRepository userRepository;
 
     public MembershipController(
             MembershipLifecycleService lifecycleService,
             MemberRepository memberRepository,
             MembershipRepository membershipRepository,
-            NotificationDispatcher notificationDispatcher
+            NotificationDispatcher notificationDispatcher,
+            UserRepository userRepository
     ) {
         this.lifecycleService = lifecycleService;
         this.memberRepository = memberRepository;
         this.membershipRepository = membershipRepository;
         this.notificationDispatcher = notificationDispatcher;
+        this.userRepository = userRepository;
+    }
+
+    @GetMapping({"/me/active", "/me"})
+    @Operation(summary = "Get active membership for current logged-in member")
+    public ResponseEntity<MembershipDto> getMyActiveMembership(Authentication auth) {
+        if (auth == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        User user = null;
+        if (auth.getPrincipal() instanceof User u) {
+            user = u;
+        } else if (auth.getName() != null) {
+            user = userRepository.findByEmailAndIsDeletedFalse(auth.getName().trim().toLowerCase()).orElse(null);
+        }
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        final User effectiveUser = user;
+        Member member = memberRepository.findByUserIdAndIsDeletedFalse(effectiveUser.getId())
+                .orElseGet(() -> memberRepository.findByEmailAndIsDeletedFalse(effectiveUser.getEmail()).orElse(null));
+        if (member == null) {
+            return ResponseEntity.notFound().build();
+        }
+        MembershipDto dto = lifecycleService.getActiveMembership(member.getId());
+        if (dto == null && member.getPlan() != null) {
+            long daysLeft = member.getEndDate() != null ? Math.max(0, java.time.temporal.ChronoUnit.DAYS.between(java.time.LocalDate.now(), member.getEndDate())) : 365;
+            dto = MembershipDto.builder()
+                    .id(member.getId())
+                    .memberId(member.getId())
+                    .memberNo(member.getMemberNo())
+                    .planCode(member.getPlan().getCode())
+                    .planName(member.getPlan().getName())
+                    .startDate(member.getStartDate())
+                    .endDate(member.getEndDate())
+                    .status(member.getStatus() != null ? member.getStatus().name() : "ACTIVE")
+                    .pricePaid(member.getPlan().getPrice())
+                    .paymentRef("PAY-ACTIVE")
+                    .freezeDays(0)
+                    .daysLeft(daysLeft)
+                    .expired(member.getEndDate() != null && java.time.LocalDate.now().isAfter(member.getEndDate()))
+                    .build();
+        }
+        return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
     }
 
     @PostMapping("/{memberId}/renew")

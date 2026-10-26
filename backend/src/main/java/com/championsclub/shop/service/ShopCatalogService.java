@@ -42,7 +42,12 @@ public class ShopCatalogService {
     @Transactional(readOnly = true)
     public Page<CatalogProductResponse> getPublicCatalog(UUID categoryId, String brand, String search, Pageable pageable) {
         String cleanSearch = sanitizeSearch(search);
-        Page<Product> products = productRepository.searchCatalog(categoryId, brand, cleanSearch, pageable);
+        Page<Product> products;
+        if (categoryId == null && (brand == null || brand.isBlank()) && (cleanSearch == null || cleanSearch.isBlank())) {
+            products = productRepository.findByIsDeletedFalse(pageable);
+        } else {
+            products = productRepository.searchCatalog(categoryId, brand, cleanSearch, pageable);
+        }
         return products.map(product -> mapToProductResponse(product, false));
     }
 
@@ -52,7 +57,12 @@ public class ShopCatalogService {
     @Transactional(readOnly = true)
     public Page<CatalogProductResponse> getStaffCatalog(UUID categoryId, String brand, String search, Pageable pageable) {
         String cleanSearch = sanitizeSearch(search);
-        Page<Product> products = productRepository.searchCatalog(categoryId, brand, cleanSearch, pageable);
+        Page<Product> products;
+        if (categoryId == null && (brand == null || brand.isBlank()) && (cleanSearch == null || cleanSearch.isBlank())) {
+            products = productRepository.findByIsDeletedFalse(pageable);
+        } else {
+            products = productRepository.searchCatalog(categoryId, brand, cleanSearch, pageable);
+        }
         return products.map(product -> mapToProductResponse(product, true));
     }
 
