@@ -10,6 +10,7 @@ import com.championsclub.member.domain.MemberCheckIn;
 import com.championsclub.member.domain.MemberStatus;
 import com.championsclub.member.domain.Membership;
 import com.championsclub.member.domain.MembershipStatus;
+import com.championsclub.member.domain.Plan;
 import com.championsclub.member.dto.CheckInRequest;
 import com.championsclub.member.dto.CheckInResponse;
 import com.championsclub.member.repo.MemberCheckInRepository;
@@ -29,6 +30,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -48,6 +50,9 @@ public class CheckInService {
 
     @org.springframework.beans.factory.annotation.Autowired(required = false)
     private com.championsclub.bar.repo.TabRepository tabRepository;
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.championsclub.court.repo.BookingRepository bookingRepository;
 
     public CheckInService(
             MemberRepository memberRepository,
@@ -175,16 +180,24 @@ public class CheckInService {
             } catch (Exception ignored) {}
         }
 
+        List<String> benefits = resolveBenefits(member);
+        List<com.championsclub.member.dto.BookedSlotDto> bookedSlots = resolveBookedSlots(member);
+
         return CheckInResponse.builder()
                 .memberId(member.getId())
                 .memberNo(member.getMemberNo())
                 .fullName(member.getFullName())
+                .phone(member.getPhone())
+                .email(member.getEmail())
                 .photoUrl(member.getPhotoUrl())
                 .statusBanner(statusBanner.name())
                 .daysLeft(daysLeft)
+                .startDate(member.getStartDate())
                 .endDate(member.getEndDate())
                 .planCode(member.getPlan() != null ? member.getPlan().getCode() : "N/A")
                 .planName(member.getPlan() != null ? member.getPlan().getName() : "No Plan")
+                .benefits(benefits)
+                .bookedSlots(bookedSlots)
                 .walletBalance(member.getWalletBalance())
                 .guestPassesRemaining(member.getGuestPassesRemaining())
                 .checkedInAt(now)
@@ -196,6 +209,87 @@ public class CheckInService {
                 .build();
     }
 
+    private List<String> resolveBenefits(Member member) {
+        List<String> benefits = new java.util.ArrayList<>();
+        if (member.getPlan() != null) {
+            Plan p = member.getPlan();
+            if (p.getBenefits() != null && !p.getBenefits().isEmpty()) {
+                p.getBenefits().forEach(b -> benefits.add(b.getBenefitText()));
+            }
+            if (p.getCourtDiscountPct() != null && p.getCourtDiscountPct().compareTo(BigDecimal.ZERO) > 0) {
+                benefits.add(p.getCourtDiscountPct().stripTrailingZeros().toPlainString() + "% Court Discount");
+            }
+            if (p.getShopDiscountPct() != null && p.getShopDiscountPct().compareTo(BigDecimal.ZERO) > 0) {
+                benefits.add(p.getShopDiscountPct().stripTrailingZeros().toPlainString() + "% Pro Shop Discount");
+            }
+            if (p.getBarDiscountPct() != null && p.getBarDiscountPct().compareTo(BigDecimal.ZERO) > 0) {
+                benefits.add(p.getBarDiscountPct().stripTrailingZeros().toPlainString() + "% Bar & Lounge Discount");
+            }
+            if (Boolean.TRUE.equals(p.getFreeCourts())) {
+                benefits.add("Complimentary Court Access");
+            }
+            if (p.getMaxBookingsPerDay() != null) {
+                benefits.add("Up to " + p.getMaxBookingsPerDay() + " Sessions / Day");
+            }
+            if (p.getAdvanceBookingDays() != null) {
+                benefits.add(p.getAdvanceBookingDays() + "-Day Advance Booking Window");
+            }
+        }
+        if (member.getGuestPassesRemaining() != null && member.getGuestPassesRemaining() > 0) {
+            benefits.add(member.getGuestPassesRemaining() + " Guest Passes Remaining");
+        }
+        if (benefits.isEmpty()) {
+            benefits.add("Standard Club Access");
+            benefits.add("Locker & Shower Privileges");
+        }
+        return benefits;
+    }
+
+    private List<com.championsclub.member.dto.BookedSlotDto> resolveBookedSlots(Member member) {
+        List<com.championsclub.member.dto.BookedSlotDto> slots = new java.util.ArrayList<>();
+        if (bookingRepository == null || member.getId() == null) {
+            return slots;
+        }
+        try {
+            var bookings = bookingRepository.findByMemberOrUserOrderByStartAtDesc(
+                    member.getId(),
+                    member.getUser() != null ? member.getUser().getId() : null
+            );
+            Instant now = timeUtils.now();
+            Instant cutoff = now.minus(Duration.ofHours(3));
+            for (var b : bookings) {
+                if (b.getEndAt() != null && b.getEndAt().isAfter(cutoff) && b.getStatus() != com.championsclub.court.domain.BookingStatus.CANCELLED) {
+                    String courtName = b.getCourt() != null ? b.getCourt().getName() : "Court Session";
+                    String sport = b.getCourt() != null && b.getCourt().getSport() != null ? b.getCourt().getSport().getName() : "COURT";
+                    String timeWindow = b.getStartAt() + " - " + b.getEndAt();
+                    try {
+                        java.time.ZonedDateTime startZoned = b.getStartAt().atZone(java.time.ZoneId.of("Asia/Kolkata"));
+                        java.time.ZonedDateTime endZoned = b.getEndAt().atZone(java.time.ZoneId.of("Asia/Kolkata"));
+                        timeWindow = String.format("%s, %02d:%02d - %02d:%02d IST",
+                                startZoned.toLocalDate().toString(),
+                                startZoned.getHour(), startZoned.getMinute(),
+                                endZoned.getHour(), endZoned.getMinute());
+                    } catch (Exception ignored) {}
+
+                    slots.add(com.championsclub.member.dto.BookedSlotDto.builder()
+                            .id(b.getId())
+                            .bookingReference(b.getBookingReference())
+                            .courtName(courtName)
+                            .sport(sport)
+                            .startAt(b.getStartAt())
+                            .endAt(b.getEndAt())
+                            .timeWindow(timeWindow)
+                            .status(b.getStatus() != null ? b.getStatus().name() : "CONFIRMED")
+                            .build());
+                    if (slots.size() >= 5) break;
+                }
+            }
+        } catch (Exception ex) {
+            log.warn("Failed to resolve booked slots for member {}: {}", member.getMemberNo(), ex.getMessage());
+        }
+        return slots;
+    }
+
     @Transactional(readOnly = true)
     public Page<MemberCheckIn> getRecentCheckIns(Pageable pageable) {
         return checkInRepository.findByOrderByCheckedInAtDesc(pageable);
@@ -203,7 +297,22 @@ public class CheckInService {
 
     private Member resolveMember(CheckInRequest request) {
         if (request.getQrToken() != null && !request.getQrToken().isBlank()) {
-            QrCodeService.VerifiedQrToken verified = qrCodeService.verifyQrToken(request.getQrToken().trim());
+            String token = request.getQrToken().trim();
+            if (token.startsWith("{") && token.endsWith("}")) {
+                try {
+                    com.fasterxml.jackson.databind.JsonNode node = new com.fasterxml.jackson.databind.ObjectMapper().readTree(token);
+                    if (node.hasNonNull("token") && !node.get("token").asText().isBlank()) {
+                        token = node.get("token").asText().trim();
+                    } else if (node.hasNonNull("memberNo") && !node.get("memberNo").asText().isBlank()) {
+                        String mNo = node.get("memberNo").asText().trim().toUpperCase();
+                        return memberRepository.findByMemberNoAndIsDeletedFalse(mNo)
+                                .orElseThrow(() -> new ResourceNotFoundException("Member with number: " + mNo, "MEMBER_NOT_FOUND"));
+                    }
+                } catch (Exception e) {
+                    log.warn("Could not parse JSON QR token: {}", e.getMessage());
+                }
+            }
+            QrCodeService.VerifiedQrToken verified = qrCodeService.verifyQrToken(token);
             return memberRepository.findByIdAndIsDeletedFalse(verified.memberId())
                     .orElseThrow(() -> new ResourceNotFoundException("Member", verified.memberId()));
         }

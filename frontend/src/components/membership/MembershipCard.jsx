@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { AlertTriangle, Award, Calendar, CheckCircle2, Clock, Sparkles, Trophy, XCircle } from 'lucide-react';
+import { AlertTriangle, Award, Calendar, CheckCircle2, Clock, QrCode, Sparkles, Trophy, XCircle } from 'lucide-react';
 import Button from '../ui/Button';
 import Badge from '../ui/Badge';
 import RenewMembershipModal from './RenewMembershipModal';
+import QrBadgeModal from '../../pages/members/QrBadgeModal';
 
 export const MembershipCard = ({
   member,
@@ -12,6 +13,7 @@ export const MembershipCard = ({
   className = '',
 }) => {
   const [renewModalOpen, setRenewModalOpen] = useState(false);
+  const [qrModalOpen, setQrModalOpen] = useState(false);
 
   // Derive dates & status
   const today = new Date().toISOString().split('T')[0];
@@ -192,20 +194,30 @@ export const MembershipCard = ({
               </div>
             </div>
 
-            {/* Renew CTA Button */}
-            <Button
-              variant={isExpired || isExpiringSoon ? 'primary' : 'outline'}
-              size="sm"
-              icon={Sparkles}
-              onClick={() => setRenewModalOpen(true)}
-              className={
-                isExpired || isExpiringSoon
-                  ? 'shadow-court-sm animate-pulse'
-                  : ''
-              }
-            >
-              {isExpired ? 'Renew Now' : isExpiringSoon ? 'Renew Early' : 'Extend Membership'}
-            </Button>
+            {/* Action CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                icon={QrCode}
+                onClick={() => setQrModalOpen(true)}
+              >
+                Digital Pass & QR
+              </Button>
+              <Button
+                variant={isExpired || isExpiringSoon ? 'primary' : 'outline'}
+                size="sm"
+                icon={Sparkles}
+                onClick={() => setRenewModalOpen(true)}
+                className={
+                  isExpired || isExpiringSoon
+                    ? 'shadow-court-sm animate-pulse'
+                    : ''
+                }
+              >
+                {isExpired ? 'Renew Now' : isExpiringSoon ? 'Renew Early' : 'Extend Membership'}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -216,6 +228,18 @@ export const MembershipCard = ({
         member={member}
         currentMembership={membership}
         onSuccess={onRenewSuccess}
+      />
+
+      <QrBadgeModal
+        isOpen={qrModalOpen}
+        onClose={() => setQrModalOpen(false)}
+        member={{
+          ...member,
+          planCode,
+          planName,
+          startDate,
+          endDate,
+        }}
       />
     </>
   );

@@ -40,7 +40,7 @@ export const LoginPage = () => {
       const user = await login(email, password);
       if (redirect) {
         navigate(decodeURIComponent(redirect), { replace: true });
-      } else if (['OWNER', 'MANAGER', 'FRONT_DESK', 'SHOP_STAFF', 'BAR_STAFF', 'KITCHEN', 'COACH'].includes(user.role)) {
+      } else if (['OWNER', 'FRONT_DESK', 'SHOP_STAFF', 'BAR_STAFF', 'KITCHEN', 'COACH'].includes(user.role)) {
         navigate('/console', { replace: true });
       } else {
         navigate('/app', { replace: true });
@@ -89,30 +89,23 @@ export const LoginPage = () => {
               <button
                 type="button"
                 onClick={() => handleDemoFill('owner@championsclub.com', 'OWNER')}
-                className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-slate-800 text-cyan-300 hover:bg-slate-700 transition border border-slate-700/80"
+                className="text-[11px] font-semibold px-3 py-1 rounded-lg bg-slate-800 text-cyan-300 hover:bg-slate-700 transition border border-slate-700/80"
               >
                 Owner
               </button>
               <button
                 type="button"
-                onClick={() => handleDemoFill('maya.manager@championsclub.com', 'MANAGER')}
-                className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-slate-800 text-amber-300 hover:bg-slate-700 transition border border-slate-700/80"
-              >
-                Manager
-              </button>
-              <button
-                type="button"
                 onClick={() => handleDemoFill('alice.frontdesk@championsclub.com', 'FRONT_DESK')}
-                className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-slate-800 text-blue-300 hover:bg-slate-700 transition border border-slate-700/80"
+                className="text-[11px] font-semibold px-3 py-1 rounded-lg bg-slate-800 text-blue-300 hover:bg-slate-700 transition border border-slate-700/80"
               >
                 Front Desk
               </button>
               <button
                 type="button"
                 onClick={() => handleDemoFill('sania.mirza@championsclub.demo', 'MEMBER')}
-                className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-slate-800 text-emerald-300 hover:bg-slate-700 transition border border-slate-700/80"
+                className="text-[11px] font-semibold px-3 py-1 rounded-lg bg-slate-800 text-emerald-300 hover:bg-slate-700 transition border border-slate-700/80"
               >
-                Member
+                Member / Athlete
               </button>
             </div>
           </div>

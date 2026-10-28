@@ -47,6 +47,8 @@ import java.util.concurrent.atomic.AtomicLong;
 @Service
 public class MemberService {
 
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(MemberService.class);
+
     private static final Set<String> ALLOWED_IMAGE_MIME_TYPES = Set.of(
             "image/jpeg",
             "image/png",
@@ -65,6 +67,9 @@ public class MemberService {
 
     @org.springframework.beans.factory.annotation.Autowired(required = false)
     private com.championsclub.bar.repo.TabRepository tabRepository;
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.championsclub.court.repo.BookingRepository bookingRepository;
 
     // Fallback counter if sequence is not supported in in-memory test databases
     private final AtomicLong fallbackCounter = new AtomicLong(100);
@@ -379,16 +384,128 @@ public class MemberService {
         String qrToken = qrCodeService.generateQrToken(member.getId(), member.getMemberNo());
         String qrDataUrl = qrCodeService.generateQrCodeDataUrl(qrToken, 250, 250);
 
+        List<String> benefits = resolveMemberBenefits(member);
+        List<com.championsclub.member.dto.BookedSlotDto> bookedSlots = resolveMemberBookedSlots(member);
+        String planName = member.getPlan() != null ? member.getPlan().getName() : "Club Membership";
+        String planCode = member.getPlan() != null ? member.getPlan().getCode() : "MEMBER";
+
+        // Structured JSON payload embedded into the QR code
+        String qrPayload = String.format(
+                "{\"type\":\"CHAMPIONS_CLUB_PASS\",\"memberNo\":\"%s\",\"name\":\"%s\",\"phone\":\"%s\",\"email\":\"%s\",\"plan\":\"%s\",\"status\":\"%s\",\"validThru\":\"%s\",\"token\":\"%s\"}",
+                escapeJson(member.getMemberNo()),
+                escapeJson(member.getFullName()),
+                escapeJson(member.getPhone() != null ? member.getPhone() : ""),
+                escapeJson(member.getEmail() != null ? member.getEmail() : ""),
+                escapeJson(planName + " (" + planCode + ")"),
+                escapeJson(member.getStatus().name()),
+                escapeJson(member.getEndDate() != null ? member.getEndDate().toString() : "N/A"),
+                escapeJson(qrToken)
+        );
+
         return QrTokenResponse.builder()
                 .qrToken(qrToken)
                 .memberId(member.getId())
                 .memberNo(member.getMemberNo())
                 .fullName(member.getFullName())
-                .planCode(member.getPlan() != null ? member.getPlan().getCode() : null)
+                .phone(member.getPhone())
+                .email(member.getEmail())
+                .planCode(planCode)
+                .planName(planName)
+                .startDate(member.getStartDate())
+                .endDate(member.getEndDate())
                 .status(member.getStatus().name())
                 .expiresAt(Instant.now().plus(30, ChronoUnit.DAYS))
+                .benefits(benefits)
+                .bookedSlots(bookedSlots)
                 .qrDataUrl(qrDataUrl)
+                .qrPayload(qrPayload)
                 .build();
+    }
+
+    private List<String> resolveMemberBenefits(Member member) {
+        List<String> benefits = new java.util.ArrayList<>();
+        if (member.getPlan() != null) {
+            Plan p = member.getPlan();
+            if (p.getBenefits() != null && !p.getBenefits().isEmpty()) {
+                p.getBenefits().forEach(b -> benefits.add(b.getBenefitText()));
+            }
+            if (p.getCourtDiscountPct() != null && p.getCourtDiscountPct().compareTo(BigDecimal.ZERO) > 0) {
+                benefits.add(p.getCourtDiscountPct().stripTrailingZeros().toPlainString() + "% Court Discount");
+            }
+            if (p.getShopDiscountPct() != null && p.getShopDiscountPct().compareTo(BigDecimal.ZERO) > 0) {
+                benefits.add(p.getShopDiscountPct().stripTrailingZeros().toPlainString() + "% Pro Shop Discount");
+            }
+            if (p.getBarDiscountPct() != null && p.getBarDiscountPct().compareTo(BigDecimal.ZERO) > 0) {
+                benefits.add(p.getBarDiscountPct().stripTrailingZeros().toPlainString() + "% Bar & Lounge Discount");
+            }
+            if (Boolean.TRUE.equals(p.getFreeCourts())) {
+                benefits.add("Complimentary Court Usage");
+            }
+            if (p.getMaxBookingsPerDay() != null) {
+                benefits.add("Up to " + p.getMaxBookingsPerDay() + " Bookings / Day");
+            }
+            if (p.getAdvanceBookingDays() != null) {
+                benefits.add(p.getAdvanceBookingDays() + "-Day Advance Booking Window");
+            }
+        }
+        if (member.getGuestPassesRemaining() != null && member.getGuestPassesRemaining() > 0) {
+            benefits.add(member.getGuestPassesRemaining() + " Guest Passes Included");
+        }
+        if (benefits.isEmpty()) {
+            benefits.add("Standard Member Access");
+            benefits.add("Shower & Locker Facility");
+        }
+        return benefits;
+    }
+
+    private List<com.championsclub.member.dto.BookedSlotDto> resolveMemberBookedSlots(Member member) {
+        List<com.championsclub.member.dto.BookedSlotDto> slots = new java.util.ArrayList<>();
+        if (bookingRepository == null || member.getId() == null) {
+            return slots;
+        }
+        try {
+            var bookings = bookingRepository.findByMemberOrUserOrderByStartAtDesc(
+                    member.getId(),
+                    member.getUser() != null ? member.getUser().getId() : null
+            );
+            Instant now = timeUtils.now();
+            Instant cutoff = now.minus(java.time.Duration.ofHours(3));
+            for (var b : bookings) {
+                if (b.getEndAt() != null && b.getEndAt().isAfter(cutoff) && b.getStatus() != com.championsclub.court.domain.BookingStatus.CANCELLED) {
+                    String courtName = b.getCourt() != null ? b.getCourt().getName() : "Court Session";
+                    String sport = b.getCourt() != null && b.getCourt().getSport() != null ? b.getCourt().getSport().getName() : "COURT";
+                    String timeWindow = b.getStartAt() + " - " + b.getEndAt();
+                    try {
+                        java.time.ZonedDateTime startZoned = b.getStartAt().atZone(java.time.ZoneId.of("Asia/Kolkata"));
+                        java.time.ZonedDateTime endZoned = b.getEndAt().atZone(java.time.ZoneId.of("Asia/Kolkata"));
+                        timeWindow = String.format("%s, %02d:%02d - %02d:%02d IST",
+                                startZoned.toLocalDate().toString(),
+                                startZoned.getHour(), startZoned.getMinute(),
+                                endZoned.getHour(), endZoned.getMinute());
+                    } catch (Exception ignored) {}
+
+                    slots.add(com.championsclub.member.dto.BookedSlotDto.builder()
+                            .id(b.getId())
+                            .bookingReference(b.getBookingReference())
+                            .courtName(courtName)
+                            .sport(sport)
+                            .startAt(b.getStartAt())
+                            .endAt(b.getEndAt())
+                            .timeWindow(timeWindow)
+                            .status(b.getStatus() != null ? b.getStatus().name() : "CONFIRMED")
+                            .build());
+                    if (slots.size() >= 5) break;
+                }
+            }
+        } catch (Exception ex) {
+            log.warn("Failed to resolve booked slots for member {}: {}", member.getMemberNo(), ex.getMessage());
+        }
+        return slots;
+    }
+
+    private String escapeJson(String s) {
+        if (s == null) return "";
+        return s.replace("\"", "\\\"");
     }
 
     @Transactional(readOnly = true)

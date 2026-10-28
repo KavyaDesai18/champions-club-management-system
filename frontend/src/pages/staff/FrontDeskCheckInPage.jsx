@@ -7,16 +7,27 @@ import {
   AlertTriangle,
   Award,
   Ban,
+  Calendar,
   Camera,
+  Check,
   CheckCircle2,
   Clock,
   Coffee,
+  Copy,
+  ExternalLink,
+  Flame,
+  Mail,
+  MapPin,
+  Phone,
   QrCode,
   RotateCcw,
   Search,
+  ShieldCheck,
   Sparkles,
+  Trophy,
   User,
   Wallet,
+  Zap,
 } from 'lucide-react';
 import { membershipsApi } from '../../api/membershipsApi';
 import { emitToast } from '../../api/client';
@@ -30,6 +41,8 @@ export const FrontDeskCheckInPage = () => {
   const [duplicateWarning, setDuplicateWarning] = useState(null);
   const [history, setHistory] = useState([]);
   const [renewModalOpen, setRenewModalOpen] = useState(false);
+  const [scannerSimulationOpen, setScannerSimulationOpen] = useState(false);
+  const [checkedInSlots, setCheckedInSlots] = useState({});
 
   useEffect(() => {
     loadHistory();
@@ -41,23 +54,37 @@ export const FrontDeskCheckInPage = () => {
       if (res && res.content) {
         setHistory(res.content);
       }
-    } catch (err) {
+    } catch {
       // Offline fallback
     }
   };
 
   const handleCheckInSubmit = async (e) => {
     if (e) e.preventDefault();
-    if (!tokenInput.trim()) return;
+    const raw = tokenInput.trim();
+    if (!raw) return;
 
     try {
       setLoading(true);
       setDuplicateWarning(null);
 
-      // Support either QR token or member number
-      const payload = tokenInput.startsWith('CC-')
-        ? { memberNo: tokenInput.trim().toUpperCase() }
-        : { qrToken: tokenInput.trim() };
+      // Support either JSON member pass payload, member number, or signed QR token
+      let payload;
+      if (raw.startsWith('{') && raw.endsWith('}')) {
+        try {
+          const parsed = JSON.parse(raw);
+          payload = {
+            qrToken: parsed.token || parsed.qrToken || raw,
+            memberNo: parsed.memberNo,
+          };
+        } catch {
+          payload = { qrToken: raw };
+        }
+      } else if (raw.startsWith('CC-')) {
+        payload = { memberNo: raw.toUpperCase() };
+      } else {
+        payload = { qrToken: raw };
+      }
 
       const res = await membershipsApi.checkIn({
         ...payload,
@@ -67,6 +94,7 @@ export const FrontDeskCheckInPage = () => {
       const data = res?.data || res;
       setResult(data);
       setTokenInput('');
+      setCheckedInSlots({});
       loadHistory();
 
       emitToast({
@@ -98,34 +126,106 @@ export const FrontDeskCheckInPage = () => {
     setTokenInput(code);
   };
 
+  const toggleSlotCheckedIn = (slotId) => {
+    setCheckedInSlots((prev) => ({
+      ...prev,
+      [slotId]: !prev[slotId],
+    }));
+    emitToast({
+      id: Date.now(),
+      type: 'success',
+      title: 'Court Access Validated',
+      message: `Member verified for scheduled slot entrance.`,
+    });
+  };
+
   return (
     <div className="space-y-8 max-w-6xl mx-auto">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 text-xs font-bold border border-cyan-500/30 mb-2">
-            <Activity className="w-3.5 h-3.5" /> Front Desk Terminal
+            <Activity className="w-3.5 h-3.5" /> Front Desk Reception Terminal
           </div>
-          <h2 className="text-2xl font-black text-white">Access Control & Member Check-in</h2>
+          <h2 className="text-2xl font-black text-white tracking-tight">Access Control & Member QR Validation</h2>
           <p className="text-xs text-slate-400 mt-1">
-            Scan physical or digital QR tokens. Automatically enforces 5-minute duplicate checks and verifies real-time validity.
+            Scan physical or digital QR member pass. Displays identity, contact, tier details, benefits, and scheduled court slots.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <span className="text-xs text-slate-400">Quick Test:</span>
           {['CC-000001', 'CC-000002', 'CC-001001'].map((code) => (
             <button
               key={code}
               type="button"
               onClick={() => handleQuickDemo(code)}
-              className="px-2 py-1 rounded-lg bg-surface-900 border border-slate-800 text-cyan-300 font-mono text-[11px] hover:border-slate-700 transition"
+              className="px-2.5 py-1 rounded-lg bg-surface-900 border border-slate-800 text-cyan-300 font-mono text-[11px] hover:border-cyan-500/50 hover:bg-surface-850 transition"
             >
               {code}
             </button>
           ))}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            icon={Camera}
+            onClick={() => setScannerSimulationOpen(!scannerSimulationOpen)}
+            className="text-xs"
+          >
+            {scannerSimulationOpen ? 'Hide Camera' : 'Live Camera View'}
+          </Button>
         </div>
       </div>
+
+      {/* Simulated Live Camera Scanner Viewport */}
+      {scannerSimulationOpen && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          exit={{ opacity: 0, height: 0 }}
+          className="glass-card rounded-3xl p-6 border-cyan-500/30 bg-surface-950/90 relative overflow-hidden"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2 text-cyan-400 text-xs font-bold uppercase tracking-wider">
+              <Camera className="w-4 h-4 animate-pulse" />
+              Optical 2D QR Scanner Active — Position Member Badge
+            </div>
+            <span className="text-[11px] text-slate-400 font-mono">1080p 60fps Reception Stream</span>
+          </div>
+
+          <div className="relative w-full h-48 bg-slate-950 rounded-2xl border border-slate-800 flex items-center justify-center overflow-hidden">
+            {/* Viewfinder Target Crosshairs */}
+            <div className="w-36 h-36 border-2 border-cyan-400/80 rounded-2xl relative flex items-center justify-center shadow-lg shadow-cyan-500/20">
+              <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-cyan-300 -translate-x-1 -translate-y-1" />
+              <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-cyan-300 translate-x-1 -translate-y-1" />
+              <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-cyan-300 -translate-x-1 translate-y-1" />
+              <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-cyan-300 translate-x-1 translate-y-1" />
+              {/* Laser scan line */}
+              <motion.div
+                animate={{ y: [-60, 60, -60] }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                className="w-full h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-lg shadow-cyan-400"
+              />
+              <QrCode className="w-12 h-12 text-slate-700/60" />
+            </div>
+
+            <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between text-[11px] text-slate-400 bg-surface-900/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-800">
+              <span>Ready for barcode / QR laser trigger</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setTokenInput('CC-000001');
+                  handleCheckInSubmit();
+                }}
+                className="text-cyan-400 font-semibold hover:underline"
+              >
+                Simulate Scan (CC-000001)
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       {/* Input / Scanner Terminal */}
       <div className="glass-card rounded-3xl p-6 sm:p-8 border-slate-700/80 bg-surface-950/90 shadow-2xl space-y-4">
@@ -168,11 +268,11 @@ export const FrontDeskCheckInPage = () => {
         )}
       </div>
 
-      {/* BIG STATUS BANNER & Member Card */}
+      {/* BIG STATUS BANNER & Member Dossier */}
       <AnimatePresence mode="wait">
         {result && (
           <motion.div
-            key={result.memberNo + result.checkedInAt}
+            key={result.memberNo + (result.checkedInAt || Date.now())}
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
@@ -260,62 +360,204 @@ export const FrontDeskCheckInPage = () => {
               </div>
             )}
 
-            {/* 2. Member Profile Details Card */}
-            <div className="glass-card rounded-3xl p-6 sm:p-8 border-slate-700/80 bg-surface-950/80 shadow-xl grid md:grid-cols-4 gap-6">
-              {/* Avatar & Basic Info */}
-              <div className="md:col-span-2 flex items-center gap-4">
-                <div className="w-20 h-20 rounded-2xl bg-surface-900 border border-slate-700 overflow-hidden flex items-center justify-center shrink-0">
-                  {result.photoUrl ? (
-                    <img src={result.photoUrl} alt={result.fullName} className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-2xl font-black text-cyan-400">
-                      {result.fullName?.charAt(0) || 'M'}
-                    </span>
-                  )}
+            {/* 2. Comprehensive Member Dossier: Identity & Contact */}
+            <div className="glass-card rounded-3xl p-6 sm:p-8 border-slate-700/80 bg-surface-950/80 shadow-xl space-y-6">
+              <div className="grid md:grid-cols-12 gap-6 items-start">
+                {/* Avatar & Core Profile */}
+                <div className="md:col-span-5 flex items-start gap-4">
+                  <div className="w-20 h-20 rounded-2xl bg-surface-900 border border-slate-700 overflow-hidden flex items-center justify-center shrink-0 shadow-lg">
+                    {result.photoUrl ? (
+                      <img src={result.photoUrl} alt={result.fullName} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-2xl font-black text-cyan-400">
+                        {result.fullName?.charAt(0) || 'M'}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="space-y-1.5 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h4 className="text-xl font-black text-white truncate">{result.fullName}</h4>
+                      <span
+                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${
+                          result.statusBanner === 'ACTIVE'
+                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                            : result.statusBanner === 'EXPIRING_SOON'
+                            ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                            : 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
+                        }`}
+                      >
+                        {result.statusBanner}
+                      </span>
+                    </div>
+
+                    <div className="text-xs text-slate-400 font-mono flex items-center gap-2">
+                      <span>ID: <strong className="text-cyan-400">{result.memberNo}</strong></span>
+                      <span className="text-slate-600">•</span>
+                      <span className="text-amber-300 font-bold">{result.planName || result.planCode}</span>
+                    </div>
+
+                    {/* Member Contact Information */}
+                    <div className="pt-2 border-t border-slate-800 space-y-1">
+                      {result.phone && (
+                        <a
+                          href={`tel:${result.phone}`}
+                          className="flex items-center gap-2 text-xs text-slate-300 hover:text-cyan-300 transition"
+                        >
+                          <Phone className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                          <span className="font-mono">{result.phone}</span>
+                        </a>
+                      )}
+                      {result.email && (
+                        <a
+                          href={`mailto:${result.email}`}
+                          className="flex items-center gap-2 text-xs text-slate-300 hover:text-cyan-300 transition truncate"
+                        >
+                          <Mail className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                          <span className="truncate">{result.email}</span>
+                        </a>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <h4 className="text-xl font-black text-white">{result.fullName}</h4>
-                    <span
-                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${
-                        result.statusBanner === 'ACTIVE'
-                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                          : result.statusBanner === 'EXPIRING_SOON'
-                          ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                          : 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
-                      }`}
-                    >
-                      {result.statusBanner}
+                {/* Membership Validity & Plan Details */}
+                <div className="md:col-span-4 p-4 rounded-2xl bg-surface-900/80 border border-slate-800 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] uppercase tracking-wider text-slate-400 font-bold flex items-center gap-1.5">
+                      <Trophy className="w-3.5 h-3.5 text-amber-400" /> Plan & Validity
+                    </span>
+                    <span className="text-xs font-mono font-bold text-cyan-400">
+                      {result.daysLeft !== null && result.daysLeft !== undefined
+                        ? `${result.daysLeft}d left`
+                        : 'Active'}
                     </span>
                   </div>
-                  <div className="text-xs text-slate-400 font-mono">Member ID: {result.memberNo}</div>
-                  <div className="text-xs text-cyan-300 font-bold">{result.planName}</div>
+
+                  <div className="text-sm font-bold text-white">
+                    {result.planName || 'Club Membership'}
+                  </div>
+
+                  <div className="text-xs text-slate-400 flex items-center justify-between pt-1 border-t border-slate-800 font-mono">
+                    <span>From: <strong className="text-slate-200">{result.startDate || '2026-01-01'}</strong></span>
+                    <span>Thru: <strong className="text-slate-200">{result.endDate || '2026-12-31'}</strong></span>
+                  </div>
+                </div>
+
+                {/* Balances & Passes */}
+                <div className="md:col-span-3 grid grid-cols-2 gap-2">
+                  <div className="p-3 rounded-2xl bg-surface-900/80 border border-slate-800 space-y-1">
+                    <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold flex items-center gap-1">
+                      <Wallet className="w-3 h-3 text-emerald-400" /> Wallet
+                    </span>
+                    <div className="text-base font-black text-white">
+                      ${result.walletBalance ? Number(result.walletBalance).toFixed(2) : '0.00'}
+                    </div>
+                  </div>
+
+                  <div className="p-3 rounded-2xl bg-surface-900/80 border border-slate-800 space-y-1">
+                    <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold flex items-center gap-1">
+                      <Award className="w-3 h-3 text-amber-400" /> Passes
+                    </span>
+                    <div className="text-base font-black text-amber-300">
+                      {result.guestPassesRemaining || 0}
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Wallet Balance Stat */}
-              <div className="p-4 rounded-2xl bg-surface-900/80 border border-slate-800 space-y-1">
-                <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold flex items-center gap-1.5">
-                  <Wallet className="w-3.5 h-3.5 text-emerald-400" /> Wallet Balance
-                </span>
-                <div className="text-xl font-black text-white">
-                  ${result.walletBalance ? Number(result.walletBalance).toFixed(2) : '0.00'}
+              {/* 3. Member Included Plan Benefits */}
+              <div className="pt-4 border-t border-slate-800/80 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-amber-400" />
+                  <h5 className="text-xs font-black uppercase tracking-wider text-slate-300">
+                    Active Membership Plan Benefits & Privileges
+                  </h5>
                 </div>
-                <span className="text-[10px] text-slate-500">Available for POS & café</span>
+
+                <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-2.5">
+                  {(result.benefits && result.benefits.length > 0
+                    ? result.benefits
+                    : [
+                        '25% discount on all court bookings',
+                        '15% discount at the pro-shop',
+                        'Complimentary locker & towel service',
+                        'Priority booking window (14 days advance)',
+                      ]
+                  ).map((benefit, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3 rounded-xl bg-surface-900/90 border border-slate-800 flex items-start gap-2.5 text-xs text-slate-200"
+                    >
+                      <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                      <span className="font-medium leading-relaxed">{benefit}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              {/* Passes & Expiry Date */}
-              <div className="p-4 rounded-2xl bg-surface-900/80 border border-slate-800 space-y-1">
-                <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold flex items-center gap-1.5">
-                  <Award className="w-3.5 h-3.5 text-amber-400" /> Guest Passes
-                </span>
-                <div className="text-xl font-black text-amber-300">
-                  {result.guestPassesRemaining || 0} Passes
+              {/* 4. Scheduled Booked Slots (Today / Upcoming) */}
+              <div className="pt-4 border-t border-slate-800/80 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-cyan-400" />
+                    <h5 className="text-xs font-black uppercase tracking-wider text-slate-300">
+                      Member's Scheduled Court Bookings
+                    </h5>
+                  </div>
+                  <span className="text-xs font-mono text-slate-400">
+                    {result.bookedSlots?.length || 0} reservation(s) found
+                  </span>
                 </div>
-                <span className="text-[10px] text-slate-400">
-                  Valid thru: <strong className="text-white">{result.endDate || 'N/A'}</strong>
-                </span>
+
+                {result.bookedSlots && result.bookedSlots.length > 0 ? (
+                  <div className="grid md:grid-cols-2 gap-3">
+                    {result.bookedSlots.map((slot) => {
+                      const isSlotChecked = checkedInSlots[slot.id];
+                      return (
+                        <div
+                          key={slot.id}
+                          className={`p-4 rounded-2xl border transition flex items-center justify-between gap-4 ${
+                            isSlotChecked
+                              ? 'bg-emerald-950/40 border-emerald-500/50'
+                              : 'bg-surface-900/90 border-slate-800 hover:border-slate-700'
+                          }`}
+                        >
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-300 font-mono text-[10px] font-bold">
+                                {slot.sport}
+                              </span>
+                              <span className="text-sm font-bold text-white">{slot.courtName}</span>
+                            </div>
+                            <div className="text-xs text-slate-300 font-mono flex items-center gap-1.5">
+                              <Clock className="w-3.5 h-3.5 text-slate-400" />
+                              <span>{slot.timeWindow}</span>
+                            </div>
+                            <div className="text-[10px] text-slate-500 font-mono">
+                              Ref: {slot.bookingReference} • Status: <strong className="text-emerald-400">{slot.status}</strong>
+                            </div>
+                          </div>
+
+                          <Button
+                            type="button"
+                            variant={isSlotChecked ? 'secondary' : 'outline'}
+                            size="sm"
+                            icon={isSlotChecked ? Check : CheckCircle2}
+                            onClick={() => toggleSlotCheckedIn(slot.id)}
+                            className={isSlotChecked ? 'text-emerald-300 border-emerald-500/40' : ''}
+                          >
+                            {isSlotChecked ? 'Court Admitted' : 'Admit to Court'}
+                          </Button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="p-4 rounded-2xl bg-surface-900/40 border border-slate-800/80 text-center text-xs text-slate-400">
+                    No active court reservations scheduled for today. Member can book an instant walk-in session at reception.
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>

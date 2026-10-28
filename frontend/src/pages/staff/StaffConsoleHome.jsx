@@ -516,87 +516,7 @@ export const StaffConsoleHome = () => {
   }
 
   /* =========================================================================
-     6. MANAGER ROLE VIEW
-     ========================================================================= */
-  if (effectiveRole === 'MANAGER') {
-    return (
-      <div className="space-y-6">
-        <div className="court-card p-6 sm:p-7 rounded-2xl border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-sm flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-          <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-heading font-black uppercase tracking-wider border border-amber-500/30 mb-2">
-              <Shield className="w-3.5 h-3.5" />
-              General Operations Manager
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-heading font-black text-court-950 dark:text-white uppercase tracking-tight">
-              Facility Operations Hub
-            </h2>
-            <p className="text-xs sm:text-sm text-court-500 dark:text-court-400 mt-1 font-sans">
-              Court schedules, facility hours, lead CRM, and staff coordination.
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="px-4 py-2.5 rounded-xl bg-court-50 dark:bg-court-950 border border-court-200 dark:border-court-800 text-center min-w-[110px]">
-              <div className="text-[10px] text-court-500 uppercase font-heading font-bold">Active Courts</div>
-              <div className="text-xl font-heading font-black text-grass-600 dark:text-grass-400 tabular-nums">12 / 16</div>
-            </div>
-            <div className="px-4 py-2.5 rounded-xl bg-court-50 dark:bg-court-950 border border-court-200 dark:border-court-800 text-center min-w-[110px]">
-              <div className="text-[10px] text-court-500 uppercase font-heading font-bold">Staff On Duty</div>
-              <div className="text-xl font-heading font-black text-court-950 dark:text-white tabular-nums">6</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Manager Operations Grid */}
-        <div className="grid lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 court-card rounded-2xl p-6 border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-sm space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-heading font-black text-court-950 dark:text-white uppercase">
-                Facility Live Status
-              </h3>
-              <Link to="/console/courts" className="text-xs font-heading font-bold text-optic-600 dark:text-optic-400 uppercase hover:underline">
-                Manage Courts &rarr;
-              </Link>
-            </div>
-            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
-              {courtOccupancy.map((court, i) => (
-                <div key={i} className="p-4 rounded-xl bg-court-50 dark:bg-court-950 border border-court-200 dark:border-court-800 text-xs space-y-2">
-                  <div className="flex justify-between font-heading font-bold text-court-950 dark:text-white">
-                    <span>{court.name}</span>
-                    <span className="text-[10px] uppercase font-mono">{court.status}</span>
-                  </div>
-                  <div className="text-court-600 dark:text-court-300">{court.player}</div>
-                  <div className="text-[11px] font-mono text-court-400">{court.time}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="court-card rounded-2xl p-6 border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-sm space-y-4">
-            <h3 className="text-lg font-heading font-black text-court-950 dark:text-white uppercase">
-              Management Modules
-            </h3>
-            <div className="space-y-2">
-              <Link to="/console/leads" className="block p-3 rounded-xl bg-court-50 dark:bg-court-950 hover:border-optic-500 border border-court-200 dark:border-court-800 transition">
-                <div className="text-xs font-heading font-bold uppercase text-court-950 dark:text-white">Lead CRM & Quotes</div>
-                <div className="text-[11px] text-court-500">Corporate inquiry & trial conversion pipeline</div>
-              </Link>
-              <Link to="/console/pricing" className="block p-3 rounded-xl bg-court-50 dark:bg-court-950 hover:border-optic-500 border border-court-200 dark:border-court-800 transition">
-                <div className="text-xs font-heading font-bold uppercase text-court-950 dark:text-white">Pricing & Peak Rules</div>
-                <div className="text-[11px] text-court-500">Configure peak hour multiplier rates</div>
-              </Link>
-              <Link to="/console/hours" className="block p-3 rounded-xl bg-court-50 dark:bg-court-950 hover:border-optic-500 border border-court-200 dark:border-court-800 transition">
-                <div className="text-xs font-heading font-bold uppercase text-court-950 dark:text-white">Club Opening Hours</div>
-                <div className="text-[11px] text-court-500">Court opening and closing schedules</div>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  /* =========================================================================
-     7. OWNER / ADMIN VIEW (FULL ACCESS & AUDIT LOGS)
+     6. OWNER / ADMIN VIEW (FULL EXECUTIVE FINANCIAL & CLUB MANAGEMENT)
      ========================================================================= */
   return (
     <div className="space-y-6">
@@ -611,7 +531,7 @@ export const StaffConsoleHome = () => {
             Executive Command Center
           </h2>
           <p className="text-xs sm:text-sm text-court-500 dark:text-court-400 mt-1 font-sans">
-            Executive financial reporting, RBAC user administration, and immutable club audits.
+            Complete executive oversight: financial ledger, revenue analytics, club operations, and staff administration.
           </p>
         </div>
 
@@ -630,12 +550,12 @@ export const StaffConsoleHome = () => {
               Today's Revenue
             </div>
             <div className="text-xl font-heading font-black text-court-950 dark:text-white tabular-nums">
-              $2,840.50
+              ₹2,84,050
             </div>
           </div>
           <div className="px-4 py-2.5 rounded-xl bg-court-50 dark:bg-court-950 border border-court-200 dark:border-court-800 text-center min-w-[100px]">
             <div className="text-[10px] text-court-500 uppercase font-heading font-bold tracking-wider">
-              Admin Access
+              Executive Role
             </div>
             <div className="text-xl font-heading font-black text-cyan-500 uppercase">
               OWNER
@@ -739,8 +659,50 @@ export const StaffConsoleHome = () => {
           </div>
         </div>
 
-        {/* Audit Log Stream (RESTRICTED TO OWNER) */}
+        {/* Right Column: Management Modules & Audit Trail */}
         <div className="space-y-6">
+          <div className="court-card rounded-2xl p-6 border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-sm space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-heading font-black text-court-950 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                <Shield className="w-4 h-4 text-optic-500" />
+                Executive Club Management
+              </h3>
+              <span className="text-[10px] font-heading font-bold text-optic-600 dark:text-optic-400 uppercase bg-optic-500/10 px-2 py-0.5 rounded border border-optic-500/20">
+                Owner Authority
+              </span>
+            </div>
+            <p className="text-xs text-court-500 dark:text-court-400">
+              Direct administrative access to club configuration, rules, and corporate ledgers.
+            </p>
+
+            <div className="grid sm:grid-cols-2 gap-2 pt-1">
+              <Link to="/console/leads" className="block p-3 rounded-xl bg-court-50 dark:bg-court-950 hover:border-optic-500 border border-court-200 dark:border-court-800 transition">
+                <div className="text-xs font-heading font-bold uppercase text-court-950 dark:text-white">Lead CRM & Quotes</div>
+                <div className="text-[11px] text-court-500">Trial membership pipeline</div>
+              </Link>
+              <Link to="/console/pricing" className="block p-3 rounded-xl bg-court-50 dark:bg-court-950 hover:border-optic-500 border border-court-200 dark:border-court-800 transition">
+                <div className="text-xs font-heading font-bold uppercase text-court-950 dark:text-white">Pricing & Peak Rules</div>
+                <div className="text-[11px] text-court-500">Tier multiplier rates</div>
+              </Link>
+              <Link to="/console/hours" className="block p-3 rounded-xl bg-court-50 dark:bg-court-950 hover:border-optic-500 border border-court-200 dark:border-court-800 transition">
+                <div className="text-xs font-heading font-bold uppercase text-court-950 dark:text-white">Club Hours</div>
+                <div className="text-[11px] text-court-500">Court opening schedules</div>
+              </Link>
+              <Link to="/console/corporate" className="block p-3 rounded-xl bg-court-50 dark:bg-court-950 hover:border-optic-500 border border-court-200 dark:border-court-800 transition">
+                <div className="text-xs font-heading font-bold uppercase text-court-950 dark:text-white">Corporate Accounts</div>
+                <div className="text-[11px] text-court-500">B2B credit contracts</div>
+              </Link>
+              <Link to="/console/invoices" className="block p-3 rounded-xl bg-court-50 dark:bg-court-950 hover:border-optic-500 border border-court-200 dark:border-court-800 transition">
+                <div className="text-xs font-heading font-bold uppercase text-court-950 dark:text-white">Billing & Invoices</div>
+                <div className="text-[11px] text-court-500">Audited receipt ledger</div>
+              </Link>
+              <Link to="/console/daily-close" className="block p-3 rounded-xl bg-court-50 dark:bg-court-950 hover:border-optic-500 border border-court-200 dark:border-court-800 transition">
+                <div className="text-xs font-heading font-bold uppercase text-court-950 dark:text-white">Daily Ledger Close</div>
+                <div className="text-[11px] text-court-500">Cash drawer balancing</div>
+              </Link>
+            </div>
+          </div>
+
           <div className="court-card rounded-2xl p-6 border border-court-200 dark:border-court-800 bg-white dark:bg-court-900 shadow-court-sm space-y-4">
             <div className="flex items-center gap-2">
               <FileText className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />

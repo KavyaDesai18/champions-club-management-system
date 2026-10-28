@@ -187,8 +187,6 @@ export const UserManagementPage = () => {
     switch (role) {
       case 'OWNER':
         return 'gold';
-      case 'MANAGER':
-        return 'indigo';
       case 'FRONT_DESK':
       case 'SHOP_STAFF':
       case 'BAR_STAFF':
@@ -360,8 +358,7 @@ export const UserManagementPage = () => {
                 onChange={(e) => setRoleFilter(e.target.value)}
                 options={[
                   { label: 'All Roles', value: '' },
-                  { label: 'Owner', value: 'OWNER' },
-                  { label: 'Manager', value: 'MANAGER' },
+                  { label: 'Owner / Admin', value: 'OWNER' },
                   { label: 'Front Desk', value: 'FRONT_DESK' },
                   { label: 'Coach', value: 'COACH' },
                   { label: 'Member', value: 'MEMBER' },
@@ -429,8 +426,7 @@ export const UserManagementPage = () => {
               options={
                 isOwner
                   ? [
-                      { label: 'Club Owner', value: 'OWNER' },
-                      { label: 'General Manager', value: 'MANAGER' },
+                      { label: 'Club Owner / Admin', value: 'OWNER' },
                       { label: 'Front Desk Attendant', value: 'FRONT_DESK' },
                       { label: 'Pro Shop Staff', value: 'SHOP_STAFF' },
                       { label: 'Lounge & Bar Staff', value: 'BAR_STAFF' },
@@ -498,8 +494,7 @@ export const UserManagementPage = () => {
               value={newRole}
               onChange={(e) => setNewRole(e.target.value)}
               options={[
-                { label: 'Club Owner', value: 'OWNER' },
-                { label: 'General Manager', value: 'MANAGER' },
+                { label: 'Club Owner / Admin', value: 'OWNER' },
                 { label: 'Front Desk Staff', value: 'FRONT_DESK' },
                 { label: 'Pro Shop Staff', value: 'SHOP_STAFF' },
                 { label: 'Bar & Lounge Staff', value: 'BAR_STAFF' },

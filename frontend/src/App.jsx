@@ -116,7 +116,7 @@ export function App() {
                   <Route path="/public/reports/share/:token" element={<SharedReportViewPage />} />
 
                   {/* 2. Member Shell Area (Protected) */}
-                  <Route element={<ProtectedRoute allowedRoles={['MEMBER', 'COACH', 'OWNER', 'MANAGER']} />}>
+                  <Route element={<ProtectedRoute allowedRoles={['MEMBER', 'COACH', 'OWNER']} />}>
                     <Route path="/app" element={<MemberLayout />}>
                       <Route index element={<MemberDashboard />} />
                       <Route path="book" element={<CourtBookingPage />} />
@@ -133,7 +133,6 @@ export function App() {
                       <ProtectedRoute
                         allowedRoles={[
                           'OWNER',
-                          'MANAGER',
                           'FRONT_DESK',
                           'SHOP_STAFF',
                           'BAR_STAFF',
@@ -155,17 +154,13 @@ export function App() {
                         <Route path="hr" element={<HrPayrollPage />} />
                         <Route path="audit" element={<StaffConsoleHome />} />
                         <Route path="settings" element={<StaffConsoleHome />} />
-                      </Route>
-
-                      {/* Manager & Owner Administrative Controls */}
-                      <Route element={<ProtectedRoute allowedRoles={['OWNER', 'MANAGER']} />}>
                         <Route path="corporate" element={<CorporateAccountsPage />} />
                         <Route path="pricing" element={<PricingConsolePage />} />
                         <Route path="hours" element={<OpeningHoursConsolePage />} />
                       </Route>
 
-                      {/* Front Desk Operations */}
-                      <Route element={<ProtectedRoute allowedRoles={['OWNER', 'MANAGER', 'FRONT_DESK']} />}>
+                      {/* Front Desk & Operations */}
+                      <Route element={<ProtectedRoute allowedRoles={['OWNER', 'FRONT_DESK']} />}>
                         <Route path="leads" element={<LeadCrmPage />} />
                         <Route path="members" element={<MembersListPage />} />
                         <Route path="members/expiring" element={<ExpiringMembershipsPage />} />
@@ -178,18 +173,18 @@ export function App() {
                       </Route>
 
                       {/* Cash Drawer (Front Desk, Shop, Bar) */}
-                      <Route element={<ProtectedRoute allowedRoles={['OWNER', 'MANAGER', 'FRONT_DESK', 'SHOP_STAFF', 'BAR_STAFF']} />}>
+                      <Route element={<ProtectedRoute allowedRoles={['OWNER', 'FRONT_DESK', 'SHOP_STAFF', 'BAR_STAFF']} />}>
                         <Route path="cash-drawer" element={<CashDrawerConsolePage />} />
                       </Route>
 
                       {/* Social Play & Court Availability (Staff & Coaches) */}
-                      <Route element={<ProtectedRoute allowedRoles={['OWNER', 'MANAGER', 'FRONT_DESK', 'COACH']} />}>
+                      <Route element={<ProtectedRoute allowedRoles={['OWNER', 'FRONT_DESK', 'COACH']} />}>
                         <Route path="social" element={<SocialPlayPage />} />
                         <Route path="availability" element={<CourtBookingPage />} />
                       </Route>
 
                       {/* Bar & Lounge Operations */}
-                      <Route element={<ProtectedRoute allowedRoles={['OWNER', 'MANAGER', 'BAR_STAFF']} />}>
+                      <Route element={<ProtectedRoute allowedRoles={['OWNER', 'BAR_STAFF']} />}>
                         <Route path="bar" element={<BarPosPage />} />
                         <Route path="bar-pos" element={<BarPosPage />} />
                         <Route path="bar-shifts" element={<ShiftConsolePage />} />
@@ -197,13 +192,13 @@ export function App() {
                       </Route>
 
                       {/* Kitchen Prep Display */}
-                      <Route element={<ProtectedRoute allowedRoles={['OWNER', 'MANAGER', 'KITCHEN', 'BAR_STAFF']} />}>
+                      <Route element={<ProtectedRoute allowedRoles={['OWNER', 'KITCHEN', 'BAR_STAFF']} />}>
                         <Route path="kitchen" element={<KitchenDisplayPage />} />
                         <Route path="kitchen-display" element={<KitchenDisplayPage />} />
                       </Route>
 
                       {/* Pro Shop Fulfillment */}
-                      <Route element={<ProtectedRoute allowedRoles={['OWNER', 'MANAGER', 'SHOP_STAFF']} />}>
+                      <Route element={<ProtectedRoute allowedRoles={['OWNER', 'SHOP_STAFF']} />}>
                         <Route path="shop" element={<ShopConsolePage />} />
                       </Route>
                     </Route>

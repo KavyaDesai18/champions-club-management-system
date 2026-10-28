@@ -31,7 +31,7 @@ import { emitToast } from '../../api/client';
 export default function SocialPlayPage() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
-  const isStaff = user?.role && ['OWNER', 'MANAGER', 'FRONT_DESK', 'COACH'].includes(user.role);
+  const isStaff = user?.role && ['OWNER', 'FRONT_DESK', 'COACH', 'MANAGER'].includes(user.role);
 
   // Filter states
   const [selectedSportId, setSelectedSportId] = useState('ALL');

@@ -23,7 +23,7 @@ export const ForbiddenPage = () => {
           <div className="text-6xl font-black tracking-tight text-white font-mono">403</div>
           <h1 className="text-2xl font-extrabold text-white">Restricted Club Area</h1>
           <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
-            Access denied. This zone requires specific Role-Based Access Control (e.g. OWNER, MANAGER, or VIP Tier credentials).
+            Access denied. This zone requires specific Role-Based Access Control (e.g. OWNER, FRONT_DESK, or VIP Tier credentials).
           </p>
         </div>
 
