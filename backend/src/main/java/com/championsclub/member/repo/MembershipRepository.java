@@ -80,17 +80,17 @@ public interface MembershipRepository extends JpaRepository<Membership, UUID> {
         LEFT JOIN FETCH m.plan p
         WHERE m.isDeleted = false
           AND (
-            (:status IS NULL AND m.status IN (com.championsclub.member.domain.MembershipStatus.ACTIVE, com.championsclub.member.domain.MembershipStatus.EXPIRED))
+            (cast(:status as string) IS NULL AND m.status IN (com.championsclub.member.domain.MembershipStatus.ACTIVE, com.championsclub.member.domain.MembershipStatus.EXPIRED))
             OR m.status = :status
           )
-          AND (:planCode IS NULL OR UPPER(p.code) = UPPER(:planCode))
-          AND (:maxEndDate IS NULL OR m.endDate <= :maxEndDate)
-          AND (:minEndDate IS NULL OR m.endDate >= :minEndDate)
+          AND (cast(:planCode as string) IS NULL OR UPPER(p.code) = UPPER(cast(:planCode as string)))
+          AND (cast(:maxEndDate as date) IS NULL OR m.endDate <= :maxEndDate)
+          AND (cast(:minEndDate as date) IS NULL OR m.endDate >= :minEndDate)
           AND (
-            :search IS NULL
-            OR LOWER(mem.fullName) LIKE LOWER(CONCAT('%', :search, '%'))
-            OR LOWER(mem.memberNo) LIKE LOWER(CONCAT('%', :search, '%'))
-            OR LOWER(mem.phone) LIKE LOWER(CONCAT('%', :search, '%'))
+            cast(:search as string) IS NULL
+            OR LOWER(mem.fullName) LIKE LOWER(CONCAT('%', cast(:search as string), '%'))
+            OR LOWER(mem.memberNo) LIKE LOWER(CONCAT('%', cast(:search as string), '%'))
+            OR LOWER(mem.phone) LIKE LOWER(CONCAT('%', cast(:search as string), '%'))
           )
         ORDER BY m.endDate ASC
     """)

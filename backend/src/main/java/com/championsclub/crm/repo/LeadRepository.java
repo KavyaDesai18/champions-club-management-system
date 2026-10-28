@@ -31,10 +31,10 @@ public interface LeadRepository extends JpaRepository<Lead, UUID> {
     );
 
     @Query("SELECT l FROM Lead l WHERE " +
-            "LOWER(l.name) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
-            "LOWER(l.email) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
-            "l.phone LIKE CONCAT('%', :query, '%') OR " +
-            "LOWER(l.interest) LIKE LOWER(CONCAT('%', :query, '%')) " +
+            "LOWER(l.name) LIKE LOWER(CONCAT('%', cast(:query as string), '%')) OR " +
+            "LOWER(l.email) LIKE LOWER(CONCAT('%', cast(:query as string), '%')) OR " +
+            "l.phone LIKE CONCAT('%', cast(:query as string), '%') OR " +
+            "LOWER(l.interest) LIKE LOWER(CONCAT('%', cast(:query as string), '%')) " +
             "ORDER BY l.createdAt DESC")
     List<Lead> searchLeads(@Param("query") String query);
 

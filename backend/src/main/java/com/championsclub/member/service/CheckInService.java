@@ -297,14 +297,16 @@ public class CheckInService {
 
     private Member resolveMember(CheckInRequest request) {
         if (request.getQrToken() != null && !request.getQrToken().isBlank()) {
-            String token = request.getQrToken().trim();
-            if (token.startsWith("{") && token.endsWith("}")) {
+            String rawToken = request.getQrToken().trim();
+            String extractedToken = rawToken;
+
+            if (rawToken.startsWith("{") && rawToken.endsWith("}")) {
                 try {
-                    com.fasterxml.jackson.databind.JsonNode node = new com.fasterxml.jackson.databind.ObjectMapper().readTree(token);
+                    com.fasterxml.jackson.databind.JsonNode node = new com.fasterxml.jackson.databind.ObjectMapper().readTree(rawToken);
                     if (node.hasNonNull("token") && !node.get("token").asText().isBlank()) {
-                        token = node.get("token").asText().trim();
+                        extractedToken = node.get("token").asText().trim();
                     } else if (node.hasNonNull("memberNo") && !node.get("memberNo").asText().isBlank()) {
-                        String mNo = node.get("memberNo").asText().trim().toUpperCase();
+                        final String mNo = node.get("memberNo").asText().trim().toUpperCase();
                         return memberRepository.findByMemberNoAndIsDeletedFalse(mNo)
                                 .orElseThrow(() -> new ResourceNotFoundException("Member with number: " + mNo, "MEMBER_NOT_FOUND"));
                     }
@@ -312,9 +314,30 @@ public class CheckInService {
                     log.warn("Could not parse JSON QR token: {}", e.getMessage());
                 }
             }
-            QrCodeService.VerifiedQrToken verified = qrCodeService.verifyQrToken(token);
-            return memberRepository.findByIdAndIsDeletedFalse(verified.memberId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Member", verified.memberId()));
+
+            final String candidateToken = extractedToken;
+            final String upperCandidate = candidateToken.toUpperCase();
+
+            if (upperCandidate.startsWith("CC-")) {
+                return memberRepository.findByMemberNoAndIsDeletedFalse(upperCandidate)
+                        .orElseThrow(() -> new ResourceNotFoundException("Member with number: " + upperCandidate, "MEMBER_NOT_FOUND"));
+            }
+
+            try {
+                QrCodeService.VerifiedQrToken verified = qrCodeService.verifyQrToken(candidateToken);
+                return memberRepository.findByIdAndIsDeletedFalse(verified.memberId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Member", verified.memberId()));
+            } catch (Exception ex) {
+                Optional<Member> byMemberNo = memberRepository.findByMemberNoAndIsDeletedFalse(upperCandidate);
+                if (byMemberNo.isPresent()) {
+                    return byMemberNo.get();
+                }
+                Optional<Member> byEmail = memberRepository.findByEmailAndIsDeletedFalse(candidateToken.toLowerCase());
+                if (byEmail.isPresent()) {
+                    return byEmail.get();
+                }
+                throw ex;
+            }
         }
 
         if (request.getMemberNo() != null && !request.getMemberNo().isBlank()) {

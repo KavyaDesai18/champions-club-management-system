@@ -115,7 +115,7 @@ export const MemberDashboard = () => {
             <Trophy className="w-3.5 h-3.5 text-optic-500 stroke-[2]" /> Gold Tier Active (25% Court Discount)
           </div>
           <h2 className="text-2xl sm:text-3xl font-heading font-black text-court-950 dark:text-white uppercase tracking-tight">
-            Welcome back, Alex!
+            Welcome back, {(membership?.fullName || user?.fullName || 'Alex').split(' ')[0]}!
           </h2>
           <p className="text-xs sm:text-sm text-court-500 dark:text-court-400 mt-1 font-sans">
             Book slots up to 14 days in advance. All sessions are 60 minutes starting on the hour or half-hour.

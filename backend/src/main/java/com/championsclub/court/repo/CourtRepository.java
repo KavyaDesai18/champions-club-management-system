@@ -16,7 +16,7 @@ public interface CourtRepository extends JpaRepository<Court, UUID> {
     List<Court> findByIsActiveTrueAndIsDeletedFalse();
     List<Court> findBySportTypeAndIsActiveTrueAndIsDeletedFalse(SportType sportType);
 
-    @Query("SELECT c FROM Court c WHERE (c.sport.id = :sportId OR (:sportId IS NULL AND c.isDeleted = false)) " +
+    @Query("SELECT c FROM Court c WHERE (cast(:sportId as string) IS NULL OR c.sport.id = :sportId) " +
            "AND c.isDeleted = false ORDER BY c.name ASC")
     List<Court> findBySportIdAndIsDeletedFalse(@Param("sportId") UUID sportId);
 

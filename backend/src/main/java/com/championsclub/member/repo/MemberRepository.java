@@ -41,13 +41,13 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
     Long getNextMemberSequence();
 
     @Query("SELECT m FROM Member m WHERE m.isDeleted = false " +
-           "AND (:status IS NULL OR m.status = :status) " +
-           "AND (:planCode IS NULL OR m.plan.code = :planCode) " +
-           "AND (:search IS NULL OR :search = '' " +
-           "     OR LOWER(m.fullName) LIKE LOWER(CONCAT('%', :search, '%')) " +
-           "     OR LOWER(m.email) LIKE LOWER(CONCAT('%', :search, '%')) " +
-           "     OR m.phone LIKE CONCAT('%', :search, '%') " +
-           "     OR LOWER(m.memberNo) LIKE LOWER(CONCAT('%', :search, '%')))")
+           "AND (cast(:status as string) IS NULL OR m.status = :status) " +
+           "AND (cast(:planCode as string) IS NULL OR m.plan.code = cast(:planCode as string)) " +
+           "AND (cast(:search as string) IS NULL OR cast(:search as string) = '' " +
+           "     OR LOWER(m.fullName) LIKE LOWER(CONCAT('%', cast(:search as string), '%')) " +
+           "     OR LOWER(m.email) LIKE LOWER(CONCAT('%', cast(:search as string), '%')) " +
+           "     OR m.phone LIKE CONCAT('%', cast(:search as string), '%') " +
+           "     OR LOWER(m.memberNo) LIKE LOWER(CONCAT('%', cast(:search as string), '%')))")
     Page<Member> searchMembers(
             @Param("search") String search,
             @Param("status") MemberStatus status,

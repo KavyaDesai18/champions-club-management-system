@@ -32,8 +32,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Query("""
         SELECT u FROM User u
         WHERE u.isDeleted = false
-          AND (LOWER(u.fullName) LIKE LOWER(CONCAT('%', :search, '%'))
-            OR LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%')))
+          AND (LOWER(u.fullName) LIKE LOWER(CONCAT('%', cast(:search as string), '%'))
+            OR LOWER(u.email) LIKE LOWER(CONCAT('%', cast(:search as string), '%')))
         ORDER BY u.createdAt DESC
     """)
     Page<User> findBySearch(@Param("search") String search, Pageable pageable);
@@ -42,8 +42,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
         SELECT u FROM User u
         WHERE u.isDeleted = false
           AND u.role = :role
-          AND (LOWER(u.fullName) LIKE LOWER(CONCAT('%', :search, '%'))
-            OR LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%')))
+          AND (LOWER(u.fullName) LIKE LOWER(CONCAT('%', cast(:search as string), '%'))
+            OR LOWER(u.email) LIKE LOWER(CONCAT('%', cast(:search as string), '%')))
         ORDER BY u.createdAt DESC
     """)
     Page<User> findBySearchAndRole(@Param("search") String search, @Param("role") Role role, Pageable pageable);

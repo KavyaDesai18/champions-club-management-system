@@ -25,9 +25,9 @@ public interface SocialSessionRepository extends JpaRepository<SocialSession, UU
 
     List<SocialSession> findByStartAtBetweenOrderByStartAtAsc(Instant start, Instant end);
 
-    @Query("SELECT s FROM SocialSession s WHERE (:sportId IS NULL OR s.sport.id = :sportId) " +
-           "AND (:courtId IS NULL OR s.court.id = :courtId) " +
-           "AND (:status IS NULL OR s.status = :status) " +
+    @Query("SELECT s FROM SocialSession s WHERE (cast(:sportId as string) IS NULL OR s.sport.id = :sportId) " +
+           "AND (cast(:courtId as string) IS NULL OR s.court.id = :courtId) " +
+           "AND (cast(:status as string) IS NULL OR s.status = :status) " +
            "AND s.startAt >= :start AND s.startAt <= :end " +
            "ORDER BY s.startAt ASC")
     List<SocialSession> findFiltered(

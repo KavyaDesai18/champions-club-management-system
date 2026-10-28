@@ -36,10 +36,10 @@ public interface InvoiceRepository extends JpaRepository<Invoice, UUID> {
     Optional<Invoice> findByIdWithLock(@Param("id") UUID id);
 
     @Query("SELECT i FROM Invoice i WHERE " +
-           "(:status IS NULL OR i.status = :status) AND " +
-           "(:isCorporate IS NULL OR (:isCorporate = true AND i.corporateAccount IS NOT NULL) OR (:isCorporate = false AND i.corporateAccount IS NULL)) AND " +
-           "(:startDate IS NULL OR i.issueDate >= :startDate) AND " +
-           "(:endDate IS NULL OR i.issueDate <= :endDate) AND " +
+           "(cast(:status as string) IS NULL OR i.status = :status) AND " +
+           "(cast(:isCorporate as boolean) IS NULL OR (:isCorporate = true AND i.corporateAccount IS NOT NULL) OR (:isCorporate = false AND i.corporateAccount IS NULL)) AND " +
+           "(cast(:startDate as date) IS NULL OR i.issueDate >= :startDate) AND " +
+           "(cast(:endDate as date) IS NULL OR i.issueDate <= :endDate) AND " +
            "(cast(:search as string) IS NULL OR LOWER(i.invoiceNumber) LIKE LOWER(CONCAT('%', cast(:search as string), '%')) OR LOWER(i.recipientName) LIKE LOWER(CONCAT('%', cast(:search as string), '%')))")
     Page<Invoice> findInvoicesFiltered(
             @Param("status") InvoiceStatus status,

@@ -83,10 +83,10 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
     List<Booking> findCompletedBookingsToArchive(@Param("now") Instant now);
 
     @Query("SELECT b FROM Booking b WHERE b.isDeleted = false " +
-           "AND (:courtId IS NULL OR b.court.id = :courtId) " +
-           "AND (:status IS NULL OR b.status = :status) " +
-           "AND (:fromTime IS NULL OR b.startAt >= :fromTime) " +
-           "AND (:toTime IS NULL OR b.startAt <= :toTime) " +
+           "AND (cast(:courtId as string) IS NULL OR b.court.id = :courtId) " +
+           "AND (cast(:status as string) IS NULL OR b.status = :status) " +
+           "AND (cast(:fromTime as instant) IS NULL OR b.startAt >= :fromTime) " +
+           "AND (cast(:toTime as instant) IS NULL OR b.startAt <= :toTime) " +
            "ORDER BY b.startAt DESC")
     List<Booking> findBookingsWithFilters(
             @Param("courtId") UUID courtId,

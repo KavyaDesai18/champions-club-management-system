@@ -33,8 +33,8 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     List<Order> findByStatusAndPlacedAtBefore(OrderStatus status, Instant cutoff);
 
     @Query("SELECT o FROM Order o WHERE " +
-           "(:status IS NULL OR o.status = :status) AND " +
-           "(:channel IS NULL OR o.channel = :channel) AND " +
+           "(cast(:status as string) IS NULL OR o.status = :status) AND " +
+           "(cast(:channel as string) IS NULL OR o.channel = :channel) AND " +
            "(cast(:search as string) IS NULL OR LOWER(o.orderNo) LIKE LOWER(CONCAT('%', cast(:search as string), '%')) OR " +
            " LOWER(o.guestName) LIKE LOWER(CONCAT('%', cast(:search as string), '%')) OR " +
            " LOWER(o.pickupCode) LIKE LOWER(CONCAT('%', cast(:search as string), '%')))")

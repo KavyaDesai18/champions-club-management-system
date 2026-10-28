@@ -42,6 +42,7 @@ export const CommandPalette = ({ isOpen, onClose }) => {
     { id: 'console-leads', label: 'Lead CRM & Trial Conversions', path: '/console/leads', icon: UserCheck, category: 'Staff', shortcut: 'G L', roles: ['OWNER', 'FRONT_DESK'] },
     { id: 'console-kds', label: 'Kitchen Display KDS Queue', path: '/console/kitchen', icon: UtensilsCrossed, category: 'Operations', shortcut: 'G K', roles: ['OWNER', 'KITCHEN'] },
     { id: 'console-cash', label: 'POS Cash Drawer & Reconcile', path: '/console/cash-drawer', icon: DollarSign, category: 'Finance', shortcut: 'G D', roles: ['OWNER', 'FRONT_DESK', 'SHOP_STAFF', 'BAR_STAFF'] },
+    { id: 'console-invoices', label: 'Invoices & Financial Ledger', path: '/console/invoices', icon: Receipt, category: 'Finance', shortcut: 'G I', roles: ['OWNER'] },
     { id: 'console-analytics', label: 'Owner Financial Analytics', path: '/console/analytics', icon: TrendingUp, category: 'Owner', shortcut: 'G R', roles: ['OWNER'] },
     { id: 'console-users', label: 'User & Role Management', path: '/console/users', icon: Shield, category: 'Admin', shortcut: 'G U', roles: ['OWNER'] },
     { id: 'styleguide', label: 'Design System Tokens & Styleguide', path: '/styleguide', icon: Palette, category: 'System', shortcut: 'G S' },
