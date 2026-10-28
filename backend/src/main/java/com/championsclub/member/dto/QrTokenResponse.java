@@ -16,6 +16,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class QrTokenResponse {
     private String qrToken;
+    private String token;
     private UUID memberId;
     private String memberNo;
     private String fullName;

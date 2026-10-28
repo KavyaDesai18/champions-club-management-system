@@ -78,8 +78,8 @@ class OwnerReportingControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "MANAGER")
-    @DisplayName("Manager can export CSV report with correct Content-Disposition attachment header")
+    @WithMockUser(roles = "OWNER")
+    @DisplayName("Owner can export CSV report with correct Content-Disposition attachment header")
     void testExportCsv() throws Exception {
         byte[] csvBytes = "Date,Stream,Amount\n2026-10-01,COURTS,5000".getBytes();
         when(reportExportService.exportReport(any(), eq("CSV"), any(), any(), any())).thenReturn(csvBytes);

@@ -4,6 +4,7 @@ import { Activity, AlertCircle, Calendar, CheckCircle2, Clock, ShieldAlert, Spar
 import { emitToast } from '../../api/client';
 import MembershipCard from '../../components/membership/MembershipCard';
 import { membershipsApi } from '../../api/membershipsApi';
+import { useAuth } from '../../context/AuthContext';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 
@@ -63,28 +64,37 @@ export const MemberDashboard = () => {
     fullName: 'Alex Rodriguez',
   });
 
+  const { user } = useAuth();
+
   useEffect(() => {
     membershipsApi
       .getMyActiveMembership()
       .then((res) => {
-        if (res?.success && res?.data) {
-          setMembership(res.data);
+        const data = res?.data || res;
+        if (data && (data.memberId || data.id || data.planCode)) {
+          setMembership({
+            ...data,
+            memberId: data.memberId || data.id || user?.memberId || 'me',
+            fullName: data.fullName || user?.fullName || 'Alex Rodriguez',
+            memberNo: data.memberNo || user?.memberNo || 'CC-001000',
+          });
         }
       })
       .catch(() => {
         // Fallback to active mock data
       });
-  }, []);
+  }, [user]);
 
   return (
     <div className="space-y-8">
       {/* 1. Membership Card with Circular Progress Ring & Days Remaining */}
       <MembershipCard
         member={{
-          id: membership?.memberId || 'mem-alex-01',
-          fullName: membership?.fullName || 'Alex Rodriguez',
-          memberNo: membership?.memberNo || 'CC-001000',
-          status: membership?.status,
+          id: membership?.memberId || membership?.id || user?.memberId || 'me',
+          memberId: membership?.memberId || membership?.id || user?.memberId || 'me',
+          fullName: membership?.fullName || user?.fullName || 'Alex Rodriguez',
+          memberNo: membership?.memberNo || user?.memberNo || 'CC-001000',
+          status: membership?.status || 'ACTIVE',
         }}
         membership={membership}
         onRenewSuccess={(renewed) => {

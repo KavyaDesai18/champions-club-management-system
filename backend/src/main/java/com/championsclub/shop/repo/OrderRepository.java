@@ -35,9 +35,9 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     @Query("SELECT o FROM Order o WHERE " +
            "(:status IS NULL OR o.status = :status) AND " +
            "(:channel IS NULL OR o.channel = :channel) AND " +
-           "(:search IS NULL OR LOWER(o.orderNo) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           " LOWER(o.guestName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           " LOWER(o.pickupCode) LIKE LOWER(CONCAT('%', :search, '%')))")
+           "(cast(:search as string) IS NULL OR LOWER(o.orderNo) LIKE LOWER(CONCAT('%', cast(:search as string), '%')) OR " +
+           " LOWER(o.guestName) LIKE LOWER(CONCAT('%', cast(:search as string), '%')) OR " +
+           " LOWER(o.pickupCode) LIKE LOWER(CONCAT('%', cast(:search as string), '%')))")
     Page<Order> searchOrders(
             @Param("status") OrderStatus status,
             @Param("channel") com.championsclub.shop.domain.OrderChannel channel,

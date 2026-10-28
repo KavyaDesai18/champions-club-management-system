@@ -35,7 +35,7 @@ public class InvoiceController {
     private final PaymentService paymentService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('OWNER', 'MANAGER', 'FRONT_DESK')")
+    @PreAuthorize("hasRole('OWNER')")
     @Operation(summary = "List invoices with multi-criteria filters")
     public ResponseEntity<Page<InvoiceResponse>> getInvoices(
             @RequestParam(required = false) InvoiceStatus status,

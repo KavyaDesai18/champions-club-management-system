@@ -85,13 +85,11 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("MANAGER role can list users on GET /api/v1/users (200 OK)")
+    @DisplayName("MANAGER role is denied access to GET /api/v1/users (403 Forbidden)")
     @WithMockUser(username = "manager@club.com", roles = {"MANAGER"})
-    void managerCanListUsers() throws Exception {
-        when(userService.getUsers(any(), any(), any())).thenReturn(new PageImpl<>(Collections.emptyList()));
-
+    void managerCannotListUsers() throws Exception {
         mockMvc.perform(get("/api/v1/users"))
-                .andExpect(status().isOk());
+                .andExpect(status().isForbidden());
     }
 
     @ParameterizedTest
@@ -154,7 +152,7 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("MANAGER cannot create OWNER account (returns 400 validation error)")
+    @DisplayName("MANAGER cannot create OWNER account (returns 403 Forbidden)")
     @WithMockUser(username = "manager@club.com", roles = {"MANAGER"})
     void managerCannotCreateOwner() throws Exception {
         CreateUserRequest request = CreateUserRequest.builder()
@@ -167,8 +165,7 @@ class UserControllerTest {
         mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value("BUSINESS_VALIDATION_ERROR"));
+                .andExpect(status().isForbidden());
     }
 
     @Test

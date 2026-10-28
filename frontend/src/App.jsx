@@ -150,6 +150,7 @@ export function App() {
                         <Route path="analytics" element={<OwnerDashboardPage />} />
                         <Route path="owner" element={<OwnerDashboardPage />} />
                         <Route path="reports" element={<OwnerDashboardPage />} />
+                        <Route path="invoices" element={<InvoicesConsolePage />} />
                         <Route path="users" element={<UserManagementPage />} />
                         <Route path="hr" element={<HrPayrollPage />} />
                         <Route path="audit" element={<StaffConsoleHome />} />
@@ -167,7 +168,6 @@ export function App() {
                         <Route path="members/:id" element={<Member360Page />} />
                         <Route path="checkin" element={<FrontDeskCheckInPage />} />
                         <Route path="bookings" element={<BookingsConsolePage />} />
-                        <Route path="invoices" element={<InvoicesConsolePage />} />
                         <Route path="courts" element={<CourtsConsolePage />} />
                         <Route path="blackouts" element={<BlackoutsConsolePage />} />
                       </Route>

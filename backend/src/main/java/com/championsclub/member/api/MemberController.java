@@ -139,11 +139,23 @@ public class MemberController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping({"/me/qr-token", "/me/qr"})
+    @PreAuthorize("hasAnyRole('OWNER', 'FRONT_DESK', 'MEMBER')")
+    @Operation(summary = "Get signed QR badge token for logged-in member")
+    public ResponseEntity<QrTokenResponse> getMyQrToken(Authentication auth) {
+        String actor = auth != null ? auth.getName() : null;
+        return ResponseEntity.ok(memberService.generateQrTokenByIdentifier("me", actor));
+    }
+
     @GetMapping("/{memberId}/qr-token")
-    @PreAuthorize("hasAnyRole('OWNER', 'MANAGER', 'FRONT_DESK', 'MEMBER')")
+    @PreAuthorize("hasAnyRole('OWNER', 'FRONT_DESK', 'MEMBER')")
     @Operation(summary = "Get signed QR badge token", description = "Generates a signed HMAC short token and base64 QR code image")
-    public ResponseEntity<QrTokenResponse> getQrToken(@PathVariable UUID memberId) {
-        return ResponseEntity.ok(memberService.generateQrToken(memberId));
+    public ResponseEntity<QrTokenResponse> getQrToken(
+            @PathVariable String memberId,
+            Authentication auth
+    ) {
+        String actor = auth != null ? auth.getName() : null;
+        return ResponseEntity.ok(memberService.generateQrTokenByIdentifier(memberId, actor));
     }
 
     @GetMapping("/qr-lookup")

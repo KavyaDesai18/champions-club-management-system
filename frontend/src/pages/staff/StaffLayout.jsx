@@ -41,7 +41,7 @@ export const allConsoleMenuItems = [
   { id: 'dashboard', label: 'Operations Board', icon: LayoutDashboard, path: '/console', roles: ['OWNER', 'FRONT_DESK', 'COACH', 'SHOP_STAFF', 'BAR_STAFF', 'KITCHEN'] },
   { id: 'analytics', label: 'Owner Financials & P&L', icon: TrendingUp, path: '/console/analytics', roles: ['OWNER'] },
   { id: 'leads', label: 'Lead CRM & Quotes', icon: UserCheck, path: '/console/leads', roles: ['OWNER', 'FRONT_DESK'] },
-  { id: 'invoices', label: 'Invoices & Ledger', icon: Receipt, path: '/console/invoices', roles: ['OWNER', 'FRONT_DESK'] },
+  { id: 'invoices', label: 'Invoices & Ledger', icon: Receipt, path: '/console/invoices', roles: ['OWNER'] },
   { id: 'cashdrawer', label: 'Cash Drawer', icon: Banknote, path: '/console/cash-drawer', roles: ['OWNER', 'FRONT_DESK', 'SHOP_STAFF', 'BAR_STAFF'] },
   { id: 'corporate', label: 'Corporate Accounts', icon: Building2, path: '/console/corporate', roles: ['OWNER'] },
   { id: 'social', label: 'Social Play Sessions', icon: Users, path: '/console/social', roles: ['OWNER', 'FRONT_DESK', 'COACH'] },

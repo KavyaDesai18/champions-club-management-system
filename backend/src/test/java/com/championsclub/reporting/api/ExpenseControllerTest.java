@@ -85,8 +85,8 @@ class ExpenseControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "MANAGER")
-    @DisplayName("Manager can mark expense as paid")
+    @WithMockUser(roles = "OWNER")
+    @DisplayName("Owner can mark expense as paid")
     void testMarkAsPaid() throws Exception {
         UUID expId = UUID.randomUUID();
         ExpenseDto dto = ExpenseDto.builder()

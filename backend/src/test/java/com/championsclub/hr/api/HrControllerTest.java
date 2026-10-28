@@ -120,9 +120,9 @@ class HrControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "MANAGER")
-    @DisplayName("GET /api/v1/hr/payroll/runs - manager can access payroll list")
-    void testManagerCanViewPayrollRuns() throws Exception {
+    @WithMockUser(roles = "OWNER")
+    @DisplayName("GET /api/v1/hr/payroll/runs - owner can access payroll list")
+    void testOwnerCanViewPayrollRuns() throws Exception {
         PayrollRunDto run = PayrollRunDto.builder()
                 .id(UUID.randomUUID())
                 .runNumber("PR-2026-06-0001")

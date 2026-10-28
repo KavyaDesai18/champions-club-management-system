@@ -404,6 +404,7 @@ public class MemberService {
 
         return QrTokenResponse.builder()
                 .qrToken(qrToken)
+                .token(qrToken)
                 .memberId(member.getId())
                 .memberNo(member.getMemberNo())
                 .fullName(member.getFullName())
@@ -420,6 +421,41 @@ public class MemberService {
                 .qrDataUrl(qrDataUrl)
                 .qrPayload(qrPayload)
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public QrTokenResponse generateQrTokenByIdentifier(String identifier, String authName) {
+        Member member = null;
+        if ("me".equalsIgnoreCase(identifier) || identifier == null || identifier.isBlank()) {
+            if (authName != null) {
+                User user = userRepository.findByEmailAndIsDeletedFalse(authName.trim().toLowerCase()).orElse(null);
+                if (user != null) {
+                    member = memberRepository.findByUserIdAndIsDeletedFalse(user.getId())
+                            .orElseGet(() -> memberRepository.findByEmailAndIsDeletedFalse(user.getEmail()).orElse(null));
+                }
+            }
+        } else {
+            try {
+                UUID id = UUID.fromString(identifier.trim());
+                member = memberRepository.findByIdAndIsDeletedFalse(id).orElse(null);
+            } catch (IllegalArgumentException e) {
+                // Not a UUID, check memberNo
+            }
+            if (member == null) {
+                member = memberRepository.findByMemberNoAndIsDeletedFalse(identifier.trim().toUpperCase()).orElse(null);
+            }
+        }
+        if (member == null && authName != null) {
+            User user = userRepository.findByEmailAndIsDeletedFalse(authName.trim().toLowerCase()).orElse(null);
+            if (user != null) {
+                member = memberRepository.findByUserIdAndIsDeletedFalse(user.getId())
+                        .orElseGet(() -> memberRepository.findByEmailAndIsDeletedFalse(user.getEmail()).orElse(null));
+            }
+        }
+        if (member == null) {
+            throw new ResourceNotFoundException("Member not found with identifier: " + identifier, "MEMBER_NOT_FOUND");
+        }
+        return generateQrToken(member.getId());
     }
 
     private List<String> resolveMemberBenefits(Member member) {

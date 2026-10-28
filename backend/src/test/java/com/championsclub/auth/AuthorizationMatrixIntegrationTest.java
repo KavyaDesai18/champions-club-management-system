@@ -178,7 +178,7 @@ public class AuthorizationMatrixIntegrationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"MEMBER", "COACH", "BAR_STAFF", "KITCHEN", "FRONT_DESK", "SHOP_STAFF"})
+    @ValueSource(strings = {"MEMBER", "COACH", "BAR_STAFF", "KITCHEN", "FRONT_DESK", "SHOP_STAFF", "MANAGER"})
     @DisplayName("/hr/payroll/runs: Unauthorized staff receive 403 Forbidden")
     void testPayrollUnauthorizedStaffForbidden(String role) throws Exception {
         mockMvc.perform(get("/api/v1/hr/payroll/runs").with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("user").roles(role)))
@@ -186,8 +186,8 @@ public class AuthorizationMatrixIntegrationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"MANAGER", "OWNER"})
-    @DisplayName("/hr/payroll/runs: HR Executives (MANAGER, OWNER) receive 200 OK")
+    @ValueSource(strings = {"OWNER"})
+    @DisplayName("/hr/payroll/runs: HR Executives (OWNER) receive 200 OK")
     void testPayrollExecutivesAllowed(String role) throws Exception {
         when(payrollService.getAllPayrollRuns()).thenReturn(List.of());
         mockMvc.perform(get("/api/v1/hr/payroll/runs").with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("mgmt").roles(role)))
@@ -236,7 +236,7 @@ public class AuthorizationMatrixIntegrationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"MEMBER", "COACH", "BAR_STAFF", "KITCHEN", "FRONT_DESK"})
+    @ValueSource(strings = {"MEMBER", "COACH", "BAR_STAFF", "KITCHEN", "FRONT_DESK", "MANAGER"})
     @DisplayName("/reporting/expenses: General staff and members receive 403 Forbidden")
     void testExpensesUnauthorizedForbidden(String role) throws Exception {
         mockMvc.perform(get("/api/v1/reporting/expenses").with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("user").roles(role)))
@@ -244,8 +244,8 @@ public class AuthorizationMatrixIntegrationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"MANAGER", "OWNER"})
-    @DisplayName("/reporting/expenses: Financial controllers (MANAGER, OWNER) receive 200 OK")
+    @ValueSource(strings = {"OWNER"})
+    @DisplayName("/reporting/expenses: Financial controllers (OWNER) receive 200 OK")
     void testExpensesAuthorizedAllowed(String role) throws Exception {
         when(expenseService.getExpenses(any(), any(), any(), any()))
                 .thenReturn(List.of());

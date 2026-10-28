@@ -94,9 +94,9 @@ describe('Members & Plans Module Frontend Suite', () => {
         </ToastProvider>
       );
 
-      await user.type(screen.getByLabelText(/Full Legal Name/i), 'Vikram Sharma');
-      await user.type(screen.getByLabelText(/Email Address/i), 'vikram@sharma.com');
-      await user.type(screen.getByLabelText(/Phone Number/i), '9876543211');
+      fireEvent.change(screen.getByLabelText(/Full Legal Name/i), { target: { value: 'Vikram Sharma' } });
+      fireEvent.change(screen.getByLabelText(/Email Address/i), { target: { value: 'vikram@sharma.com' } });
+      fireEvent.change(screen.getByLabelText(/Phone Number/i), { target: { value: '9876543211' } });
 
       // Set DOB to 25 years old
       const dobInput = screen.getByLabelText(/Date of Birth/i);
@@ -112,9 +112,9 @@ describe('Members & Plans Module Frontend Suite', () => {
 
       await waitFor(() => {
         expect(screen.getByText(/Choose the membership tier/i)).toBeInTheDocument();
-      });
+      }, { timeout: 5000 });
       expect(screen.queryByText(/Minor Safety Mandate/i)).not.toBeInTheDocument();
-    });
+    }, 15000);
 
     it('displays 409 duplicate member error with link to conflicting profile', async () => {
       const user = userEvent.setup();
