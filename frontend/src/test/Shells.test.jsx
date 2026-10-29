@@ -14,8 +14,36 @@ import { AuthProvider } from '../context/AuthContext';
 
 describe('Shells & Navigation Suite', () => {
   describe('Staff Console Shell (Role-aware filtering)', () => {
-    it('filters sidebar navigation links based on user role', async () => {
-      const user = userEvent.setup();
+    it('filters sidebar navigation links strictly based on authenticated user role', () => {
+      // Set authenticated user in localStorage as FRONT_DESK
+      localStorage.setItem('champions_user', JSON.stringify({ role: 'FRONT_DESK', fullName: 'Front Desk User' }));
+      const { unmount } = render(
+        <ThemeProvider>
+          <AuthProvider>
+            <MemoryRouter initialEntries={['/console']}>
+              <Routes>
+                <Route path="/console" element={<StaffLayout />}>
+                  <Route index element={<div>Dashboard Home</div>} />
+                </Route>
+              </Routes>
+            </MemoryRouter>
+          </AuthProvider>
+        </ThemeProvider>
+      );
+
+      // Verify read-only role badge is present and combobox role switcher does NOT exist
+      expect(screen.getByTestId('staff-role-badge')).toHaveTextContent(/FRONT_DESK/i);
+      expect(screen.queryByRole('combobox', { name: /Select staff role/i })).not.toBeInTheDocument();
+
+      // Front Desk menu items visible; Kitchen KDS and System Config NOT visible
+      expect(screen.getByRole('link', { name: /Operations Board/i })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /Front Desk Check-in/i })).toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: /Kitchen KDS Queue/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: /System Configuration/i })).not.toBeInTheDocument();
+      unmount();
+
+      // Now authenticate as KITCHEN
+      localStorage.setItem('champions_user', JSON.stringify({ role: 'KITCHEN', fullName: 'Chef Kitchen' }));
       render(
         <ThemeProvider>
           <AuthProvider>
@@ -30,35 +58,12 @@ describe('Shells & Navigation Suite', () => {
         </ThemeProvider>
       );
 
-      // Default role is FRONT_DESK
-      // Operations Board and Front Desk Check-in should be visible
-      expect(screen.getByRole('link', { name: /Operations Board/i })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: /Front Desk Check-in/i })).toBeInTheDocument();
-      // Kitchen KDS Queue and System Configuration should NOT be visible
-      expect(screen.queryByRole('link', { name: /Kitchen KDS Queue/i })).not.toBeInTheDocument();
-      expect(screen.queryByRole('link', { name: /System Configuration/i })).not.toBeInTheDocument();
-
-      // Switch role to KITCHEN
-      const roleSelect = screen.getByRole('combobox', { name: /Select staff role/i });
-      await user.selectOptions(roleSelect, 'KITCHEN');
-
-      // Now Kitchen KDS Queue should appear
+      // Kitchen KDS Queue should appear
+      expect(screen.getByTestId('staff-role-badge')).toHaveTextContent(/KITCHEN/i);
       expect(screen.getByRole('link', { name: /Kitchen KDS Queue/i })).toBeInTheDocument();
-      // Front Desk and System Configuration should not be visible
       expect(screen.queryByRole('link', { name: /Front Desk Check-in/i })).not.toBeInTheDocument();
       expect(screen.queryByRole('link', { name: /System Configuration/i })).not.toBeInTheDocument();
-
-      // Switch role to OWNER
-      await user.selectOptions(roleSelect, 'OWNER');
-
-      // OWNER has access to all console areas
-      expect(screen.getByRole('link', { name: /Operations Board/i })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: /Front Desk Check-in/i })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: /Kitchen KDS Queue/i })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: /Bar & Lounge Tabs/i })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: /Pro Shop & Equipment/i })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: /Audit & Compliance/i })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: /System Configuration/i })).toBeInTheDocument();
+      localStorage.removeItem('champions_user');
     });
 
     it('toggles sidebar collapse state', async () => {
@@ -137,8 +142,7 @@ describe('Shells & Navigation Suite', () => {
       expect(screen.getByRole('link', { name: /Courts & Arenas/i })).toBeInTheDocument();
       expect(screen.getByRole('link', { name: /Membership Tiers/i })).toBeInTheDocument();
       expect(screen.getAllByRole('link', { name: /Styleguide/i }).length).toBeGreaterThan(0);
-      expect(screen.getByRole('link', { name: /Member Portal/i })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: /Staff Console/i })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /(Register \/ Login|Login \/ Register)/i })).toBeInTheDocument();
 
       // Footer
       expect(screen.getByText(/Hackathon Finals Edition/i)).toBeInTheDocument();

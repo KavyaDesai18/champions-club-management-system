@@ -1,5 +1,6 @@
 package com.championsclub.auth.dto;
 
+import com.championsclub.common.security.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -18,4 +19,6 @@ public class LoginRequest {
 
     @NotBlank(message = "Password is required")
     private String password;
+
+    private Role role;
 }

@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Award, Menu, Palette, Shield, X } from 'lucide-react';
+import { Award, Menu, Palette, Shield, X, LogOut, ArrowRight, User as UserIcon } from 'lucide-react';
 import ThemeToggle from '../../components/common/ThemeToggle';
 import CommandPalette from '../../components/common/CommandPalette';
+import { useAuth } from '../../context/AuthContext';
 
 export const PublicLayout = () => {
+  const { user, isAuthenticated, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const location = useLocation();
@@ -66,21 +68,36 @@ export const PublicLayout = () => {
 
             <ThemeToggle />
 
-            <Link
-              to="/app"
-              className="hidden sm:inline-flex px-3.5 py-2 rounded-md text-xs font-bold text-court-700 dark:text-court-300 hover:text-court-900 dark:hover:text-white hover:bg-court-200/50 dark:hover:bg-court-850 border border-court-200 dark:border-court-800 transition"
-              id="member-portal-nav-btn"
-            >
-              Member Portal
-            </Link>
-
-            <Link
-              to="/console"
-              className="px-3.5 py-2 rounded-md text-xs font-bold bg-optic-500 hover:bg-optic-400 text-court-950 shadow-sm transition"
-              id="staff-console-nav-btn"
-            >
-              Staff Console
-            </Link>
+            {!isAuthenticated ? (
+              <Link
+                to="/register"
+                className="px-4 py-2 rounded-lg text-xs font-heading font-black uppercase tracking-wider bg-optic-500 hover:bg-optic-400 text-court-950 shadow-court-sm transition inline-flex items-center gap-1.5"
+                id="login-register-nav-btn"
+              >
+                <span>Register / Login</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Link
+                  to={['OWNER', 'MANAGER', 'FRONT_DESK', 'SHOP_STAFF', 'BAR_STAFF', 'KITCHEN', 'COACH'].includes(user?.role) ? '/console' : '/app'}
+                  className="px-3.5 py-2 rounded-lg text-xs font-heading font-black uppercase tracking-wider bg-court-100 hover:bg-court-200 dark:bg-court-800 dark:hover:bg-court-700 text-court-950 dark:text-white border border-court-300 dark:border-court-700 shadow-sm transition inline-flex items-center gap-1.5"
+                  id="nav-user-portal-btn"
+                >
+                  <span>{['OWNER', 'MANAGER', 'FRONT_DESK', 'SHOP_STAFF', 'BAR_STAFF', 'KITCHEN', 'COACH'].includes(user?.role) ? 'Staff Console' : 'My Dashboard'}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+                <button
+                  type="button"
+                  onClick={logout}
+                  className="p-2 rounded-lg text-xs font-bold text-court-500 hover:text-danger-500 hover:bg-danger-500/10 transition"
+                  title="Sign Out"
+                  aria-label="Sign Out"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            )}
 
             {/* Mobile Menu Button */}
             <button
@@ -115,14 +132,37 @@ export const PublicLayout = () => {
                   </a>
                 ))}
               </div>
-              <div className="pt-2 border-t border-court-200 dark:border-court-800 flex items-center justify-between">
-                <Link
-                  to="/app"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full text-center py-2.5 rounded-md font-bold bg-court-100 dark:bg-court-800 text-court-900 dark:text-white text-xs border border-court-200 dark:border-court-700"
-                >
-                  Member Portal
-                </Link>
+              <div className="pt-2 border-t border-court-200 dark:border-court-800 flex flex-col gap-2">
+                {!isAuthenticated ? (
+                  <Link
+                    to="/register"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full text-center py-2.5 rounded-lg font-heading font-black uppercase tracking-wider bg-optic-500 hover:bg-optic-400 text-court-950 text-xs shadow-sm transition"
+                    id="login-register-mobile-btn"
+                  >
+                    Register / Login
+                  </Link>
+                ) : (
+                  <>
+                    <Link
+                      to={['OWNER', 'MANAGER', 'FRONT_DESK', 'SHOP_STAFF', 'BAR_STAFF', 'KITCHEN', 'COACH'].includes(user?.role) ? '/console' : '/app'}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="w-full text-center py-2.5 rounded-lg font-heading font-black uppercase tracking-wider bg-court-800 text-white text-xs shadow-sm"
+                    >
+                      Go to {['OWNER', 'MANAGER', 'FRONT_DESK', 'SHOP_STAFF', 'BAR_STAFF', 'KITCHEN', 'COACH'].includes(user?.role) ? 'Staff Console' : 'My Dashboard'}
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        logout();
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full text-center py-2 rounded-lg font-bold text-danger-400 text-xs hover:bg-danger-500/10 transition"
+                    >
+                      Sign Out
+                    </button>
+                  </>
+                )}
               </div>
             </motion.div>
           )}

@@ -43,11 +43,15 @@ export const AuthProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (email, password, role) => {
     const cleanEmail = email.trim().toLowerCase();
+    const payload = { email: cleanEmail, password };
+    if (role) {
+      payload.role = role;
+    }
     const res = await apiClient.post(
       '/auth/login',
-      { email: cleanEmail, password },
+      payload,
       { suppressErrorToast: true }
     );
 

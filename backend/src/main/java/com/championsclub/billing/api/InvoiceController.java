@@ -51,8 +51,7 @@ public class InvoiceController {
     @GetMapping("/{id}")
     @Operation(summary = "Get invoice details by ID")
     public ResponseEntity<InvoiceResponse> getInvoiceById(@PathVariable UUID id) {
-        Invoice invoice = invoiceService.getInvoiceById(id);
-        return ResponseEntity.ok(invoiceService.mapToResponse(invoice));
+        return ResponseEntity.ok(invoiceService.getInvoiceResponseById(id));
     }
 
     @GetMapping(value = "/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)

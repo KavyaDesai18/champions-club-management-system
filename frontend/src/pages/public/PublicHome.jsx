@@ -672,7 +672,7 @@ export const PublicHome = () => {
                 to="/app"
                 className="px-5 py-2.5 rounded-lg text-xs font-heading font-bold uppercase tracking-wider bg-court-100 dark:bg-court-800 hover:bg-court-200 dark:hover:bg-court-700 text-court-900 dark:text-white transition border border-court-200 dark:border-court-700"
               >
-                Member Portal Booking
+                Book Court
               </Link>
             </div>
           </div>
@@ -1525,7 +1525,7 @@ export const PublicHome = () => {
                     to="/app"
                     className="block w-full py-3 rounded-lg font-heading font-bold uppercase tracking-wider bg-optic-500 hover:bg-optic-400 text-court-950 text-xs text-center shadow-court-xs"
                   >
-                    Proceed to Member Portal
+                    Proceed to Dashboard
                   </Link>
                 </div>
               ) : (

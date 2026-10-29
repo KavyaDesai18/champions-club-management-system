@@ -45,17 +45,25 @@ public class OwnerDataSeeder implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        long ownerCount = userRepository.countByRoleAndIsDeletedFalse(Role.OWNER);
-        if (ownerCount == 0) {
-            Instant now = clock.instant();
-            String normalizedEmail = seedEmail.trim().toLowerCase();
+        ensureUser(seedEmail, Role.OWNER, seedFullName, "+919876543210");
+        ensureUser("alice.frontdesk@championsclub.com", Role.FRONT_DESK, "Alice FrontDesk", "+919876543211");
+        ensureUser("kitchen@championsclub.com", Role.KITCHEN, "Chef Antonio (Kitchen)", "+919876543212");
+        ensureUser("manager@championsclub.com", Role.MANAGER, "General Manager", "+919876543213");
+        ensureUser("coach@championsclub.com", Role.COACH, "Pullela Coach", "+919876543214");
+        ensureUser("shop@championsclub.com", Role.SHOP_STAFF, "Shop Assistant", "+919876543215");
+        ensureUser("bar@championsclub.com", Role.BAR_STAFF, "Bar Tender", "+919876543216");
+    }
 
-            User owner = User.builder()
+    private void ensureUser(String email, Role role, String fullName, String phone) {
+        String normalizedEmail = email.trim().toLowerCase();
+        if (userRepository.findByEmailAndIsDeletedFalse(normalizedEmail).isEmpty()) {
+            Instant now = clock.instant();
+            User user = User.builder()
                     .email(normalizedEmail)
                     .passwordHash(passwordEncoder.encode(seedPassword))
-                    .fullName(seedFullName)
-                    .phone("+919876543210")
-                    .role(Role.OWNER)
+                    .fullName(fullName)
+                    .phone(phone)
+                    .role(role)
                     .status("ACTIVE")
                     .failedAttempts(0)
                     .tokenVersion(1)
@@ -63,9 +71,8 @@ public class OwnerDataSeeder implements ApplicationRunner {
                     .updatedAt(now)
                     .isDeleted(false)
                     .build();
-
-            userRepository.save(owner);
-            log.info("Initialized default club OWNER account: [{}]", normalizedEmail);
+            userRepository.save(user);
+            log.info("Initialized default club {} account: [{}]", role, normalizedEmail);
         }
     }
 }

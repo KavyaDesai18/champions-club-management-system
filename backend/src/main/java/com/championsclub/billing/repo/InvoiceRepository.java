@@ -35,6 +35,9 @@ public interface InvoiceRepository extends JpaRepository<Invoice, UUID> {
     @Query("SELECT i FROM Invoice i WHERE i.id = :id")
     Optional<Invoice> findByIdWithLock(@Param("id") UUID id);
 
+    @Query("SELECT i FROM Invoice i LEFT JOIN FETCH i.lines WHERE i.id = :id")
+    Optional<Invoice> findByIdWithLines(@Param("id") UUID id);
+
     @Query("SELECT i FROM Invoice i WHERE " +
            "(cast(:status as string) IS NULL OR i.status = :status) AND " +
            "(cast(:isCorporate as boolean) IS NULL OR (:isCorporate = true AND i.corporateAccount IS NOT NULL) OR (:isCorporate = false AND i.corporateAccount IS NULL)) AND " +

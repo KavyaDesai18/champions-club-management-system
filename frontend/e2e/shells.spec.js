@@ -40,9 +40,9 @@ test.describe('Champions Club - Shells Navigation & Zero Console Errors', () => 
     await page.goto('/');
     await expect(page.locator('h1')).toContainText(/Champions Club/i);
     if (!isMobile) {
-      await expect(page.locator('#member-portal-nav-btn, #staff-console-nav-btn')).toHaveCount(2);
+      await expect(page.locator('#login-register-nav-btn')).toBeVisible();
     } else {
-      await expect(page.locator('#staff-console-nav-btn')).toBeVisible();
+      await expect(page.locator('#login-register-nav-btn')).toBeVisible();
     }
 
     // 2. Styleguide Showcase
@@ -65,7 +65,7 @@ test.describe('Champions Club - Shells Navigation & Zero Console Errors', () => 
     await page.goto('/console');
     await expect(page.getByRole('heading', { name: /Operations Command Center/i })).toBeVisible();
     if (!isMobile) {
-      await expect(page.getByText('Current Role')).toBeVisible();
+      await expect(page.getByTestId('staff-role-badge')).toBeVisible();
     }
 
     // Test Command Palette shortcut button if visible

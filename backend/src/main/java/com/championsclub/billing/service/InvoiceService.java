@@ -256,8 +256,15 @@ public class InvoiceService {
 
     @Transactional(readOnly = true)
     public Invoice getInvoiceById(UUID id) {
-        return invoiceRepository.findById(id)
+        return invoiceRepository.findByIdWithLines(id)
+                .or(() -> invoiceRepository.findById(id))
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice", id));
+    }
+
+    @Transactional(readOnly = true)
+    public InvoiceResponse getInvoiceResponseById(UUID id) {
+        Invoice invoice = getInvoiceById(id);
+        return mapToResponse(invoice);
     }
 
     @Transactional(readOnly = true)
@@ -279,6 +286,7 @@ public class InvoiceService {
         return pdfService.generateCreditNotePdf(cn);
     }
 
+    @Transactional(readOnly = true)
     public InvoiceResponse mapToResponse(Invoice inv) {
         List<InvoiceLineDto> lineDtos = inv.getLines().stream()
                 .map(l -> InvoiceLineDto.builder()

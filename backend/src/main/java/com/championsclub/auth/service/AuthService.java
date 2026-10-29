@@ -47,6 +47,12 @@ public class AuthService {
     private final AuditService auditService;
     private final Clock clock;
 
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.championsclub.member.repo.MemberRepository memberRepository;
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.championsclub.member.repo.PlanRepository planRepository;
+
     public AuthService(
             UserRepository userRepository,
             RefreshTokenRepository refreshTokenRepository,
@@ -122,6 +128,14 @@ public class AuthService {
         user.setUpdatedAt(now);
         userRepository.save(user);
 
+        // Check if user has registered with the selected role
+        if (request.getRole() != null && user.getRole() != request.getRole()) {
+            auditService.record(user.getId(), "LOGIN_ROLE_MISMATCH", "USER", user.getId().toString(),
+                    "Role mismatch: attempted " + request.getRole() + " but registered as " + user.getRole(), ipAddress);
+            throw new ChampionsClubException(HttpStatus.FORBIDDEN, "ROLE_MISMATCH",
+                    "This is not your role! You are registered as " + user.getRole() + ". Please select " + user.getRole() + " to access the website as this particular role.");
+        }
+
         // Generate Access Token (15m) and Refresh Token (7d)
         String accessToken = tokenProvider.generateAccessToken(
                 user.getId(),
@@ -182,6 +196,52 @@ public class AuthService {
                 .build();
 
         User savedUser = userRepository.save(newUser);
+
+        if (memberRepository != null) {
+            try {
+                Optional<com.championsclub.member.domain.Member> existingMemberOpt = memberRepository.findByEmailAndIsDeletedFalse(normalizedEmail);
+                if (existingMemberOpt.isPresent()) {
+                    com.championsclub.member.domain.Member existing = existingMemberOpt.get();
+                    existing.setUser(savedUser);
+                    if (StringUtils.hasText(savedUser.getPhone()) && (existing.getPhone() == null || existing.getPhone().isBlank())) {
+                        existing.setPhone(savedUser.getPhone());
+                    }
+                    memberRepository.save(existing);
+                } else {
+                    Long seq = null;
+                    try {
+                        seq = memberRepository.getNextMemberSequence();
+                    } catch (Exception ignored) {}
+                    String memberNo = String.format("CC-%06d", seq != null ? seq : (System.currentTimeMillis() % 1000000));
+
+                    com.championsclub.member.domain.Plan plan = null;
+                    if (planRepository != null) {
+                        plan = planRepository.findByCode("BRONZE")
+                                .or(() -> planRepository.findByCode("STANDARD"))
+                                .or(() -> planRepository.findByActiveTrue().stream().findFirst())
+                                .orElse(null);
+                    }
+
+                    com.championsclub.member.domain.Member newMember = com.championsclub.member.domain.Member.builder()
+                            .memberNo(memberNo)
+                            .fullName(savedUser.getFullName())
+                            .email(normalizedEmail)
+                            .phone(StringUtils.hasText(savedUser.getPhone()) ? savedUser.getPhone() : "+91 99999 00000")
+                            .dob(java.time.LocalDate.now().minusYears(25))
+                            .status(com.championsclub.member.domain.MemberStatus.ACTIVE)
+                            .plan(plan)
+                            .user(savedUser)
+                            .startDate(java.time.LocalDate.now())
+                            .endDate(java.time.LocalDate.now().plusYears(1))
+                            .walletBalance(java.math.BigDecimal.ZERO)
+                            .guestPassesRemaining(0)
+                            .build();
+                    memberRepository.save(newMember);
+                }
+            } catch (Exception e) {
+                log.warn("Could not automatically link or provision Member entity for registered user {}: {}", savedUser.getEmail(), e.getMessage());
+            }
+        }
 
         // Generate initial authentication session
         String accessToken = tokenProvider.generateAccessToken(

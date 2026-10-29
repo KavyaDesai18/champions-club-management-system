@@ -14,9 +14,8 @@ describe('Frontend Smoke Test', () => {
     // Brand title is visible
     expect(screen.getAllByText(/CHAMPIONS/i).length).toBeGreaterThan(0);
 
-    // Navigation buttons for Member Portal and Staff Console are present
-    expect(screen.getAllByRole('link', { name: /Member Portal/i }).length).toBeGreaterThan(0);
-    expect(screen.getByRole('link', { name: /Staff Console/i })).toBeInTheDocument();
+    // Navigation button for Register / Login is present for visitors
+    expect(screen.getAllByRole('link', { name: /(Register \/ Login|Login \/ Register)/i }).length).toBeGreaterThan(0);
   });
 
   it('renders key business rules and facilities on home page', async () => {

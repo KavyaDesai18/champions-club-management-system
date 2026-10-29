@@ -267,6 +267,39 @@ class AuthServiceUnitTest {
             assertThat(response).isNotNull();
             verify(userRepository).findByEmailAndIsDeletedFalse("member@test.com");
         }
+
+        @Test
+        @DisplayName("Rejects login when user selects a role that differs from their database registered role")
+        void rejectsRoleMismatchOnLogin() {
+            User user = createActiveUser("member@test.com"); // registered as MEMBER
+            when(userRepository.findByEmailAndIsDeletedFalse("member@test.com"))
+                    .thenReturn(Optional.of(user));
+            when(passwordEncoder.matches("ValidPass1", user.getPasswordHash())).thenReturn(true);
+
+            assertThatThrownBy(() -> authService.login(
+                    LoginRequest.builder().email("member@test.com").password("ValidPass1").role(Role.OWNER).build(),
+                    "127.0.0.1", "TestAgent"
+            ))
+                    .isInstanceOf(ChampionsClubException.class)
+                    .hasMessageContaining("This is not your role! You are registered as MEMBER. Please select MEMBER to access the website as this particular role.");
+        }
+
+        @Test
+        @DisplayName("Allows login when user selects their exact database registered role")
+        void allowsLoginWhenRoleMatchesDatabase() {
+            User user = createActiveUser("member@test.com"); // registered as MEMBER
+            when(userRepository.findByEmailAndIsDeletedFalse("member@test.com"))
+                    .thenReturn(Optional.of(user));
+            when(passwordEncoder.matches("ValidPass1", user.getPasswordHash())).thenReturn(true);
+
+            AuthResponse response = authService.login(
+                    LoginRequest.builder().email("member@test.com").password("ValidPass1").role(Role.MEMBER).build(),
+                    "127.0.0.1", "TestAgent"
+            );
+
+            assertThat(response).isNotNull();
+            assertThat(response.getUser().getRole()).isEqualTo(Role.MEMBER);
+        }
     }
 
     @Nested

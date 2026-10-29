@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import axios from 'axios';
@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from '../context/AuthContext';
 import ProtectedRoute from '../components/common/ProtectedRoute';
 import SessionExpiredModal from '../components/common/SessionExpiredModal';
 import LoginPage from '../pages/auth/LoginPage';
+import RegisterPage from '../pages/auth/RegisterPage';
 import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage';
 import ResetPasswordPage from '../pages/auth/ResetPasswordPage';
 import apiClient, { emitSessionExpired } from '../api/client';
@@ -155,6 +156,76 @@ describe('Auth & RBAC Frontend Suite', () => {
       await user.click(submitBtn);
 
       expect(screen.getByRole('alert')).toHaveTextContent(/Please enter both your email address and password/i);
+    });
+
+    it('pre-populates email from URL search params and displays welcome back notice', () => {
+      render(
+        <AuthProvider>
+          <MemoryRouter initialEntries={['/login?email=existing.user%40example.com']}>
+            <LoginPage />
+          </MemoryRouter>
+        </AuthProvider>
+      );
+
+      expect(screen.getByLabelText(/Email Address/i)).toHaveValue('existing.user@example.com');
+      expect(screen.getByText(/Welcome back! Enter your password to sign in/i)).toBeInTheDocument();
+    });
+  });
+
+  describe('Register Page & Already User Flow', () => {
+    it('renders registration form with prominent Already a user? Login prompts', () => {
+      render(
+        <AuthProvider>
+          <MemoryRouter>
+            <RegisterPage />
+          </MemoryRouter>
+        </AuthProvider>
+      );
+
+      expect(screen.getByRole('heading', { name: /Create Athlete Account/i })).toBeInTheDocument();
+      expect(screen.getAllByText(/Already a user\?/i).length).toBeGreaterThan(0);
+      expect(screen.getByRole('link', { name: /^Login$/i })).toHaveAttribute('href', '/login');
+      expect(screen.getByRole('link', { name: /Login here/i })).toHaveAttribute('href', '/login');
+    });
+
+    it('shows Already a registered user alert with Login CTA when registering an existing email', async () => {
+      const user = userEvent.setup();
+
+      // Mock apiClient.post to return 409 Conflict for existing email
+      vi.spyOn(apiClient, 'post').mockRejectedValueOnce({
+        response: {
+          status: 409,
+          data: {
+            code: 'EMAIL_ALREADY_EXISTS',
+            message: 'An account with this email address already exists. Please sign in instead.',
+          },
+        },
+      });
+
+      render(
+        <AuthProvider>
+          <MemoryRouter>
+            <RegisterPage />
+          </MemoryRouter>
+        </AuthProvider>
+      );
+
+      await user.type(screen.getByLabelText(/Full Name/i), 'Sania Mirza');
+      await user.type(screen.getByLabelText(/Email Address/i), 'sania.mirza@championsclub.demo');
+      await user.type(screen.getByPlaceholderText('Min 8 characters'), 'Champions@123');
+      await user.type(screen.getByPlaceholderText('Re-enter password'), 'Champions@123');
+
+      const submitBtn = screen.getByRole('button', { name: /Create Account & Join/i });
+      await user.click(submitBtn);
+
+      await waitFor(() => {
+        expect(screen.getByText(/Already a registered user!/i)).toBeInTheDocument();
+        expect(screen.getByText(/sania.mirza@championsclub.demo/i)).toBeInTheDocument();
+      });
+
+      const alertBox = screen.getByRole('alert');
+      const loginCta = within(alertBox).getByRole('link', { name: /Login/i });
+      expect(loginCta).toHaveAttribute('href', '/login?email=sania.mirza%40championsclub.demo');
     });
   });
 

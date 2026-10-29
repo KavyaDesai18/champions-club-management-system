@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import {
@@ -28,10 +28,22 @@ export const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isAlreadyRegistered, setIsAlreadyRegistered] = useState(false);
 
-  const { register } = useAuth();
+  const { register, user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const shouldReduceMotion = useReducedMotion();
+
+  // If already authenticated, redirect to role-specific dashboard
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      if (['OWNER', 'MANAGER', 'FRONT_DESK', 'SHOP_STAFF', 'BAR_STAFF', 'KITCHEN', 'COACH'].includes(user.role)) {
+        navigate('/console', { replace: true });
+      } else {
+        navigate('/app', { replace: true });
+      }
+    }
+  }, [isAuthenticated, user, navigate]);
 
   // Password rules validation
   const hasMinLength = password.length >= 8;
@@ -42,6 +54,7 @@ export const RegisterPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsAlreadyRegistered(false);
 
     if (!fullName.trim()) {
       setErrorMessage('Please enter your full name.');
@@ -77,8 +90,16 @@ export const RegisterPage = () => {
       // Automatically redirect to member dashboard upon successful registration
       navigate('/app', { replace: true });
     } catch (err) {
+      const status = err.response?.status;
+      const code = err.response?.data?.code;
       const msg = err.response?.data?.message || err.message || 'Registration failed. Please check your details and try again.';
-      setErrorMessage(msg);
+      if (status === 409 || code === 'EMAIL_ALREADY_EXISTS' || msg.toLowerCase().includes('already exists')) {
+        setIsAlreadyRegistered(true);
+        setErrorMessage('An account with this email address already exists. Already a user? Please login below.');
+      } else {
+        setIsAlreadyRegistered(false);
+        setErrorMessage(msg);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -117,9 +138,48 @@ export const RegisterPage = () => {
             </CardDescription>
           </CardHeader>
 
-          <CardContent className="pt-4">
+          <CardContent className="pt-4 space-y-4">
+            {/* Top helper banner: Already user? Login */}
+            <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-court-800/80 border border-court-700/80 text-xs">
+              <span className="text-court-300 font-medium">Already a user?</span>
+              <Link
+                to="/login"
+                id="already-user-login-top-btn"
+                className="px-3 py-1 rounded-lg text-xs font-heading font-black uppercase tracking-wider bg-court-700 hover:bg-court-600 text-optic-400 hover:text-optic-300 border border-court-600 transition inline-flex items-center gap-1"
+              >
+                <span>Login</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-              {errorMessage && (
+              {isAlreadyRegistered && (
+                <div
+                  role="alert"
+                  className="p-3.5 rounded-xl bg-amber-500/15 border border-amber-500/40 text-court-100 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg"
+                  id="already-registered-alert"
+                >
+                  <div className="flex items-start gap-2.5">
+                    <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-heading font-bold text-white text-xs uppercase tracking-wider">Already a registered user!</p>
+                      <p className="text-court-300 text-[11px] mt-0.5">
+                        This email (<span className="text-amber-300 font-semibold">{email}</span>) already exists in our records.
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    to={`/login?email=${encodeURIComponent(email.trim())}`}
+                    id="already-registered-login-cta"
+                    className="px-3.5 py-1.5 rounded-lg bg-optic-500 hover:bg-optic-400 text-court-950 font-heading font-black text-xs uppercase tracking-wider whitespace-nowrap transition inline-flex items-center gap-1 shadow-sm"
+                  >
+                    <span>Login</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+              )}
+
+              {errorMessage && !isAlreadyRegistered && (
                 <div
                   role="alert"
                   className="p-3.5 rounded-xl bg-danger-500/15 border border-danger-500/30 text-danger-300 text-xs flex items-start gap-2.5"
@@ -252,9 +312,10 @@ export const RegisterPage = () => {
 
           <CardFooter className="flex flex-col gap-2 border-t border-court-800 pt-4 text-center">
             <p className="text-xs text-court-400">
-              Already have an account?{' '}
-              <Link to="/login" className="text-optic-400 hover:text-optic-300 font-bold transition">
-                Sign In here
+              Already a user?{' '}
+              <Link to="/login" id="already-user-login-footer-link" className="text-optic-400 hover:text-optic-300 font-heading font-bold transition inline-flex items-center gap-1">
+                <span>Login here</span>
+                <ArrowRight className="w-3 h-3" />
               </Link>
             </p>
             <Link to="/" className="text-xs text-court-500 hover:text-white transition">

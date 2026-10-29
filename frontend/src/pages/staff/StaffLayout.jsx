@@ -38,42 +38,35 @@ import Tooltip from '../../components/ui/Tooltip';
 import { useAuth } from '../../context/AuthContext';
 
 export const allConsoleMenuItems = [
-  { id: 'dashboard', label: 'Operations Board', icon: LayoutDashboard, path: '/console', roles: ['OWNER', 'FRONT_DESK', 'COACH', 'SHOP_STAFF', 'BAR_STAFF', 'KITCHEN'] },
-  { id: 'analytics', label: 'Owner Financials & P&L', icon: TrendingUp, path: '/console/analytics', roles: ['OWNER'] },
-  { id: 'leads', label: 'Lead CRM & Quotes', icon: UserCheck, path: '/console/leads', roles: ['OWNER', 'FRONT_DESK'] },
-  { id: 'invoices', label: 'Invoices & Ledger', icon: Receipt, path: '/console/invoices', roles: ['OWNER'] },
-  { id: 'cashdrawer', label: 'Cash Drawer', icon: Banknote, path: '/console/cash-drawer', roles: ['OWNER', 'FRONT_DESK', 'SHOP_STAFF', 'BAR_STAFF'] },
-  { id: 'corporate', label: 'Corporate Accounts', icon: Building2, path: '/console/corporate', roles: ['OWNER'] },
-  { id: 'social', label: 'Social Play Sessions', icon: Users, path: '/console/social', roles: ['OWNER', 'FRONT_DESK', 'COACH'] },
-  { id: 'availability', label: 'Availability Grid', icon: Calendar, path: '/console/availability', roles: ['OWNER', 'FRONT_DESK', 'COACH'] },
-  { id: 'courts', label: 'Courts Management', icon: Layers, path: '/console/courts', roles: ['OWNER', 'FRONT_DESK'] },
-  { id: 'pricing', label: 'Pricing Rules', icon: Tag, path: '/console/pricing', roles: ['OWNER'] },
-  { id: 'hours', label: 'Opening Hours', icon: Clock, path: '/console/hours', roles: ['OWNER'] },
-  { id: 'blackouts', label: 'Court Blackouts', icon: ShieldAlert, path: '/console/blackouts', roles: ['OWNER', 'FRONT_DESK'] },
-  { id: 'members', label: 'Members Directory', icon: Users, path: '/console/members', roles: ['OWNER', 'FRONT_DESK'] },
-  { id: 'checkin', label: 'Front Desk Check-in', icon: Activity, path: '/console/checkin', roles: ['OWNER', 'FRONT_DESK'] },
-  { id: 'expiring', label: 'Expiring Soon', icon: Clock, path: '/console/members/expiring', roles: ['OWNER', 'FRONT_DESK'] },
-  { id: 'kitchen', label: 'Kitchen KDS Queue', icon: UtensilsCrossed, path: '/console/kitchen', roles: ['OWNER', 'KITCHEN'] },
-  { id: 'bar', label: 'Bar & Lounge Tabs', icon: Coffee, path: '/console/bar', roles: ['OWNER', 'BAR_STAFF'] },
-  { id: 'bar-shifts', label: 'Bar Staff Shifts', icon: Clock, path: '/console/bar-shifts', roles: ['OWNER', 'BAR_STAFF'] },
-  { id: 'daily-close', label: 'Daily Close & Ledger', icon: Receipt, path: '/console/daily-close', roles: ['OWNER', 'BAR_STAFF'] },
-  { id: 'shop', label: 'Pro Shop & Equipment', icon: ShoppingBag, path: '/console/shop', roles: ['OWNER', 'SHOP_STAFF'] },
-  { id: 'hr', label: 'HR & Payroll', icon: UserCheck, path: '/console/hr', roles: ['OWNER'] },
-  { id: 'audit', label: 'Audit & Compliance', icon: FileText, path: '/console/audit', roles: ['OWNER'] },
-  { id: 'settings', label: 'System Configuration', icon: Settings, path: '/console/settings', roles: ['OWNER'] },
-  { id: 'users', label: 'User & Role Management', icon: Shield, path: '/console/users', roles: ['OWNER'] },
+  { id: 'dashboard', label: 'Operations Board', icon: LayoutDashboard, path: '/console', roles: ['OWNER', 'MANAGER', 'FRONT_DESK', 'COACH', 'SHOP_STAFF', 'BAR_STAFF', 'KITCHEN'] },
+  { id: 'analytics', label: 'Owner Financials & P&L', icon: TrendingUp, path: '/console/analytics', roles: ['OWNER', 'MANAGER'] },
+  { id: 'leads', label: 'Lead CRM & Quotes', icon: UserCheck, path: '/console/leads', roles: ['OWNER', 'MANAGER', 'FRONT_DESK'] },
+  { id: 'invoices', label: 'Invoices & Ledger', icon: Receipt, path: '/console/invoices', roles: ['OWNER', 'MANAGER'] },
+  { id: 'cashdrawer', label: 'Cash Drawer', icon: Banknote, path: '/console/cash-drawer', roles: ['OWNER', 'MANAGER', 'FRONT_DESK', 'SHOP_STAFF', 'BAR_STAFF'] },
+  { id: 'corporate', label: 'Corporate Accounts', icon: Building2, path: '/console/corporate', roles: ['OWNER', 'MANAGER'] },
+  { id: 'social', label: 'Social Play Sessions', icon: Users, path: '/console/social', roles: ['OWNER', 'MANAGER', 'FRONT_DESK', 'COACH'] },
+  { id: 'availability', label: 'Availability Grid', icon: Calendar, path: '/console/availability', roles: ['OWNER', 'MANAGER', 'FRONT_DESK', 'COACH'] },
+  { id: 'courts', label: 'Courts Management', icon: Layers, path: '/console/courts', roles: ['OWNER', 'MANAGER', 'FRONT_DESK'] },
+  { id: 'pricing', label: 'Pricing Rules', icon: Tag, path: '/console/pricing', roles: ['OWNER', 'MANAGER'] },
+  { id: 'hours', label: 'Opening Hours', icon: Clock, path: '/console/hours', roles: ['OWNER', 'MANAGER'] },
+  { id: 'blackouts', label: 'Court Blackouts', icon: ShieldAlert, path: '/console/blackouts', roles: ['OWNER', 'MANAGER', 'FRONT_DESK'] },
+  { id: 'members', label: 'Members Directory', icon: Users, path: '/console/members', roles: ['OWNER', 'MANAGER', 'FRONT_DESK'] },
+  { id: 'checkin', label: 'Front Desk Check-in', icon: Activity, path: '/console/checkin', roles: ['OWNER', 'MANAGER', 'FRONT_DESK'] },
+  { id: 'expiring', label: 'Expiring Soon', icon: Clock, path: '/console/members/expiring', roles: ['OWNER', 'MANAGER', 'FRONT_DESK'] },
+  { id: 'kitchen', label: 'Kitchen KDS Queue', icon: UtensilsCrossed, path: '/console/kitchen', roles: ['OWNER', 'MANAGER', 'KITCHEN'] },
+  { id: 'bar', label: 'Bar & Lounge Tabs', icon: Coffee, path: '/console/bar', roles: ['OWNER', 'MANAGER', 'BAR_STAFF'] },
+  { id: 'bar-shifts', label: 'Bar Staff Shifts', icon: Clock, path: '/console/bar-shifts', roles: ['OWNER', 'MANAGER', 'BAR_STAFF'] },
+  { id: 'daily-close', label: 'Daily Close & Ledger', icon: Receipt, path: '/console/daily-close', roles: ['OWNER', 'MANAGER', 'BAR_STAFF'] },
+  { id: 'shop', label: 'Pro Shop & Equipment', icon: ShoppingBag, path: '/console/shop', roles: ['OWNER', 'MANAGER', 'SHOP_STAFF'] },
+  { id: 'hr', label: 'HR & Payroll', icon: UserCheck, path: '/console/hr', roles: ['OWNER', 'MANAGER'] },
+  { id: 'audit', label: 'Audit & Compliance', icon: FileText, path: '/console/audit', roles: ['OWNER', 'MANAGER'] },
+  { id: 'settings', label: 'System Configuration', icon: Settings, path: '/console/settings', roles: ['OWNER', 'MANAGER'] },
+  { id: 'users', label: 'User & Role Management', icon: Shield, path: '/console/users', roles: ['OWNER', 'MANAGER'] },
 ];
 
 export const StaffLayout = () => {
   const { user, logout } = useAuth();
-  const [selectedRole, setSelectedRole] = useState(user?.role || 'FRONT_DESK');
-  const userRole = selectedRole;
-
-  useEffect(() => {
-    if (user?.role) {
-      setSelectedRole(user.role);
-    }
-  }, [user?.role]);
+  const userRole = user?.role || 'FRONT_DESK';
 
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -256,26 +249,15 @@ export const StaffLayout = () => {
               </kbd>
             </button>
 
-            {/* Operational Role Switcher / Badge */}
-            <div className="hidden sm:flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-court-100 dark:bg-court-800 border border-court-200 dark:border-court-700/80 text-xs shrink-0" data-testid="staff-role-badge">
-              <span className="w-2 h-2 rounded-full bg-success-500 animate-pulse" />
-              <label htmlFor="staff-role-switcher" className="text-[10px] font-heading font-bold uppercase text-court-500 hidden lg:inline cursor-pointer">
+            {/* Authenticated Staff Role Badge (Read-Only Strictly Locked to DB Account) */}
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-court-100 dark:bg-court-800 border border-court-200 dark:border-court-700/80 text-xs shrink-0" data-testid="staff-role-badge">
+              <span className="w-2 h-2 rounded-full bg-success-500" />
+              <span className="text-[10px] font-heading font-bold uppercase text-court-500 hidden lg:inline">
                 Role:
-              </label>
-              <select
-                id="staff-role-switcher"
-                aria-label="Select staff role"
-                value={userRole}
-                onChange={(e) => setSelectedRole(e.target.value)}
-                className="bg-transparent font-heading font-black text-court-950 dark:text-optic-300 uppercase tracking-wider text-xs outline-none cursor-pointer pr-1"
-              >
-                <option value="OWNER" className="bg-white dark:bg-court-900 text-court-950 dark:text-white">OWNER</option>
-                <option value="FRONT_DESK" className="bg-white dark:bg-court-900 text-court-950 dark:text-white">FRONT_DESK</option>
-                <option value="COACH" className="bg-white dark:bg-court-900 text-court-950 dark:text-white">COACH</option>
-                <option value="SHOP_STAFF" className="bg-white dark:bg-court-900 text-court-950 dark:text-white">SHOP_STAFF</option>
-                <option value="BAR_STAFF" className="bg-white dark:bg-court-900 text-court-950 dark:text-white">BAR_STAFF</option>
-                <option value="KITCHEN" className="bg-white dark:bg-court-900 text-court-950 dark:text-white">KITCHEN</option>
-              </select>
+              </span>
+              <span className="font-heading font-black text-court-950 dark:text-optic-300 uppercase tracking-wider text-xs" id="staff-user-role-badge">
+                {userRole}
+              </span>
             </div>
 
             <div className="shrink-0">
